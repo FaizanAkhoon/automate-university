@@ -209,6 +209,8 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
   const isPink = theme === 'pink';
   const targetAngle = useRef(0);
   const currentSlot = useRef(0);
+  const userInteracting = useRef(false);
+  const interactionTimeout = useRef(null);
   const [modeIdx, setModeIdx] = useState(0);
   const mode = ANIMATION_MODES[modeIdx];
   const containerRef = useRef(null);
@@ -217,6 +219,15 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
   // Parallax Mouse Tracking
   const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth / 2 : 0);
   const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight / 2 : 0);
+
+  /** Mark user as actively interacting; auto-clears after 500ms of inactivity */
+  const markInteracting = () => {
+    userInteracting.current = true;
+    if (interactionTimeout.current) clearTimeout(interactionTimeout.current);
+    interactionTimeout.current = setTimeout(() => {
+      userInteracting.current = false;
+    }, 500);
+  };
 
   // Dynamic scale: measure container, fit the 800px logical width
   useEffect(() => {
@@ -257,14 +268,19 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
   useEffect(() => {
     const onWheel = (e) => {
       e.preventDefault();
+      markInteracting();
       targetAngle.current += e.deltaY * 0.004;
       springAngle.set(targetAngle.current);
     };
     
     let startY = 0;
-    const onTouchStart = (e) => startY = e.touches[0].clientY;
+    const onTouchStart = (e) => {
+      startY = e.touches[0].clientY;
+      markInteracting();
+    };
     const onTouchMove = (e) => {
       e.preventDefault();
+      markInteracting();
       const dy = startY - e.touches[0].clientY;
       targetAngle.current += dy * 0.01;
       springAngle.set(targetAngle.current);
@@ -283,6 +299,7 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
         container.removeEventListener('touchstart', onTouchStart);
         container.removeEventListener('touchmove', onTouchMove);
       }
+      if (interactionTimeout.current) clearTimeout(interactionTimeout.current);
     };
   }, [springAngle]);
 
@@ -293,7 +310,10 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
     const newSlot = Math.floor(targetAngle.current / STEP);
     if (newSlot !== currentSlot.current) {
       currentSlot.current = newSlot;
-      playDropSound();
+      // Only play sound when user is actively scrolling/swiping
+      if (userInteracting.current) {
+        playDropSound();
+      }
     }
   });
 

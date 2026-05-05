@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Mail, X, Moon, Sun, Headphones, LogOut, AlertTriangle, Droplets } from 'lucide-react';
+import { Mail, X, Moon, Sun, Headphones, LogOut, AlertTriangle, Droplets, Check } from 'lucide-react';
+import {
+  recordActivity, getMissedWaterReminders, addWater, ackWater,
+  requestNotificationPermission, sendWaterNotification
+} from './utils/healthTracker';
 import { playNormalClick } from './utils/sound';
 import KineticChain from './components/KineticChain';
 import NotesSummarizer from './components/tiles/NotesSummarizer';
@@ -322,9 +326,11 @@ export default function App() {
   const [studentDept, setStudentDept] = useState('');
   const [showInbox, setShowInbox] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
-  const [showWaterReminder, setShowWaterReminder] = useState(false);
+  const [waterQueue, setWaterQueue] = useState([]);
+  const [waterPopupIndex, setWaterPopupIndex] = useState(-1); // -1 = no popup
   const [showCommunity, setShowCommunity] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
+  const waterTimerRef = useRef(null);
 
   useEffect(() => {
     checkSession().then(hasSession => setIsAuthenticated(hasSession));
@@ -357,13 +363,41 @@ export default function App() {
 
   const hasUnread = messages.length > 0 && messages[0].id !== lastReadId;
 
-  // ── Water reminder: popup every hour ──────────────────────────────────────
+  // ── Record activity for sleep detection ──────────────────────────────────
   useEffect(() => {
     if (!isAuthenticated) return;
-    const timer = setInterval(() => {
-      setShowWaterReminder(true);
-    }, 60 * 60 * 1000); // every 1 hour
-    return () => clearInterval(timer);
+    recordActivity();
+    requestNotificationPermission();
+
+    // On focus, record activity
+    const onFocus = () => recordActivity();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [isAuthenticated]);
+
+  // ── Water reminder: check missed hours on mount + hourly live timer ────────
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Check for missed reminders from when app was closed
+    const missed = getMissedWaterReminders();
+    if (missed.length > 0) {
+      setWaterQueue(missed);
+      setWaterPopupIndex(0);
+      ackWater(); // reset the ack timer from now
+    }
+
+    // Live hourly timer while app is open
+    waterTimerRef.current = setInterval(() => {
+      setWaterQueue([{ hour: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }]);
+      setWaterPopupIndex(0);
+      ackWater();
+      sendWaterNotification();
+    }, 60 * 60 * 1000);
+
+    return () => {
+      if (waterTimerRef.current) clearInterval(waterTimerRef.current);
+    };
   }, [isAuthenticated]);
 
   useEffect(() => {
@@ -634,13 +668,12 @@ export default function App() {
             studentDept={studentDept}
           />
         )}
-        {showWaterReminder && (
+        {waterPopupIndex >= 0 && waterPopupIndex < waterQueue.length && (
           <motion.div
-            key="water-popup"
+            key={`water-popup-${waterPopupIndex}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowWaterReminder(false)}
             style={{
               position: 'fixed', inset: 0, zIndex: 2000,
               background: 'rgba(0,0,0,0.7)',
@@ -649,6 +682,7 @@ export default function App() {
             }}
           >
             <motion.div
+              key={waterPopupIndex}
               initial={{ scale: 0.7, y: 40 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.7, y: 40 }}
@@ -658,35 +692,69 @@ export default function App() {
                 background: 'linear-gradient(135deg, rgba(15,15,40,0.98), rgba(10,10,30,0.98))',
                 border: '1px solid rgba(59,130,246,0.5)',
                 borderRadius: 24, padding: '2.5rem 2rem',
-                textAlign: 'center', maxWidth: 340, width: '90vw',
+                textAlign: 'center', maxWidth: 380, width: '90vw',
                 boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(59,130,246,0.2)'
               }}
             >
               <motion.div
                 animate={{ y: [0, -8, 0], scale: [1, 1.1, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ fontSize: '4rem', marginBottom: '1rem', lineHeight: 1 }}
+                style={{ fontSize: '3.5rem', marginBottom: '1rem', lineHeight: 1 }}
               >
                 💧
               </motion.div>
-              <h2 style={{ color: '#3b82f6', fontWeight: 800, fontSize: '1.4rem', marginBottom: '0.5rem' }}>
-                Time to Hydrate!
+              {waterQueue.length > 1 && (
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', fontWeight: 600, marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+                  REMINDER {waterPopupIndex + 1} OF {waterQueue.length}
+                </p>
+              )}
+              <h2 style={{ color: '#3b82f6', fontWeight: 800, fontSize: '1.3rem', marginBottom: '0.5rem' }}>
+                Did you drink water?
               </h2>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                You've been studying for an hour. Take a break and drink a glass of water! 🌊
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                Around <strong style={{ color: '#60a5fa' }}>{waterQueue[waterPopupIndex]?.hour}</strong>, did you have a glass of water?
               </p>
-              <button
-                onClick={() => setShowWaterReminder(false)}
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                  border: 'none', borderRadius: 14, padding: '0.75rem 2rem',
-                  color: 'white', fontWeight: 700, fontSize: '1rem', cursor: 'pointer',
-                  boxShadow: '0 0 20px rgba(59,130,246,0.5)',
-                  display: 'flex', alignItems: 'center', gap: 8, margin: '0 auto'
-                }}
-              >
-                <Droplets size={18} /> Got it, drinking now!
-              </button>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+                <button
+                  onClick={() => {
+                    addWater();
+                    if (waterPopupIndex + 1 < waterQueue.length) {
+                      setWaterPopupIndex(waterPopupIndex + 1);
+                    } else {
+                      setWaterPopupIndex(-1);
+                      setWaterQueue([]);
+                    }
+                  }}
+                  style={{
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    border: 'none', borderRadius: 14, padding: '0.75rem 1.8rem',
+                    color: 'white', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
+                    boxShadow: '0 0 20px rgba(16,185,129,0.4)',
+                    display: 'flex', alignItems: 'center', gap: 8
+                  }}
+                >
+                  <Check size={18} /> Yes
+                </button>
+                <button
+                  onClick={() => {
+                    if (waterPopupIndex + 1 < waterQueue.length) {
+                      setWaterPopupIndex(waterPopupIndex + 1);
+                    } else {
+                      setWaterPopupIndex(-1);
+                      setWaterQueue([]);
+                    }
+                  }}
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14,
+                    padding: '0.75rem 1.8rem',
+                    color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8
+                  }}
+                >
+                  <X size={18} /> No
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

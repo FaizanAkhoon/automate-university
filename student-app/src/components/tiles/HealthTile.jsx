@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Droplets, Moon, Smile, Footprints, Save, X, TrendingUp, Plus, Minus } from 'lucide-react';
+import { Heart, Droplets, Moon, Smile, Footprints, X, TrendingUp, Activity } from 'lucide-react';
 import axios from 'axios';
+import { startStepCounter, getSteps, checkSleepStatus, getWaterCount } from '../../utils/healthTracker';
 
 const API = 'http://localhost:5000';
 
@@ -13,7 +14,10 @@ const MOODS = [
   { val: 5, emoji: '🤩', label: 'Amazing' },
 ];
 
-function Ring({ value, max, color, size = 80, label, icon: Icon }) {
+const STEP_GOAL = 10000;
+const WATER_GOAL = 8;
+
+function Ring({ value, max, color, size = 80, label, icon: Icon, suffix = '' }) {
   const pct = Math.min(value / max, 1);
   const r   = (size - 12) / 2;
   const circ = 2 * Math.PI * r;
@@ -33,41 +37,161 @@ function Ring({ value, max, color, size = 80, label, icon: Icon }) {
             strokeDasharray={circ}
             initial={{ strokeDashoffset: circ }}
             animate={{ strokeDashoffset: circ - dash }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-            style={{ filter: `drop-shadow(0 0 6px ${color})` }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            style={{ filter: `drop-shadow(0 0 8px ${color})` }}
           />
         </svg>
         <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-          <Icon size={size === 80 ? 20 : 16} color={color} />
+          <Icon size={size === 80 ? 20 : size >= 100 ? 24 : 16} color={color} />
         </div>
       </div>
-      <p className="text-xs font-semibold text-white">{value}<span className="text-xs font-normal" style={{ color:'rgba(255,255,255,0.4)' }}>/{max}</span></p>
+      <p className="text-sm font-bold text-white">{typeof value === 'number' ? value.toLocaleString() : value}<span className="text-xs font-normal" style={{ color:'rgba(255,255,255,0.4)' }}>{suffix ? ` ${suffix}` : `/${max}`}</span></p>
       <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{label}</p>
     </div>
   );
 }
 
-export default function HealthTile({ onClose }) {
-  const [form, setForm]   = useState({ water: 0, sleep: 0, mood: 3, steps: 0 });
-  const [logs, setLogs]   = useState([]);
-  const [saved, setSaved] = useState(false);
-  const [tab, setTab]     = useState('log');
+function SleepCard({ sleepData }) {
+  const { status, sleepStart, sleepEnd } = sleepData;
 
+  if (!status) {
+    return (
+      <div style={{
+        padding: '1rem', borderRadius: 16,
+        background: 'rgba(139,92,246,0.06)',
+        border: '1px solid rgba(139,92,246,0.2)',
+        textAlign: 'center'
+      }}>
+        <Moon size={24} color="#8b5cf6" style={{ margin: '0 auto 8px' }} />
+        <p className="text-sm font-semibold text-white" style={{ marginBottom: 4 }}>Sleep Status</p>
+        <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          No overnight data yet. Sleep detection begins after 9 PM IST.
+        </p>
+      </div>
+    );
+  }
+
+  const isGood = status === 'good';
+  const startTime = sleepStart ? new Date(sleepStart).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—';
+  const endTime = sleepEnd ? new Date(sleepEnd).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—';
+  const durationMs = sleepStart && sleepEnd ? new Date(sleepEnd) - new Date(sleepStart) : 0;
+  const durationH = Math.round(durationMs / (1000 * 60 * 60) * 10) / 10;
+
+  return (
+    <div style={{
+      padding: '1.25rem', borderRadius: 16,
+      background: isGood
+        ? 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.02))'
+        : 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02))',
+      border: isGood
+        ? '1px solid rgba(16,185,129,0.25)'
+        : '1px solid rgba(239,68,68,0.25)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 12,
+          background: isGood ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+          border: `1px solid ${isGood ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <Moon size={20} color={isGood ? '#10b981' : '#ef4444'} />
+        </div>
+        <div>
+          <p className="font-bold text-white" style={{ fontSize: '1.05rem', margin: 0 }}>
+            {isGood ? 'Good Sleep 😴✅' : 'Poor Sleep 😴❌'}
+          </p>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+            {isGood ? 'You got 7+ hours of rest' : 'Less than 7 hours detected'}
+          </p>
+        </div>
+      </div>
+      <div style={{
+        display: 'flex', justifyContent: 'space-between',
+        padding: '0.6rem 0.8rem', borderRadius: 10,
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.06)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)', margin: 0 }}>Slept at</p>
+          <p className="text-sm font-semibold text-white" style={{ margin: 0 }}>{startTime}</p>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)', margin: 0 }}>Woke up</p>
+          <p className="text-sm font-semibold text-white" style={{ margin: 0 }}>{endTime}</p>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)', margin: 0 }}>Duration</p>
+          <p className="text-sm font-semibold" style={{ color: isGood ? '#10b981' : '#ef4444', margin: 0 }}>{durationH}h</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function HealthTile({ onClose }) {
+  const [steps, setSteps]       = useState(0);
+  const [sleepData, setSleepData] = useState({ status: null, sleepStart: null, sleepEnd: null });
+  const [waterCount, setWaterCount] = useState(0);
+  const [mood, setMood]         = useState(3);
+  const [logs, setLogs]         = useState([]);
+  const [saved, setSaved]       = useState(false);
+  const [tab, setTab]           = useState('dashboard');
+  const [hasAccelerometer, setHasAccelerometer] = useState(true);
+  const cleanupRef = useRef(null);
+
+  // Initialize passive trackers
   useEffect(() => {
+    // Step counter
+    const cleanup = startStepCounter((count) => {
+      setSteps(count);
+    });
+    cleanupRef.current = cleanup;
+
+    // Check if accelerometer data is arriving
+    const checkTimer = setTimeout(() => {
+      if (getSteps() === 0) {
+        setHasAccelerometer(false);
+      }
+    }, 3000);
+
+    // Sleep status
+    const sleep = checkSleepStatus();
+    setSleepData(sleep);
+
+    // Water count
+    setWaterCount(getWaterCount());
+
+    // Fetch history
     axios.get(`${API}/api/health`).then(r => setLogs(r.data)).catch(() => {});
+
+    return () => {
+      if (cleanupRef.current) cleanupRef.current();
+      clearTimeout(checkTimer);
+    };
   }, []);
 
-  const save = async () => {
+  // Update water count periodically (in case popups are being answered in App.jsx)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWaterCount(getWaterCount());
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const saveToday = async () => {
     try {
-      await axios.post(`${API}/api/health`, form);
+      await axios.post(`${API}/api/health`, {
+        water: waterCount,
+        sleep: sleepData.status === 'good' ? 8 : sleepData.status === 'poor' ? 4 : 0,
+        mood,
+        steps,
+      });
       setSaved(true);
       const res = await axios.get(`${API}/api/health`);
       setLogs(res.data);
       setTimeout(() => setSaved(false), 2000);
     } catch {}
   };
-
-  const todayLog = logs[0];
 
   return (
     <div className="tile-overlay" onClick={onClose}>
@@ -87,7 +211,7 @@ export default function HealthTile({ onClose }) {
             </div>
             <div>
               <h2 className="text-white font-bold text-xl">Health Tracker</h2>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Water · Sleep · Mood · Exercise</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Auto-tracking · Steps · Sleep · Water</p>
             </div>
           </div>
           <button onClick={onClose} className="btn-ghost p-2"><X size={18} /></button>
@@ -95,7 +219,7 @@ export default function HealthTile({ onClose }) {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-5">
-          {['log', 'history'].map(t => (
+          {['dashboard', 'history'].map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -106,103 +230,77 @@ export default function HealthTile({ onClose }) {
                 border: tab === t ? 'none' : '1px solid rgba(255,255,255,0.1)',
               }}
             >
-              {t === 'log' ? "📝 Today's Log" : '📈 History'}
+              {t === 'dashboard' ? '📊 Dashboard' : '📈 History'}
             </button>
           ))}
         </div>
 
         <AnimatePresence mode="wait">
-          {tab === 'log' ? (
-            <motion.div key="log" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              {/* Today rings preview */}
-              {todayLog && (
-                <div className="glass rounded-xl p-4 mb-5 flex justify-around">
-                  <Ring value={todayLog.water} max={8}    color="#3b82f6" size={70} label="Water" icon={Droplets} />
-                  <Ring value={todayLog.sleep} max={9}    color="#8b5cf6" size={70} label="Sleep" icon={Moon} />
-                  <Ring value={Math.min(todayLog.steps || 0, 10000)} max={10000} color="#10b981" size={70} label="Steps" icon={Footprints} />
-                </div>
-              )}
+          {tab === 'dashboard' ? (
+            <motion.div key="dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              {/* Top Rings Row */}
+              <div className="glass rounded-xl p-5 mb-4" style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                <Ring value={steps} max={STEP_GOAL} color="#10b981" size={90} label="Steps" icon={Footprints} />
+                <Ring value={waterCount} max={WATER_GOAL} color="#3b82f6" size={90} label="Water" icon={Droplets} />
+              </div>
 
-              {/* Water */}
+              {/* Step Counter Status */}
               <div className="glass rounded-xl p-4 mb-3">
-                <div className="flex items-center gap-2 mb-3">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <Footprints size={16} color="#10b981" />
+                  <span className="text-sm font-semibold text-white">Step Counter</span>
+                  <span className="ml-auto text-sm font-bold" style={{ color: '#10b981' }}>{steps.toLocaleString()} steps</span>
+                </div>
+                <div className="mt-1 rounded-full overflow-hidden" style={{ height: 6, background: 'rgba(255,255,255,0.06)' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min((steps / STEP_GOAL) * 100, 100)}%` }}
+                    transition={{ duration: 1, ease: 'easeOut' }}
+                    style={{ height: '100%', background: 'linear-gradient(90deg, #10b981, #00f5d4)', borderRadius: 999 }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  <span>0</span><span>{(STEP_GOAL / 2).toLocaleString()}</span><span>{STEP_GOAL.toLocaleString()}</span>
+                </div>
+                {!hasAccelerometer && (
+                  <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
+                    <Activity size={10} style={{ display: 'inline', marginRight: 4 }} />
+                    Accelerometer not available — open on mobile for live tracking
+                  </p>
+                )}
+              </div>
+
+              {/* Sleep Status */}
+              <div className="mb-3">
+                <SleepCard sleepData={sleepData} />
+              </div>
+
+              {/* Water Intake - read only summary */}
+              <div className="glass rounded-xl p-4 mb-3">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                   <Droplets size={16} color="#3b82f6" />
                   <span className="text-sm font-semibold text-white">Water Intake</span>
-                  <span className="ml-auto text-sm font-bold" style={{ color: '#3b82f6' }}>{form.water} / 8 glasses</span>
+                  <span className="ml-auto text-sm font-bold" style={{ color: '#3b82f6' }}>{waterCount} / {WATER_GOAL} glasses</span>
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  {Array.from({ length: 8 }, (_, i) => (
-                    <button
+                  {Array.from({ length: WATER_GOAL }, (_, i) => (
+                    <div
                       key={i}
-                      onClick={() => setForm(f => ({ ...f, water: i + 1 }))}
-                      className="w-8 h-8 rounded-lg text-xs font-bold transition-all"
+                      className="w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center"
                       style={{
-                        background: form.water > i ? '#3b82f6' : 'rgba(255,255,255,0.06)',
-                        color: form.water > i ? 'white' : 'rgba(255,255,255,0.3)',
-                        boxShadow: form.water > i ? '0 0 8px rgba(59,130,246,0.5)' : 'none',
+                        background: waterCount > i ? '#3b82f6' : 'rgba(255,255,255,0.06)',
+                        color: waterCount > i ? 'white' : 'rgba(255,255,255,0.15)',
+                        boxShadow: waterCount > i ? '0 0 8px rgba(59,130,246,0.5)' : 'none',
+                        transition: 'all 0.3s ease',
                       }}
                     >
                       💧
-                    </button>
+                    </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Sleep */}
-              <div className="glass rounded-xl p-4 mb-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Moon size={16} color="#8b5cf6" />
-                  <span className="text-sm font-semibold text-white">Sleep Hours</span>
-                  <span className="ml-auto text-sm font-bold" style={{ color: '#8b5cf6' }}>{form.sleep}h</span>
-                </div>
-                <input
-                  type="range" min="0" max="12" step="0.5"
-                  value={form.sleep}
-                  onChange={e => setForm(f => ({ ...f, sleep: parseFloat(e.target.value) }))}
-                  className="w-full"
-                  style={{ accentColor: '#8b5cf6' }}
-                />
-                <div className="flex justify-between text-xs mt-1" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                  <span>0h</span><span>6h</span><span>12h</span>
-                </div>
-              </div>
-
-              {/* Step Counter */}
-              <div className="glass rounded-xl p-4 mb-3">
-                <div className="flex items-center gap-2 mb-3">
-                  <Footprints size={16} color="#10b981" />
-                  <span className="text-sm font-semibold text-white">Step Counter</span>
-                  <span className="ml-auto text-sm font-bold" style={{ color: '#10b981' }}>{form.steps.toLocaleString()} steps</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setForm(f => ({ ...f, steps: Math.max(0, f.steps - 500) }))}
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}
-                  >
-                    <Minus size={16} color="#10b981" />
-                  </button>
-                  <input
-                    type="number" min="0" max="50000" step="100"
-                    value={form.steps}
-                    onChange={e => setForm(f => ({ ...f, steps: Math.max(0, parseInt(e.target.value) || 0) }))}
-                    className="flex-1 text-center text-white font-bold text-lg rounded-xl p-2"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(16,185,129,0.3)', outline: 'none' }}
-                  />
-                  <button
-                    onClick={() => setForm(f => ({ ...f, steps: f.steps + 500 }))}
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}
-                  >
-                    <Plus size={16} color="#10b981" />
-                  </button>
-                </div>
-                <div className="flex justify-between text-xs mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                  <span>0</span><span>5,000 (goal)</span><span>10,000+</span>
-                </div>
-                <div className="mt-2 rounded-full overflow-hidden" style={{ height: 6, background: 'rgba(255,255,255,0.06)' }}>
-                  <div style={{ height: '100%', width: `${Math.min((form.steps / 10000) * 100, 100)}%`, background: 'linear-gradient(90deg, #10b981, #00f5d4)', borderRadius: 999, transition: 'width 0.4s' }} />
-                </div>
+                <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  Water reminders appear hourly. Confirm via popups to log intake.
+                </p>
               </div>
 
               {/* Mood */}
@@ -215,12 +313,12 @@ export default function HealthTile({ onClose }) {
                   {MOODS.map(m => (
                     <button
                       key={m.val}
-                      onClick={() => setForm(f => ({ ...f, mood: m.val }))}
+                      onClick={() => setMood(m.val)}
                       className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all flex-1"
                       style={{
-                        background: form.mood === m.val ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)',
-                        border: form.mood === m.val ? '1px solid #f59e0b' : '1px solid rgba(255,255,255,0.08)',
-                        transform: form.mood === m.val ? 'scale(1.08)' : 'scale(1)',
+                        background: mood === m.val ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)',
+                        border: mood === m.val ? '1px solid #f59e0b' : '1px solid rgba(255,255,255,0.08)',
+                        transform: mood === m.val ? 'scale(1.08)' : 'scale(1)',
                       }}
                     >
                       <span className="text-xl">{m.emoji}</span>
@@ -230,9 +328,9 @@ export default function HealthTile({ onClose }) {
                 </div>
               </div>
 
-              <button onClick={save} className="btn-primary w-full flex items-center justify-center gap-2">
-                <Save size={16} />
-                {saved ? '✓ Logged!' : "Save Today's Health"}
+              <button onClick={saveToday} className="btn-primary w-full flex items-center justify-center gap-2">
+                <TrendingUp size={16} />
+                {saved ? '✓ Saved!' : "Save Today's Summary"}
               </button>
             </motion.div>
           ) : (
