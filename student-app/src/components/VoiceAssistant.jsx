@@ -222,10 +222,11 @@ function findBestMatch(transcript) {
 
   if (bestMatch) return bestMatch;
 
-  // 3. Fallback: Google "I'm Feeling Lucky" — redirects directly to the
-  //    most visited / top-ranked site for the query, not to search results.
+  // 3. Fallback: DuckDuckGo "I'm Feeling Ducky" — the backslash prefix
+  //    triggers an instant 302 redirect to the top result with no
+  //    intermediate page or redirect notice.
   return {
-    url: `https://www.google.com/search?q=${encodeURIComponent(transcript)}&btnI=1`,
+    url: `https://duckduckgo.com/?q=${encodeURIComponent('\\' + transcript)}`,
     label: `Opening top result for "${transcript}"`,
     isFallback: true
   };
