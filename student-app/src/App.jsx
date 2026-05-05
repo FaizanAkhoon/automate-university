@@ -38,20 +38,19 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
   const vh = typeof window !== 'undefined' ? window.innerHeight : 1000;
   const bandH = vh / 6;
 
-  // Stagger delays — alternating from top and bottom for visual interest
-  const delays = [0, 0.15, 0.05, 0.2, 0.1, 0.25];
+  // Stagger delays — starts immediately, cascades elegantly
+  const delays = [0, 0.12, 0.04, 0.18, 0.08, 0.22];
 
   return (
     <motion.div
       exit={{ opacity: 0 }}
-      transition={{ duration: 1.5, ease: 'easeOut' }}
+      transition={{ duration: 1, ease: 'easeOut' }}
       style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none', overflow: 'hidden' }}
     >
       {DUSTER_TILES.map((tile, i) => {
         const Icon = tile.icon;
         const yPos = i * bandH;
 
-        // Colors for the painted band
         const bandBg = toDark
           ? '#05050a'
           : `hsl(${340 + i * 4}, ${85 + i * 2}%, ${92 - i * 2}%)`;
@@ -61,22 +60,24 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
           ? 'rgba(15,15,30,0.95)'
           : 'rgba(255,255,255,0.95)';
 
+        const w = typeof window !== 'undefined' ? window.innerWidth : 1920;
+
         return (
           <div
             key={i}
             style={{
               position: 'absolute',
               left: 0, top: yPos,
-              width: '100%', height: bandH,
+              width: '100%', height: bandH + 1, // +1 prevents sub-pixel gap
               overflow: 'hidden',
             }}
           >
-            {/* The painted trail — slides in from left to right */}
+            {/* The painted band — revealed from left to right via clipPath */}
             <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: '0%' }}
+              initial={{ clipPath: 'inset(0 100% 0 0)' }}
+              animate={{ clipPath: 'inset(0 0% 0 0)' }}
               transition={{
-                duration: 2.5,
+                duration: 2,
                 ease: [0.25, 0.1, 0.25, 1],
                 delay: delays[i],
               }}
@@ -87,12 +88,12 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
               }}
             />
 
-            {/* The duster tile icon — rides at the leading edge */}
+            {/* The duster tile icon — tracks the leading edge of the reveal */}
             <motion.div
               initial={{ x: -60 }}
-              animate={{ x: typeof window !== 'undefined' ? window.innerWidth + 20 : 1920 }}
+              animate={{ x: w + 20 }}
               transition={{
-                duration: 2.5,
+                duration: 2,
                 ease: [0.25, 0.1, 0.25, 1],
                 delay: delays[i],
               }}
@@ -240,17 +241,17 @@ export default function App() {
     
     setThemeAnim(nextTheme);
     
-    // Swap theme at 1s (dusters are mid-sweep, covering the change)
+    // Swap theme at 0.8s (dusters are already painting by then)
     if (nextTheme === 'dark') {
       document.body.classList.add('sucking-dark');
-      setTimeout(() => setTheme(nextTheme), 1000);
+      setTimeout(() => setTheme(nextTheme), 800);
       setTimeout(() => {
         document.body.classList.remove('sucking-dark');
         setThemeAnim(null);
-      }, 3500);
+      }, 2800);
     } else {
-      setTimeout(() => setTheme(nextTheme), 1000);
-      setTimeout(() => setThemeAnim(null), 3500);
+      setTimeout(() => setTheme(nextTheme), 800);
+      setTimeout(() => setThemeAnim(null), 2800);
     }
   };
 
