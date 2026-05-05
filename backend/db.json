@@ -14,7 +14,26 @@
       "avatar": "AJ"
     }
   ],
-  "notes": [],
+  "notes": [
+    {
+      "id": "1777943787624",
+      "title": "My Note",
+      "content": "HANSEL AND GRATEL",
+      "bullets": [
+        "⚠ Could not connect to AI service. Please try again."
+      ],
+      "createdAt": "2026-05-05T01:16:27.624Z"
+    },
+    {
+      "id": "1777943785233",
+      "title": "My Note",
+      "content": "HANSEL AND GRATEL",
+      "bullets": [
+        "⚠ Could not connect to AI service. Please try again."
+      ],
+      "createdAt": "2026-05-05T01:16:25.234Z"
+    }
+  ],
   "health": [
     {
       "id": "1777938372984",

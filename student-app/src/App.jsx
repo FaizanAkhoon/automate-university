@@ -29,113 +29,46 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
 
   if (targetTheme === 'dark') {
     return (
-      <motion.div 
-        exit={{ opacity: 0 }} 
-        transition={{ duration: 2.0, ease: 'easeInOut' }}
-        style={{ position: 'fixed', inset: 0, zIndex: 9998, pointerEvents: 'none', overflow: 'hidden' }}
-      >
-        {/* 3 Converging Liquid Waves */}
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={i}
-            initial={{ width: '150vmax', height: '150vmax' }}
-            animate={{ width: '0vmax', height: '0vmax' }}
-            transition={{ 
-              duration: 8 - (i * 0.8), // 8.0s, 7.2s, 6.4s
-              ease: [0.7, 0.05, 0.9, 0.3], 
-              delay: i * 0.8 // Starts staggered
-            }}
-            style={{
-              position: 'absolute',
-              left: corePos.left, top: corePos.top,
-              transform: 'translate(-50%, -50%)',
-              borderRadius: '50%',
-              // Opacities: 0.5, 0.75, 1.0
-              boxShadow: `0 0 0 200vmax rgba(5,5,10,${0.5 + i * 0.25}), inset 0 0 ${150 - i * 30}px ${80 - i * 15}px rgba(5,5,10,${0.5 + i * 0.25})`,
-              background: 'transparent',
-            }}
-          />
-        ))}
-
-        {/* Pink Vortex - Sucked over the black waves */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', overflow: 'hidden' }}>
+        {/* Pink Background that shrinks into the center hole */}
         <motion.div
-          initial={{ width: '250vw', height: '250vw', opacity: 0.8, rotate: 0 }}
-          animate={{ width: 0, height: 0, opacity: 1, rotate: 2160 }}
-          transition={{ duration: 8, ease: [0.7, 0.05, 0.9, 0.3] }}
+          initial={{ clipPath: `circle(150vmax at ${corePos.left} ${corePos.top})` }}
+          animate={{ clipPath: `circle(0vmax at ${corePos.left} ${corePos.top})` }}
+          transition={{ duration: 6, ease: [0.7, 0.05, 0.9, 0.3] }}
+          style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(135deg, #fff0f5 0%, #ffb6c1 100%)',
+          }}
+        />
+        {/* Dark vignette suction ring */}
+        <motion.div
+          initial={{ width: '300vmax', height: '300vmax', opacity: 0 }}
+          animate={{ width: '0vmax', height: '0vmax', opacity: 1 }}
+          transition={{ duration: 6, ease: [0.7, 0.05, 0.9, 0.3] }}
           style={{
             position: 'absolute',
             left: corePos.left, top: corePos.top,
             transform: 'translate(-50%, -50%)',
-            background: 'conic-gradient(from 0deg, transparent, rgba(255,105,180,0.6), transparent, rgba(255,182,193,0.6), transparent)',
             borderRadius: '50%',
-            filter: 'blur(30px)',
-            zIndex: 1
+            boxShadow: 'inset 0 0 150px 50px rgba(5,5,10,0.9), 0 0 200px 100px rgba(0,0,0,1)',
           }}
         />
-
-        {/* Duplicate Dark Dot - Permanently visible ON TOP of waves */}
-        <div style={{
-          position: 'absolute',
-          left: corePos.left, top: corePos.top,
-          transform: 'translate(-50%, -50%)',
-          width: 80, height: 80, borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(108,99,255,0.2) 0%, transparent 70%)',
-          boxShadow: '0 0 30px rgba(0,245,212,0.2), inset 0 0 20px rgba(108,99,255,0.4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          zIndex: 2
-        }}>
-          <div style={{
-            width: 16, height: 16, borderRadius: '50%',
-            background: '#00f5d4',
-            boxShadow: '0 0 15px #00f5d4, 0 0 30px #6c63ff',
-          }} />
-        </div>
-      </motion.div>
+      </div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        background: 'transparent',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        pointerEvents: 'none', overflow: 'hidden'
-      }}
-    >
+    <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', overflow: 'hidden' }}>
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        style={{ position: 'absolute', inset: 0, background: '#fff0f5' }}
-      />
-      <motion.div
-        initial={{ scale: 0, rotate: -45, opacity: 0 }}
-        animate={{ scale: 15, rotate: 90, opacity: 1 }}
+        initial={{ clipPath: `circle(0vmax at ${corePos.left} ${corePos.top})` }}
+        animate={{ clipPath: `circle(150vmax at ${corePos.left} ${corePos.top})` }}
         transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
         style={{
-          position: 'absolute', width: 400, height: 400,
-          background: 'conic-gradient(from 0deg, #ffb6c1, #ff69b4, #ff1493, #ffb6c1)',
-          borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%',
-          filter: 'blur(40px)'
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(135deg, #fff0f5 0%, #ffb6c1 100%)',
         }}
       />
-      <motion.div
-        initial={{ scale: 0, rotate: 45, opacity: 0 }}
-        animate={{ scale: 12, rotate: -90, opacity: 1 }}
-        transition={{ duration: 1.5, ease: 'easeOut', delay: 0.1 }}
-        style={{
-          position: 'absolute', width: 300, height: 300,
-          background: 'conic-gradient(from 0deg, white, #ffe4e1, white)',
-          borderRadius: '60% 40% 30% 70% / 50% 60% 40% 50%',
-          filter: 'blur(20px)'
-        }}
-      />
-    </motion.div>
+    </div>
   );
 };
 
@@ -254,21 +187,20 @@ export default function App() {
   const handleThemeToggle = () => {
     if (themeAnim) return; // prevent spam clicking
     const nextTheme = theme === 'dark' ? 'pink' : 'dark';
+    
     setThemeAnim(nextTheme);
     
     if (nextTheme === 'dark') {
-      // 1. Hole closes perfectly over 8.0 seconds.
-      // 2. At 8.2s (screen is pitch black), swap React state to avoid frame drops being visible.
-      setTimeout(() => {
-        setTheme(nextTheme);
-      }, 8200);
+      document.body.classList.add('sucking-dark');
+      // IMMEDIATELY change theme state so buttons/glass start draining smoothly
+      setTheme(nextTheme);
       
-      // 3. At 8.5s, trigger the ultra-smooth 2.0s fade out of the pitch black overlay.
       setTimeout(() => {
+        document.body.classList.remove('sucking-dark');
         setThemeAnim(null);
-      }, 8500);
+      }, 6000);
     } else {
-      setTimeout(() => setTheme(nextTheme), 500);
+      setTheme(nextTheme);
       setTimeout(() => setThemeAnim(null), 1500);
     }
   };
