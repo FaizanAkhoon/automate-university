@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Mail, X, Moon, Sun } from 'lucide-react';
+import { Mail, X, Moon, Sun, Headphones } from 'lucide-react';
 import { playNormalClick } from './utils/sound';
 import KineticChain from './components/KineticChain';
 import NotesSummarizer from './components/tiles/NotesSummarizer';
@@ -10,6 +10,7 @@ import YouTubeChannels from './components/tiles/YouTubeChannels';
 import StudyTimer from './components/tiles/StudyTimer';
 import Calculator from './components/tiles/Calculator';
 import Login from './components/Login';
+import MusicWidget from './components/MusicWidget';
 import './index.css';
 
 const ThemeTransitionOverlay = ({ targetTheme }) => {
@@ -215,6 +216,7 @@ export default function App() {
   const [themeAnim, setThemeAnim] = useState(null);
   const [messages, setMessages] = useState([]);
   const [showInbox, setShowInbox] = useState(false);
+  const [showMusic, setShowMusic] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
 
   useEffect(() => {
@@ -314,6 +316,12 @@ export default function App() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowMusic(!showMusic)}
+            className="btn-3d-glass"
+          >
+            <Headphones size={18} />
+          </button>
           <button
             onClick={openInbox}
             className="btn-3d-glass"
@@ -418,6 +426,9 @@ export default function App() {
         )}
         {showInbox && (
           <InboxModal messages={messages} onClose={() => setShowInbox(false)} theme={theme} />
+        )}
+        {showMusic && (
+          <MusicWidget onClose={() => setShowMusic(false)} theme={theme} />
         )}
       </AnimatePresence>
         </>
