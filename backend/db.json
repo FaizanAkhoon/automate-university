@@ -1,0 +1,30 @@
+{
+  "students": [
+    {
+      "id": "1",
+      "name": "Alex Johnson",
+      "grade": "College 2nd Year",
+      "subjects": [
+        "Science",
+        "English",
+        "Computer Science"
+      ],
+      "gpa": "4",
+      "email": "alex@school.edu",
+      "avatar": "AJ"
+    }
+  ],
+  "notes": [],
+  "health": [
+    {
+      "id": "1777938372984",
+      "date": "2026-05-04",
+      "water": 0,
+      "sleep": 6,
+      "mood": 4,
+      "exercise": 30,
+      "createdAt": "2026-05-04T23:46:12.985Z"
+    }
+  ],
+  "adminPassword": "admin123"
+}
