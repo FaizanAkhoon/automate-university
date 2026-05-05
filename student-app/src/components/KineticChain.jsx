@@ -1,17 +1,17 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useSpring, useTransform, useAnimationFrame, AnimatePresence, useMotionValue } from 'framer-motion';
 import {
-  BookOpen, User, Heart, PlayCircle, Timer, Calculator, Sparkles, Layers
+  BookOpen, User, Heart, PlayCircle, Timer, GraduationCap, Sparkles, Layers
 } from 'lucide-react';
 import { playDropSound } from '../utils/sound';
 
 const TILES = [
-  { id: 'notes',    label: 'Notes Summarizer',  icon: BookOpen,   color: '#6c63ff', glow: 'rgba(108,99,255,0.8)' },
-  { id: 'student',  label: 'Student Info',        icon: User,       color: '#a855f7', glow: 'rgba(168,85,247,0.8)' },
-  { id: 'health',   label: 'Health Tracker',      icon: Heart,      color: '#ec4899', glow: 'rgba(236,72,153,0.8)' },
-  { id: 'youtube',  label: 'YouTube Channels',    icon: PlayCircle, color: '#ef4444', glow: 'rgba(239,68,68,0.8)'  },
-  { id: 'timer',    label: 'Study Timer',         icon: Timer,      color: '#00f5d4', glow: 'rgba(0,245,212,0.8)'  },
-  { id: 'calc',     label: 'Calculator',          icon: Calculator, color: '#f59e0b', glow: 'rgba(245,158,11,0.8)' },
+  { id: 'notes',    label: 'Notes Summarizer',  icon: BookOpen,      color: '#6c63ff', glow: 'rgba(108,99,255,0.8)' },
+  { id: 'student',  label: 'Student Info',        icon: User,          color: '#a855f7', glow: 'rgba(168,85,247,0.8)' },
+  { id: 'health',   label: 'Health Tracker',      icon: Heart,         color: '#ec4899', glow: 'rgba(236,72,153,0.8)' },
+  { id: 'youtube',  label: 'YouTube Channels',    icon: PlayCircle,    color: '#ef4444', glow: 'rgba(239,68,68,0.8)'  },
+  { id: 'timer',    label: 'Study Timer',         icon: Timer,         color: '#00f5d4', glow: 'rgba(0,245,212,0.8)'  },
+  { id: 'csbook',   label: 'CS Book',             icon: GraduationCap, color: '#f59e0b', glow: 'rgba(245,158,11,0.8)' },
 ];
 
 const ITEM_COUNT = TILES.length;

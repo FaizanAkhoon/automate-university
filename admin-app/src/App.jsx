@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
   LayoutDashboard, Users, FileText, Heart, LogOut,
   TrendingUp, BookOpen, Trash2, ChevronDown, ChevronUp,
-  Activity, Moon, Droplets, Dumbbell, Shield, Mail, Send
+  Activity, Moon, Droplets, Dumbbell, Shield, Mail, Send, AlertTriangle, MapPin
 } from 'lucide-react';
 import './index.css';
 
@@ -399,13 +399,120 @@ function MessagesTab() {
   );
 }
 
+// ─── EMERGENCIES TAB ──────────────────────────────────────────────────────────
+function EmergenciesTab() {
+  const [alerts, setAlerts] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    axios.get(`${API}/api/admin/emergencies`)
+      .then(r => { setAlerts(r.data); setLoaded(true); })
+      .catch(() => setLoaded(true));
+    // Poll every 15 seconds for new alerts
+    const interval = setInterval(() => {
+      axios.get(`${API}/api/admin/emergencies`)
+        .then(r => setAlerts(r.data))
+        .catch(() => {});
+    }, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'white', margin: 0 }}>
+          Emergency SOS Alerts ({alerts.length})
+        </h2>
+        {alerts.length > 0 && (
+          <span style={{
+            background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.4)',
+            borderRadius: 20, padding: '2px 10px', fontSize: '0.75rem',
+            color: '#f87171', fontWeight: 600, animation: 'pulse 1.5s infinite'
+          }}>🔴 LIVE</span>
+        )}
+      </div>
+
+      {!loaded ? (
+        <p style={{ color: 'rgba(255,255,255,0.4)' }}>Loading...</p>
+      ) : alerts.length === 0 ? (
+        <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+          <AlertTriangle size={40} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
+          <p style={{ fontWeight: 600 }}>No emergency alerts yet</p>
+          <p style={{ fontSize: '0.8rem', marginTop: 4 }}>SOS alerts from students will appear here in real-time</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {alerts.map((alert, idx) => {
+            const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${alert.latitude},${alert.longitude}&travelmode=walking`;
+            return (
+              <div
+                key={alert.id}
+                className="card"
+                style={{
+                  padding: '1.25rem',
+                  border: idx === 0 ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                  background: idx === 0 ? 'rgba(239,68,68,0.06)' : undefined
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                      background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      <AlertTriangle size={20} color="#f87171" />
+                    </div>
+                    <div>
+                      <p style={{ color: 'white', fontWeight: 700, fontSize: '1rem', marginBottom: 2 }}>
+                        {alert.studentName}
+                      </p>
+                      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginBottom: 4 }}>
+                        📚 {alert.department}
+                      </p>
+                      <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>
+                        🕐 {new Date(alert.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+                    <a
+                      href={mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        border: 'none', borderRadius: 10, padding: '0.5rem 1rem',
+                        color: 'white', fontWeight: 600, fontSize: '0.82rem',
+                        textDecoration: 'none', cursor: 'pointer',
+                        boxShadow: '0 0 16px rgba(239,68,68,0.4)'
+                      }}
+                    >
+                      <MapPin size={14} /> Walking Directions
+                    </a>
+                    <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', textAlign: 'right' }}>
+                      📍 {alert.latitude?.toFixed(5)}, {alert.longitude?.toFixed(5)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── ADMIN APP ────────────────────────────────────────────────────────────────
 const NAV = [
-  { id: 'dashboard', label: 'Dashboard',  icon: LayoutDashboard },
-  { id: 'students',  label: 'Students',   icon: Users },
-  { id: 'notes',     label: 'Notes',      icon: FileText },
-  { id: 'health',    label: 'Health',     icon: Heart },
-  { id: 'messages',  label: 'Announcements', icon: Mail },
+  { id: 'dashboard',   label: 'Dashboard',    icon: LayoutDashboard },
+  { id: 'students',    label: 'Students',     icon: Users },
+  { id: 'notes',       label: 'Notes',        icon: FileText },
+  { id: 'health',      label: 'Health',       icon: Heart },
+  { id: 'messages',    label: 'Announcements', icon: Mail },
+  { id: 'emergencies', label: 'SOS Alerts',   icon: AlertTriangle },
 ];
 
 export default function App() {
@@ -424,11 +531,12 @@ export default function App() {
 
   const renderTab = () => {
     switch(tab) {
-      case 'dashboard': return <DashboardTab stats={stats} />;
-      case 'students':  return <StudentsTab students={students} />;
-      case 'notes':     return <NotesTab />;
-      case 'health':    return <HealthTab />;
-      case 'messages':  return <MessagesTab />;
+      case 'dashboard':   return <DashboardTab stats={stats} />;
+      case 'students':    return <StudentsTab students={students} />;
+      case 'notes':       return <NotesTab />;
+      case 'health':      return <HealthTab />;
+      case 'messages':    return <MessagesTab />;
+      case 'emergencies': return <EmergenciesTab />;
       default: return null;
     }
   };

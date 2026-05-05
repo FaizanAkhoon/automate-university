@@ -51,13 +51,18 @@ export default function NotesSummarizer({ onClose }) {
   };
 
   const saveNote = async () => {
-    if (!bullets.length) return;
+    if (!bullets.length || saved) return;
     try {
-      await axios.post(`${API}/api/notes`, { title: title || 'My Note', content: text, bullets });
+      const res = await axios.post(`${API}/api/notes`, { title: title || 'My Note', content: text, bullets });
       setSaved(true);
+      setNotes(prev => [res.data, ...prev]);
       setTitle('');
-    } catch {}
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      alert('Failed to save note. Make sure the backend is running.');
+    }
   };
+
 
   const deleteNote = async (id) => {
     try {

@@ -57,5 +57,6 @@
       "createdAt": "2026-05-04T23:46:12.985Z"
     }
   ],
-  "adminPassword": "admin123"
+  "adminPassword": "admin123",
+  "emergencies": []
 }

@@ -107,6 +107,7 @@ app.post('/api/health', (req, res) => {
     water: req.body.water || 0,
     sleep: req.body.sleep || 0,
     mood: req.body.mood || 3,
+    steps: req.body.steps || 0,
     exercise: req.body.exercise || 0,
     createdAt: new Date().toISOString()
   };
@@ -179,6 +180,28 @@ app.delete('/api/admin/notes/:id', (req, res) => {
 app.get('/api/admin/health', (req, res) => {
   const db = readDB();
   res.json(db.health);
+});
+
+// ─── EMERGENCIES ─────────────────────────────────────────────────────────────
+app.post('/api/emergencies', (req, res) => {
+  const db = readDB();
+  db.emergencies = db.emergencies || [];
+  const event = {
+    id: Date.now().toString(),
+    studentName: req.body.studentName || 'Unknown',
+    department: req.body.department || 'Unknown',
+    latitude: req.body.latitude,
+    longitude: req.body.longitude,
+    timestamp: new Date().toISOString()
+  };
+  db.emergencies.unshift(event);
+  writeDB(db);
+  res.status(201).json(event);
+});
+
+app.get('/api/admin/emergencies', (req, res) => {
+  const db = readDB();
+  res.json(db.emergencies || []);
 });
 
 // ─── START ────────────────────────────────────────────────────────────────────

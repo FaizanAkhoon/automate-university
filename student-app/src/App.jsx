@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Mail, X, Moon, Sun, Headphones, LogOut, AlertTriangle } from 'lucide-react';
+import { Mail, X, Moon, Sun, Headphones, LogOut, AlertTriangle, Droplets } from 'lucide-react';
 import { playNormalClick } from './utils/sound';
 import KineticChain from './components/KineticChain';
 import NotesSummarizer from './components/tiles/NotesSummarizer';
@@ -8,13 +8,13 @@ import StudentInfo from './components/tiles/StudentInfo';
 import HealthTile from './components/tiles/HealthTile';
 import YouTubeChannels from './components/tiles/YouTubeChannels';
 import StudyTimer from './components/tiles/StudyTimer';
-import Calculator from './components/tiles/Calculator';
+import CsBook from './components/tiles/CsBook';
 import Login from './components/Login';
 import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
 import './index.css';
 import {
-  BookOpen, User, Heart, PlayCircle, Timer, Calculator as CalcIcon
+  BookOpen, User, Heart, PlayCircle, Timer, GraduationCap
 } from 'lucide-react';
 
 // ─── DUSTER THEME TRANSITION ─────────────────────────────────────────────────
@@ -23,12 +23,12 @@ import {
 // right, revealing the new theme beneath. Zero blank time.
 
 const DUSTER_TILES = [
-  { icon: BookOpen,    label: 'Notes' },
-  { icon: User,        label: 'Student' },
-  { icon: Heart,       label: 'Health' },
-  { icon: PlayCircle,  label: 'YouTube' },
-  { icon: Timer,       label: 'Timer' },
-  { icon: CalcIcon,    label: 'Calc' },
+  { icon: BookOpen,      label: 'Notes' },
+  { icon: User,          label: 'Student' },
+  { icon: Heart,         label: 'Health' },
+  { icon: PlayCircle,    label: 'YouTube' },
+  { icon: Timer,         label: 'Timer' },
+  { icon: GraduationCap, label: 'CS Book' },
 ];
 
 const ThemeTransitionOverlay = ({ fromTheme }) => {
@@ -128,7 +128,7 @@ const TILE_MAP = {
   health:  HealthTile,
   youtube: YouTubeChannels,
   timer:   StudyTimer,
-  calc:    Calculator,
+  csbook:  CsBook,
 };
 
 // ─── INBOX MODAL ─────────────────────────────────────────────────────────────
@@ -200,8 +200,10 @@ export default function App() {
   const [themeAnim, setThemeAnim] = useState(null);
   const [messages, setMessages] = useState([]);
   const [studentName, setStudentName] = useState('');
+  const [studentDept, setStudentDept] = useState('');
   const [showInbox, setShowInbox] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
+  const [showWaterReminder, setShowWaterReminder] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
 
   useEffect(() => {
@@ -219,6 +221,7 @@ export default function App() {
       .then(data => {
         if (data && data.length > 0) {
           setStudentName(data[0].name);
+          setStudentDept(data[0].grade || data[0].subjects?.[0] || 'General');
         }
       })
       .catch(() => {});
@@ -233,6 +236,15 @@ export default function App() {
   }, [theme]);
 
   const hasUnread = messages.length > 0 && messages[0].id !== lastReadId;
+
+  // ── Water reminder: popup every hour ──────────────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const timer = setInterval(() => {
+      setShowWaterReminder(true);
+    }, 60 * 60 * 1000); // every 1 hour
+    return () => clearInterval(timer);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleGlobalClick = (e) => {
@@ -271,33 +283,37 @@ export default function App() {
   const handleSOS = () => {
     playNormalClick();
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
+      alert('Geolocation is not supported by your browser.');
       return;
     }
-    
     const btn = document.getElementById('sos-btn-icon');
     if (btn) btn.classList.add('animate-pulse');
-    
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
+        const { latitude, longitude, accuracy } = position.coords;
         try {
-          console.log("SOS TRIGGERED:", {
-            user: "student@university.edu",
-            lat: latitude,
-            lng: longitude,
-            timestamp: new Date().toISOString()
+          await fetch('http://localhost:5000/api/emergencies', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              studentName: studentName || 'Unknown Student',
+              department: studentDept || 'Unknown Dept',
+              latitude,
+              longitude
+            })
           });
           if (btn) btn.classList.remove('animate-pulse');
-          alert(`🚨 SOS ALERT SENT TO ADMIN!\n\nLocation: Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}\nCampus Security has been notified.`);
-        } catch (err) {
-          alert("Failed to send SOS.");
+          alert(`🚨 SOS ALERT SENT TO ADMIN!\n\nName: ${studentName}\nDept: ${studentDept}\nLocation: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}\nAccuracy: ±${Math.round(accuracy)}m\n\nCampus Security has been notified.`);
+        } catch {
+          if (btn) btn.classList.remove('animate-pulse');
+          alert('Failed to send SOS alert. Please try again.');
         }
       },
       (error) => {
         if (btn) btn.classList.remove('animate-pulse');
-        alert("Unable to retrieve your location for SOS: " + error.message);
-      }
+        alert('Unable to retrieve your location: ' + error.message);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
@@ -474,6 +490,62 @@ export default function App() {
         )}
         {showMusic && (
           <MusicWidget onClose={() => setShowMusic(false)} theme={theme} />
+        )}
+        {showWaterReminder && (
+          <motion.div
+            key="water-popup"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowWaterReminder(false)}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 2000,
+              background: 'rgba(0,0,0,0.7)',
+              backdropFilter: 'blur(16px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.7, y: 40 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.7, y: 40 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              onClick={e => e.stopPropagation()}
+              style={{
+                background: 'linear-gradient(135deg, rgba(15,15,40,0.98), rgba(10,10,30,0.98))',
+                border: '1px solid rgba(59,130,246,0.5)',
+                borderRadius: 24, padding: '2.5rem 2rem',
+                textAlign: 'center', maxWidth: 340, width: '90vw',
+                boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(59,130,246,0.2)'
+              }}
+            >
+              <motion.div
+                animate={{ y: [0, -8, 0], scale: [1, 1.1, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ fontSize: '4rem', marginBottom: '1rem', lineHeight: 1 }}
+              >
+                💧
+              </motion.div>
+              <h2 style={{ color: '#3b82f6', fontWeight: 800, fontSize: '1.4rem', marginBottom: '0.5rem' }}>
+                Time to Hydrate!
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                You've been studying for an hour. Take a break and drink a glass of water! 🌊
+              </p>
+              <button
+                onClick={() => setShowWaterReminder(false)}
+                style={{
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                  border: 'none', borderRadius: 14, padding: '0.75rem 2rem',
+                  color: 'white', fontWeight: 700, fontSize: '1rem', cursor: 'pointer',
+                  boxShadow: '0 0 20px rgba(59,130,246,0.5)',
+                  display: 'flex', alignItems: 'center', gap: 8, margin: '0 auto'
+                }}
+              >
+                <Droplets size={18} /> Got it, drinking now!
+              </button>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
         </>

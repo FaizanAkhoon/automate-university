@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Droplets, Moon, Smile, Dumbbell, Save, X, TrendingUp } from 'lucide-react';
+import { Heart, Droplets, Moon, Smile, Footprints, Save, X, TrendingUp, Plus, Minus } from 'lucide-react';
 import axios from 'axios';
 
 const API = 'http://localhost:5000';
@@ -48,7 +48,7 @@ function Ring({ value, max, color, size = 80, label, icon: Icon }) {
 }
 
 export default function HealthTile({ onClose }) {
-  const [form, setForm]   = useState({ water: 0, sleep: 0, mood: 3, exercise: 0 });
+  const [form, setForm]   = useState({ water: 0, sleep: 0, mood: 3, steps: 0 });
   const [logs, setLogs]   = useState([]);
   const [saved, setSaved] = useState(false);
   const [tab, setTab]     = useState('log');
@@ -117,9 +117,9 @@ export default function HealthTile({ onClose }) {
               {/* Today rings preview */}
               {todayLog && (
                 <div className="glass rounded-xl p-4 mb-5 flex justify-around">
-                  <Ring value={todayLog.water}    max={8}   color="#3b82f6" size={70} label="Water" icon={Droplets} />
-                  <Ring value={todayLog.sleep}    max={9}   color="#8b5cf6" size={70} label="Sleep" icon={Moon} />
-                  <Ring value={todayLog.exercise} max={60}  color="#10b981" size={70} label="Exercise" icon={Dumbbell} />
+                  <Ring value={todayLog.water} max={8}    color="#3b82f6" size={70} label="Water" icon={Droplets} />
+                  <Ring value={todayLog.sleep} max={9}    color="#8b5cf6" size={70} label="Sleep" icon={Moon} />
+                  <Ring value={Math.min(todayLog.steps || 0, 10000)} max={10000} color="#10b981" size={70} label="Steps" icon={Footprints} />
                 </div>
               )}
 
@@ -167,20 +167,42 @@ export default function HealthTile({ onClose }) {
                 </div>
               </div>
 
-              {/* Exercise */}
+              {/* Step Counter */}
               <div className="glass rounded-xl p-4 mb-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Dumbbell size={16} color="#10b981" />
-                  <span className="text-sm font-semibold text-white">Exercise</span>
-                  <span className="ml-auto text-sm font-bold" style={{ color: '#10b981' }}>{form.exercise} min</span>
+                <div className="flex items-center gap-2 mb-3">
+                  <Footprints size={16} color="#10b981" />
+                  <span className="text-sm font-semibold text-white">Step Counter</span>
+                  <span className="ml-auto text-sm font-bold" style={{ color: '#10b981' }}>{form.steps.toLocaleString()} steps</span>
                 </div>
-                <input
-                  type="range" min="0" max="120" step="5"
-                  value={form.exercise}
-                  onChange={e => setForm(f => ({ ...f, exercise: parseInt(e.target.value) }))}
-                  className="w-full"
-                  style={{ accentColor: '#10b981' }}
-                />
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setForm(f => ({ ...f, steps: Math.max(0, f.steps - 500) }))}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}
+                  >
+                    <Minus size={16} color="#10b981" />
+                  </button>
+                  <input
+                    type="number" min="0" max="50000" step="100"
+                    value={form.steps}
+                    onChange={e => setForm(f => ({ ...f, steps: Math.max(0, parseInt(e.target.value) || 0) }))}
+                    className="flex-1 text-center text-white font-bold text-lg rounded-xl p-2"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(16,185,129,0.3)', outline: 'none' }}
+                  />
+                  <button
+                    onClick={() => setForm(f => ({ ...f, steps: f.steps + 500 }))}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}
+                  >
+                    <Plus size={16} color="#10b981" />
+                  </button>
+                </div>
+                <div className="flex justify-between text-xs mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  <span>0</span><span>5,000 (goal)</span><span>10,000+</span>
+                </div>
+                <div className="mt-2 rounded-full overflow-hidden" style={{ height: 6, background: 'rgba(255,255,255,0.06)' }}>
+                  <div style={{ height: '100%', width: `${Math.min((form.steps / 10000) * 100, 100)}%`, background: 'linear-gradient(90deg, #10b981, #00f5d4)', borderRadius: 999, transition: 'width 0.4s' }} />
+                </div>
               </div>
 
               {/* Mood */}
@@ -233,7 +255,7 @@ export default function HealthTile({ onClose }) {
                       <div className="ml-auto flex gap-4 text-xs">
                         <span style={{ color: '#3b82f6' }}>💧 {log.water}</span>
                         <span style={{ color: '#8b5cf6' }}>😴 {log.sleep}h</span>
-                        <span style={{ color: '#10b981' }}>🏃 {log.exercise}m</span>
+                        <span style={{ color: '#10b981' }}>👣 {(log.steps || 0).toLocaleString()}</span>
                       </div>
                     </div>
                   ))}
