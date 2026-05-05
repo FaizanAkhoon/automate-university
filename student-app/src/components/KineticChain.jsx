@@ -3,6 +3,7 @@ import { motion, useSpring, useTransform, useAnimationFrame, AnimatePresence, us
 import {
   BookOpen, User, Heart, PlayCircle, Timer, Calculator, Sparkles, Layers
 } from 'lucide-react';
+import { playDropSound } from '../utils/sound';
 
 const TILES = [
   { id: 'notes',    label: 'Notes Summarizer',  icon: BookOpen,   color: '#6c63ff', glow: 'rgba(108,99,255,0.8)' },
@@ -207,6 +208,7 @@ function InfinityLayout({ springAngle, onSelect, theme }) {
 export default function KineticChain({ onSelect, theme, themeAnim }) {
   const isPink = theme === 'pink';
   const targetAngle = useRef(0);
+  const currentSlot = useRef(0);
   const [modeIdx, setModeIdx] = useState(0);
   const mode = ANIMATION_MODES[modeIdx];
   
@@ -266,6 +268,12 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
   useAnimationFrame(() => {
     targetAngle.current += 0.001; 
     springAngle.set(targetAngle.current);
+
+    const newSlot = Math.floor(targetAngle.current / STEP);
+    if (newSlot !== currentSlot.current) {
+      currentSlot.current = newSlot;
+      playDropSound();
+    }
   });
 
   const renderLayout = () => {
