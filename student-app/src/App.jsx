@@ -193,6 +193,85 @@ function InboxModal({ messages, onClose, theme }) {
   );
 }
 
+// ─── TECH NEWS BANNER ────────────────────────────────────────────────────────
+function TechNewsBanner({ theme }) {
+  const [articles, setArticles] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const isPink = theme === 'pink';
+
+  useEffect(() => {
+    // Fetch top 5 tech/AI articles from DEV.to API (no key required)
+    fetch('https://dev.to/api/articles?tag=ai,technology&per_page=5')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) setArticles(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (articles.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % articles.length);
+    }, 5000); // Rotate every 5 seconds
+    return () => clearInterval(interval);
+  }, [articles.length]);
+
+  if (articles.length === 0) {
+    return (
+      <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', marginTop: '1.5rem' }}>
+        Loading latest tech updates...
+      </div>
+    );
+  }
+
+  const article = articles[currentIndex];
+
+  return (
+    <div style={{ overflow: 'hidden', maxWidth: 500, margin: '1rem auto 0' }}>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={article.id}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.4 }}
+          style={{
+            padding: '0.75rem 1rem',
+            background: isPink ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.03)',
+            border: isPink ? '1px solid rgba(255,182,193,0.5)' : '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 16, display: 'flex', alignItems: 'center', gap: 12,
+            boxShadow: isPink ? '0 4px 15px rgba(255,105,180,0.1)' : '0 4px 15px rgba(0,0,0,0.2)',
+            cursor: 'pointer', textAlign: 'left'
+          }}
+          onClick={() => window.open(article.url, '_blank')}
+        >
+          <div style={{
+            width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+            background: isPink ? 'linear-gradient(135deg, #ff1493, #ffb6c1)' : 'linear-gradient(135deg, #00f5d4, #00b4d8)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1rem', boxShadow: isPink ? '0 0 10px rgba(255,20,147,0.3)' : '0 0 10px rgba(0,245,212,0.3)'
+          }}>
+            📰
+          </div>
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <p style={{ color: isPink ? '#ff1493' : '#00f5d4', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
+              LATEST IN TECH & AI
+            </p>
+            <p style={{ 
+              color: isPink ? '#5c454f' : 'rgba(255,255,255,0.9)', 
+              fontSize: '0.85rem', fontWeight: 600, margin: 0,
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
+            }}>
+              {article.title}
+            </p>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeTile, setActiveTile] = useState(null);
@@ -449,10 +528,7 @@ export default function App() {
           <h2 className="gradient-text font-black" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, marginBottom: '0.75rem' }}>
             Your Smart<br />Learning Dashboard
           </h2>
-          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '1rem', maxWidth: 480, margin: '0 auto' }}>
-            Scroll to spin the chain and explore your tools.
-            Click any tile to open it.
-          </p>
+          <TechNewsBanner theme={theme} />
         </motion.div>
       </section>
 

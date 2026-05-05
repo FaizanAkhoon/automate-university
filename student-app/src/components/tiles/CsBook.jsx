@@ -1,361 +1,253 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, BookOpen, Lock, ChevronRight } from 'lucide-react';
+import { X, BookOpen, Lock, ChevronRight, ChevronLeft } from 'lucide-react';
 
 const SUBJECTS = [
   {
     id: 0,
-    title: 'Introduction to Programming',
-    emoji: '💻',
-    level: 'Beginner',
-    content: `Welcome to the world of programming! Programming is the process of giving instructions to a computer to perform specific tasks.
+    title: 'Artificial Intelligence & ML',
+    emoji: '🤖',
+    level: 'Beginner to Advanced',
+    content: `Artificial Intelligence (AI) and Machine Learning (ML) represent the most significant technological shift since the invention of the internet.
 
-**What is a Program?**
-A program is a set of instructions written in a language a computer can understand. Think of it like a recipe — step by step instructions that produce a result.
+**What is AI?**
+Artificial Intelligence is the simulation of human intelligence by software-coded heuristics. It is the ability of a computer program or a machine to think and learn.
 
-**Your First Language: Python**
-Python is one of the most beginner-friendly languages. Here's your first program:
+**Machine Learning (ML)**
+Machine learning is a subset of AI where instead of explicitly programming the rules, we give the machine data and the answers, and let it figure out the rules.
 
-  print("Hello, World!")
+  # Example of traditional programming
+  if (user_age > 18) { show_adult_content() }
 
-This single line tells the computer to display the text "Hello, World!" on the screen.
+  # Example of ML concept
+  model.train(data_of_millions_of_users)
+  prediction = model.predict(new_user)
 
-**Variables**
-Variables are like labeled boxes where you store information:
+**Deep Learning & Neural Networks**
+Deep learning uses artificial neural networks inspired by the human brain. They consist of input layers, multiple hidden layers, and output layers. This is the technology behind facial recognition, self-driving cars, and ChatGPT.
 
-  name = "Alice"
-  age = 20
-  print(name, "is", age, "years old")
+**Large Language Models (LLMs)**
+LLMs like GPT-4 are built on the Transformer architecture. They work by predicting the most statistically likely next word in a sequence based on billions of parameters trained on vast swaths of the internet.
 
-**Data Types**
-- String: Text like "Hello"
-- Integer: Whole numbers like 42
-- Float: Decimal numbers like 3.14
-- Boolean: True or False
+**The Future of AI**
+- Autonomous Agents: AI that can browse the web, use apps, and complete complex multi-step workflows.
+- AGI (Artificial General Intelligence): Theoretical AI that equals or exceeds human intelligence across all cognitive tasks.
+- AI in Healthcare: Predicting diseases long before symptoms appear and discovering new drugs in days instead of decades.
 
-**Basic Operations**
-You can perform math just like a calculator:
-
-  x = 10
-  y = 3
-  print(x + y)   # 13
-  print(x - y)   # 7
-  print(x * y)   # 30
-  print(x / y)   # 3.33...
-
-**Conditions (if/else)**
-Programs can make decisions:
-
-  temperature = 30
-  if temperature > 25:
-      print("It is hot outside!")
-  else:
-      print("It is cool outside.")
-
-**Loops**
-Loops let you repeat actions:
-
-  for i in range(5):
-      print("Step", i)
-
-This prints "Step 0" through "Step 4".
+**Key Skills to Learn:**
+- Python (The lingua franca of AI)
+- Linear Algebra, Calculus, and Statistics
+- Frameworks: PyTorch, TensorFlow, Scikit-learn
+- Prompt Engineering & Fine-tuning models
 
 **Summary**
-You now know the absolute basics of programming: variables, data types, conditions, and loops. These are the building blocks of every program ever written. Scroll to the end to unlock the next subject!`
+AI is not just a tool; it is a new paradigm of computing. Those who learn to harness it will build the future.`
   },
   {
     id: 1,
-    title: 'Data Structures',
-    emoji: '🗂️',
-    level: 'Beginner',
-    content: `Data structures are ways of organizing and storing data so that it can be accessed and modified efficiently.
+    title: 'Cybersecurity & Ethical Hacking',
+    emoji: '🛡️',
+    level: 'Intermediate',
+    content: `As our world becomes entirely digital, Cybersecurity is the shield that protects our infrastructure, privacy, and wealth.
 
-**Arrays / Lists**
-A list stores multiple items in one variable:
+**The Threat Landscape**
+Cybersecurity is an eternal arms race between attackers (Black Hat hackers) and defenders (White Hat / Ethical hackers).
 
-  fruits = ["apple", "banana", "cherry"]
-  print(fruits[0])  # apple
+**Common Attack Vectors:**
+- Phishing: Deceiving users into revealing credentials.
+- Ransomware: Encrypting a company's data and demanding payment for the decryption key.
+- SQL Injection: Tricking a database into executing malicious SQL code.
+- Zero-Day Exploits: Exploiting software vulnerabilities before the creator even knows they exist.
 
-**Dictionaries (Key-Value Pairs)**
-Dictionaries store data as key-value pairs:
+**Cryptography basics**
+Cryptography is the math of keeping secrets.
+- Symmetric Encryption: Using the same key to lock and unlock (e.g., AES).
+- Asymmetric Encryption: Using a Public Key to lock, and a Private Key to unlock (e.g., RSA). This powers the entire internet (HTTPS).
+- Hashing: A one-way mathematical function that turns data into a fixed-length string (e.g., SHA-256). Used for securely storing passwords.
 
-  student = {"name": "Ali", "grade": "A", "age": 20}
-  print(student["name"])  # Ali
+**Ethical Hacking (Penetration Testing)**
+Ethical hackers are hired by companies to break into their systems legally to find weaknesses before bad actors do.
 
-**Stacks**
-A stack is like a pile of plates — Last In, First Out (LIFO):
+**The Cyber Kill Chain:**
+1. Reconnaissance (Gathering info)
+2. Weaponization (Creating the malware)
+3. Delivery (Sending it via email/USB)
+4. Exploitation (Triggering the code)
+5. Installation (Creating a backdoor)
+6. Command & Control (Taking over the system)
+7. Actions on Objectives (Stealing data/money)
 
-  stack = []
-  stack.append("page1")
-  stack.append("page2")
-  stack.pop()  # returns "page2"
-
-**Queues**
-A queue is First In, First Out (FIFO) — like a waiting line:
-
-  from collections import deque
-  queue = deque(["A", "B", "C"])
-  queue.popleft()  # returns "A"
-
-**Linked Lists**
-A linked list is a chain of nodes, each pointing to the next. Useful when you need to insert/delete elements frequently.
-
-**Trees**
-A tree is a hierarchical structure with a root node and child nodes. Used in file systems, databases, and AI.
-
-**Hash Tables**
-Hash tables store key-value pairs with very fast lookup times. Python dictionaries are built on hash tables.
-
-**Why Data Structures Matter**
-Choosing the right data structure can make your program 1000x faster. A bad choice can make it painfully slow.
-
-**Big O Notation (Intro)**
-We measure speed using Big O:
-- O(1) — Instant (hash table lookup)
-- O(n) — Grows with data (list search)
-- O(log n) — Very fast (binary search)
-- O(n²) — Slow (nested loops)
+**Key Skills to Learn:**
+- Linux command line (Kali Linux is the industry standard)
+- Networking protocols (TCP/IP, DNS, HTTP)
+- Python and Bash scripting
+- Understanding system architecture
 
 **Summary**
-Data structures are the backbone of efficient software. Master them and you will be able to solve complex problems elegantly. Scroll to unlock the next chapter!`
+Cybersecurity professionals are the digital guardians of the modern era. With increasing cyber warfare, this field offers zero unemployment and infinite challenges.`
   },
   {
     id: 2,
-    title: 'Algorithms',
-    emoji: '⚙️',
+    title: 'Blockchain & Web3',
+    emoji: '🔗',
     level: 'Intermediate',
-    content: `An algorithm is a step-by-step procedure for solving a problem. Every software application relies on algorithms.
+    content: `Blockchain technology and Web3 represent a fundamental reimagining of how trust and ownership work on the internet.
 
-**Sorting Algorithms**
+**What is a Blockchain?**
+At its core, a blockchain is a distributed, immutable public ledger. Instead of one central database owned by a company (like a bank), the database is shared across thousands of computers globally.
 
-Bubble Sort — Simple but slow O(n²):
-  Compare adjacent items, swap if out of order. Repeat.
+**How it Works:**
+1. Someone requests a transaction.
+2. The request is broadcasted to a peer-to-peer network of computers (nodes).
+3. The nodes validate the transaction using cryptographic algorithms.
+4. Once verified, the transaction is combined with others to create a new "block" of data.
+5. The new block is permanently linked (chained) to the previous block.
 
-Merge Sort — Fast and elegant O(n log n):
-  Divide the list in half, sort each half, merge them back.
+**Smart Contracts**
+Smart contracts are self-executing code living on a blockchain. If X happens, then execute Y. They run exactly as programmed without any possibility of downtime, censorship, or third-party interference.
 
-Quick Sort — Most commonly used O(n log n) average:
-  Pick a pivot, put smaller items left, larger items right. Recurse.
+  // Simple Solidity Smart Contract
+  contract VendingMachine {
+      mapping(address => uint) public balances;
+      
+      function deposit() public payable {
+          balances[msg.sender] += msg.value;
+      }
+  }
 
-**Searching Algorithms**
+**Web2 vs Web3**
+- Web1 (Read): Static websites, no interaction.
+- Web2 (Read/Write): Social media, user-generated content, but owned by mega-corporations (Google, Meta).
+- Web3 (Read/Write/Own): Decentralized networks where users own their data and assets via cryptographic tokens.
 
-Linear Search O(n):
-  Check each element one by one until found.
+**Decentralized Finance (DeFi)**
+Traditional finance requires middlemen (banks, brokers) who take a cut. DeFi replaces middlemen with smart contracts, allowing borderless lending, borrowing, and trading.
 
-Binary Search O(log n):
-  Only works on sorted data. Check the middle, go left or right.
-
-  def binary_search(arr, target):
-      left, right = 0, len(arr) - 1
-      while left <= right:
-          mid = (left + right) // 2
-          if arr[mid] == target:
-              return mid
-          elif arr[mid] < target:
-              left = mid + 1
-          else:
-              right = mid - 1
-      return -1
-
-**Recursion**
-A function that calls itself:
-
-  def factorial(n):
-      if n == 1:
-          return 1
-      return n * factorial(n - 1)
-
-**Dynamic Programming**
-Break problems into smaller overlapping sub-problems and store results. Used in GPS navigation, AI, and compression.
-
-**Greedy Algorithms**
-Make the locally optimal choice at each step. Used in scheduling, compression (Huffman coding), and networks.
-
-**Graph Algorithms**
-- BFS (Breadth-First Search) — Level by level exploration
-- DFS (Depth-First Search) — Go deep before going wide
-- Dijkstra's — Find shortest path in a weighted graph
+**Key Skills to Learn:**
+- Solidity (for Ethereum smart contracts) or Rust (for Solana)
+- Cryptography principles (Public/Private keys, Hash functions)
+- Ethers.js or Web3.js to connect frontends to blockchains
 
 **Summary**
-Algorithms are what make software intelligent and efficient. With the right algorithm, an impossible problem becomes trivial. Scroll down to unlock Databases!`
+While volatile, the underlying technology of Web3 provides a censorship-resistant framework for digital ownership, identity, and programmable money.`
   },
   {
     id: 3,
-    title: 'Databases',
-    emoji: '🗄️',
-    level: 'Intermediate',
-    content: `A database is an organized collection of structured information, stored electronically in a computer system.
+    title: 'Cloud Computing & DevOps',
+    emoji: '☁️',
+    level: 'Advanced',
+    content: `Cloud Computing and DevOps have revolutionized how software is built, deployed, and scaled across the globe.
 
-**Types of Databases**
+**What is the Cloud?**
+"There is no cloud, it's just someone else's computer."
+Cloud computing is the delivery of computing services (servers, storage, databases, networking) over the internet. Instead of buying physical servers, you rent them by the second from providers like AWS, Google Cloud, or Azure.
 
-Relational (SQL):
-  Data is stored in tables with rows and columns. Tables are related to each other.
-  Examples: MySQL, PostgreSQL, SQLite
+**Cloud Service Models:**
+- IaaS (Infrastructure as a Service): Renting raw virtual machines.
+- PaaS (Platform as a Service): The provider manages the OS, you just deploy code (e.g., Heroku, Vercel).
+- SaaS (Software as a Service): Fully built apps accessed via browser (e.g., Gmail, Slack).
 
-Non-Relational (NoSQL):
-  Data is stored as documents, key-value pairs, or graphs.
-  Examples: MongoDB, Redis, Firebase
+**Serverless Computing**
+Serverless doesn't mean there are no servers; it means you don't manage them. Your code only runs when triggered, and you pay exactly for the milliseconds it executes. It scales from 0 to 100,000 requests instantly.
 
-**SQL Basics**
+**DevOps Culture**
+DevOps is the union of Development and Operations. Historically, developers wrote code and handed it to operations to deploy, causing massive friction. DevOps automates this entire lifecycle.
 
-Create a Table:
-  CREATE TABLE students (
-    id INTEGER PRIMARY KEY,
-    name TEXT,
-    grade TEXT,
-    gpa REAL
-  );
+**CI/CD (Continuous Integration / Continuous Deployment)**
+- CI: Automatically testing code every time a developer commits to GitHub.
+- CD: Automatically deploying the code to production if tests pass.
+Result: Companies deploy new features 50 times a day without breaking anything.
 
-Insert Data:
-  INSERT INTO students VALUES (1, 'Ali', 'CS-3', 3.8);
+**Containers & Docker**
+Before containers, code that worked on a developer's laptop might break on the server due to different environments. Docker wraps the code and all its dependencies into a standardized container that runs exactly the same anywhere.
 
-Query Data:
-  SELECT * FROM students WHERE gpa > 3.5;
+**Kubernetes**
+When you have hundreds of containers running microservices, you need an orchestrator. Kubernetes (invented by Google) automatically scales containers up when traffic spikes, and restarts them if they crash.
 
-Update Data:
-  UPDATE students SET gpa = 3.9 WHERE id = 1;
-
-Delete Data:
-  DELETE FROM students WHERE id = 1;
-
-**Joins**
-Joins combine data from multiple tables:
-
-  SELECT students.name, courses.title
-  FROM students
-  JOIN enrollments ON students.id = enrollments.student_id
-  JOIN courses ON enrollments.course_id = courses.id;
-
-**ACID Properties**
-Good databases guarantee:
-- Atomicity — All or nothing transactions
-- Consistency — Data is always valid
-- Isolation — Transactions don't interfere
-- Durability — Committed data is never lost
-
-**Indexing**
-Indexes make queries dramatically faster, like an index in a book. Without an index, a database scans every row.
+**Key Skills to Learn:**
+- Linux Administration
+- Docker and Kubernetes
+- CI/CD tools (GitHub Actions, Jenkins)
+- Infrastructure as Code (Terraform)
 
 **Summary**
-Databases are the memory of every application. Whether you build a website, mobile app, or AI system, you will need a database. Scroll down to unlock the next chapter!`
+Cloud & DevOps engineers are the architects of the internet's infrastructure, ensuring apps never go down regardless of how many millions of users log in.`
   },
   {
     id: 4,
-    title: 'Networking & The Internet',
-    emoji: '🌐',
-    level: 'Intermediate',
-    content: `The internet is a global network of computers that communicate using agreed-upon rules called protocols.
+    title: 'Quantum Computing',
+    emoji: '⚛️',
+    level: 'Advanced',
+    content: `Quantum computing is not just a faster computer; it is a completely new paradigm of computation based on quantum mechanics.
 
-**How the Internet Works**
-When you visit a website:
-1. Your browser looks up the domain name (DNS lookup)
-2. Your browser connects to the server's IP address
-3. Your browser sends an HTTP request
-4. The server sends back an HTTP response
-5. Your browser renders the HTML/CSS/JS
+**Classical vs Quantum**
+Classical computers use bits (0 or 1).
+Quantum computers use qubits (quantum bits).
 
-**IP Addresses**
-Every device on the internet has an IP address. Think of it as your home address on the internet.
-  IPv4: 192.168.1.1
-  IPv6: 2001:0db8:85a3::8a2e:0370:7334
+Because of a quantum property called 'superposition', a qubit can be 0, 1, or both 0 and 1 simultaneously. This means a quantum computer can perform millions of calculations at the exact same time, whereas a classical computer does them one by one.
 
-**TCP/IP**
-TCP (Transmission Control Protocol) ensures data arrives completely and in order. IP handles routing.
+**Entanglement**
+Another quantum property is entanglement. If two qubits are entangled, changing the state of one instantly changes the state of the other, regardless of the physical distance between them. This allows quantum computers to process complex correlations instantaneously.
 
-**HTTP & HTTPS**
-HTTP is the language browsers and servers speak. HTTPS is encrypted HTTP (secure).
+**What will Quantum Computers do?**
+1. Drug Discovery: Accurately simulating molecular interactions to discover cures in days.
+2. Material Science: Designing lighter, stronger materials or room-temperature superconductors.
+3. Cryptography: Shor's algorithm running on a powerful quantum computer could break current internet encryption (RSA) in minutes. (This is why we are currently developing 'Post-Quantum Cryptography').
 
-Common HTTP Methods:
-  GET — Retrieve data
-  POST — Send new data
-  PUT — Update existing data
-  DELETE — Remove data
+**The Challenges**
+Qubits are extremely fragile. They must be kept at temperatures colder than deep space (near Absolute Zero, -273°C). Any interference from heat or electromagnetic fields causes "decoherence," destroying the calculation.
 
-Common Status Codes:
-  200 OK — Success
-  404 Not Found — Resource missing
-  500 Server Error — Something broke on the server
-  401 Unauthorized — Need to login first
+**Quantum Programming**
+Programming a quantum computer involves writing quantum circuits using logic gates that manipulate probabilities.
 
-**DNS**
-The Domain Name System translates human-readable names (google.com) into IP addresses (142.250.80.46).
-
-**APIs (Application Programming Interfaces)**
-APIs let applications talk to each other. A weather app uses a weather API to get data.
-
-  fetch('https://api.weather.com/today?city=Lahore')
-    .then(response => response.json())
-    .then(data => console.log(data.temperature))
-
-**WebSockets**
-For real-time communication (chat apps, live dashboards), WebSockets keep a persistent connection open.
+  // Qiskit (Python framework by IBM)
+  from qiskit import QuantumCircuit
+  qc = QuantumCircuit(2)
+  qc.h(0)     # Apply Hadamard gate (puts qubit in superposition)
+  qc.cx(0, 1) # Entangle qubit 0 with qubit 1
 
 **Summary**
-Understanding networking is essential for building web apps, mobile apps, and cloud services. You now understand the foundation of the entire internet. Scroll to unlock Operating Systems!`
+Quantum computing is currently in its infancy (the "vacuum tube" era of quantum). However, when it matures, it will solve problems in minutes that would take classical supercomputers millions of years.`
   },
   {
     id: 5,
-    title: 'Operating Systems',
-    emoji: '🖥️',
-    level: 'Advanced',
-    content: `An Operating System (OS) is the software that manages all hardware and software resources on a computer.
+    title: 'Data Science & Big Data',
+    emoji: '📊',
+    level: 'Intermediate to Advanced',
+    content: `Data is the new oil. Data Science is the refinery that turns raw data into actionable insights and predictive models.
 
-**What Does an OS Do?**
-- Manages CPU time between programs
-- Manages RAM allocation
-- Handles file storage and retrieval
-- Manages input/output devices
-- Provides security and user accounts
+**The V's of Big Data**
+- Volume: Massive amounts of data (Terabytes/Petabytes).
+- Velocity: Data streaming in at unprecedented speed.
+- Variety: Structured (SQL), unstructured (text, video), and semi-structured data.
 
-**Process Management**
-A process is a running program. The OS manages thousands simultaneously using scheduling algorithms.
+**The Data Science Lifecycle:**
+1. Data Collection: Scraping, APIs, databases.
+2. Data Cleaning: 80% of a data scientist's job. Handling missing values, outliers, and formatting.
+3. Exploratory Data Analysis (EDA): Finding patterns and correlations using statistics.
+4. Model Building: Applying machine learning algorithms to predict future outcomes.
+5. Deployment: Serving the model via an API for applications to use.
 
-Process States:
-  New → Ready → Running → Waiting → Terminated
+**Data Engineering**
+Before Data Scientists can analyze data, Data Engineers must build pipelines. They extract data from sources, transform it, and load it into massive Data Warehouses or Data Lakes (ETL pipelines). Technologies include Apache Spark, Kafka, and Hadoop.
 
-CPU Scheduling:
-  Round Robin — Each process gets a time slice
-  Priority Scheduling — Higher priority runs first
-  FCFS — First Come First Served
+**Analytics vs Data Science**
+- Data Analytics looks at the past: "Why did sales drop last month?"
+- Data Science looks at the future: "Based on weather patterns, economic indicators, and historical trends, what will sales be next month?"
 
-**Memory Management**
-The OS divides RAM into pages. When RAM is full, it uses the hard drive as virtual memory (much slower).
+**Data Visualization**
+Numbers alone are hard to understand. Visualizing data via dashboards (Tableau, PowerBI) or programming libraries (Matplotlib, D3.js) is crucial to communicating findings to stakeholders.
 
-  Physical Memory → Pages → Frames
-  Virtual Memory → Paging → Swapping
-
-**File Systems**
-The OS organizes files in a hierarchical structure:
-  C:/Users/Student/Documents/notes.txt
-
-Common File Systems:
-  FAT32, NTFS (Windows)
-  ext4 (Linux)
-  APFS (macOS)
-
-**Concurrency & Threads**
-A thread is a lightweight process. Multiple threads share memory within a process.
-
-Problems:
-  Race Condition — Two threads modify same data simultaneously
-  Deadlock — Two processes wait for each other forever
-
-Solutions:
-  Mutex — Only one thread at a time
-  Semaphore — Limit concurrent access
-
-**The Kernel**
-The kernel is the core of the OS. It runs with full hardware access. User programs talk to the kernel through system calls.
-
-**Shell & Command Line**
-  ls          # list files (Linux/Mac)
-  dir         # list files (Windows)
-  cd /home    # change directory
-  mkdir notes # create folder
-  rm file.txt # delete file
+**Key Skills to Learn:**
+- SQL (Advanced querying is mandatory)
+- Python (Pandas, NumPy) or R
+- Statistics and Probability Theory
+- Data Storytelling (The ability to explain complex math to business leaders)
 
 **Summary**
-Operating Systems are the invisible engine powering every device. Understanding them helps you write faster, more efficient software. Congratulations — you have completed the CS Book from Beginner to Advanced! 🎓`
+Every click, swipe, and purchase generates data. Data Science is the superpower that allows companies to understand their users, optimize their operations, and predict the future.
+
+🌟 **Congratulations!** You have completed the comprehensive guide to Future-Proof Technologies. You are now equipped with the knowledge to shape the future of tech!`
   }
 ];
 
@@ -371,12 +263,23 @@ export default function CsBook({ onClose }) {
   const [selectedId, setSelectedId] = useState(0);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const contentRef = useRef(null);
+
+  // Responsive state
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showMobileContent, setShowMobileContent] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const selected = SUBJECTS[selectedId];
 
   useEffect(() => {
     setHasScrolledToBottom(false);
     if (contentRef.current) contentRef.current.scrollTop = 0;
-  }, [selectedId]);
+  }, [selectedId, showMobileContent]);
 
   const handleScroll = () => {
     const el = contentRef.current;
@@ -442,8 +345,8 @@ export default function CsBook({ onClose }) {
               <BookOpen size={18} color="white" />
             </div>
             <div>
-              <h2 style={{ color: 'white', fontWeight: 800, fontSize: '1.1rem', margin: 0 }}>CS Knowledge Book</h2>
-              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', margin: 0 }}>Beginner to Master · Scroll to unlock next chapter</p>
+              <h2 style={{ color: 'white', fontWeight: 800, fontSize: '1.1rem', margin: 0 }}>Future Tech Book</h2>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', margin: 0 }}>Scroll chapter to unlock next</p>
             </div>
           </div>
           <button onClick={onClose} style={{
@@ -456,185 +359,208 @@ export default function CsBook({ onClose }) {
         </div>
 
         {/* Book body */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', flexDirection: isMobile ? 'column' : 'row' }}>
 
-          {/* LEFT — coin list */}
-          <div style={{
-            width: 220, flexShrink: 0,
-            borderRight: '1px solid rgba(255,255,255,0.07)',
-            padding: '1.25rem 1rem',
-            overflowY: 'auto',
-            background: 'rgba(0,0,0,0.2)',
-            display: 'flex', flexDirection: 'column', gap: 10
-          }}>
-            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Subjects</p>
-            {SUBJECTS.map(sub => {
-              const done = isCompleted(sub.id);
-              const unlocked = isUnlocked(sub.id);
-              const active = selectedId === sub.id;
-              return (
-                <motion.button
-                  key={sub.id}
-                  onClick={() => unlocked && setSelectedId(sub.id)}
-                  whileHover={unlocked ? { scale: 1.03 } : {}}
-                  whileTap={unlocked ? { scale: 0.97 } : {}}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '0.65rem 0.8rem', borderRadius: 14,
-                    border: active
-                      ? '1px solid rgba(168,85,247,0.6)'
-                      : done
-                      ? '1px solid rgba(245,158,11,0.4)'
-                      : '1px solid rgba(255,255,255,0.08)',
-                    background: active
-                      ? 'rgba(108,99,255,0.2)'
-                      : done
-                      ? 'rgba(245,158,11,0.08)'
-                      : 'rgba(255,255,255,0.03)',
-                    cursor: unlocked ? 'pointer' : 'not-allowed',
-                    opacity: unlocked ? 1 : 0.45,
-                    transition: 'all 0.2s',
-                    textAlign: 'left',
-                    width: '100%'
-                  }}
-                >
-                  {/* Coin */}
-                  <motion.div
-                    animate={done ? { rotate: [0, 360] } : {}}
-                    transition={{ duration: 0.6 }}
+          {/* LEFT — coin list (Hide on mobile if showing content) */}
+          {(!isMobile || !showMobileContent) && (
+            <div style={{
+              width: isMobile ? '100%' : 260, flexShrink: 0,
+              borderRight: isMobile ? 'none' : '1px solid rgba(255,255,255,0.07)',
+              padding: '1.25rem 1rem',
+              overflowY: 'auto',
+              background: 'rgba(0,0,0,0.2)',
+              display: 'flex', flexDirection: 'column', gap: 10,
+              flex: isMobile ? 1 : 'none'
+            }}>
+              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Subjects</p>
+              {SUBJECTS.map(sub => {
+                const done = isCompleted(sub.id);
+                const unlocked = isUnlocked(sub.id);
+                const active = selectedId === sub.id && !isMobile;
+                return (
+                  <motion.button
+                    key={sub.id}
+                    onClick={() => {
+                      if (unlocked) {
+                        setSelectedId(sub.id);
+                        if (isMobile) setShowMobileContent(true);
+                      }
+                    }}
+                    whileHover={unlocked ? { scale: 1.02 } : {}}
+                    whileTap={unlocked ? { scale: 0.98 } : {}}
                     style={{
-                      width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '1rem',
-                      background: done
-                        ? 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)'
-                        : unlocked
-                        ? 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.15) 100%)'
-                        : 'rgba(255,255,255,0.05)',
-                      border: done
-                        ? '2px solid #fbbf24'
-                        : unlocked
-                        ? '1px solid rgba(255,255,255,0.4)'
-                        : '1px solid rgba(255,255,255,0.1)',
-                      boxShadow: done
-                        ? '0 0 16px rgba(245,158,11,0.6), inset 0 1px 2px rgba(255,255,255,0.5)'
-                        : unlocked
-                        ? '0 0 8px rgba(255,255,255,0.1), inset 0 1px 2px rgba(255,255,255,0.3)'
-                        : 'none',
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '0.75rem 0.8rem', borderRadius: 14,
+                      border: active
+                        ? '1px solid rgba(168,85,247,0.6)'
+                        : done
+                        ? '1px solid rgba(245,158,11,0.4)'
+                        : '1px solid rgba(255,255,255,0.08)',
+                      background: active
+                        ? 'rgba(108,99,255,0.2)'
+                        : done
+                        ? 'rgba(245,158,11,0.08)'
+                        : 'rgba(255,255,255,0.03)',
+                      cursor: unlocked ? 'pointer' : 'not-allowed',
+                      opacity: unlocked ? 1 : 0.45,
+                      transition: 'all 0.2s',
+                      textAlign: 'left',
+                      width: '100%'
                     }}
                   >
-                    {unlocked ? sub.emoji : <Lock size={14} color="rgba(255,255,255,0.3)" />}
-                  </motion.div>
+                    {/* Coin */}
+                    <motion.div
+                      animate={done ? { rotate: [0, 360] } : {}}
+                      transition={{ duration: 0.6 }}
+                      style={{
+                        width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '1.2rem',
+                        background: done
+                          ? 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)'
+                          : unlocked
+                          ? 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.15) 100%)'
+                          : 'rgba(255,255,255,0.05)',
+                        border: done
+                          ? '2px solid #fbbf24'
+                          : unlocked
+                          ? '1px solid rgba(255,255,255,0.4)'
+                          : '1px solid rgba(255,255,255,0.1)',
+                        boxShadow: done
+                          ? '0 0 16px rgba(245,158,11,0.6), inset 0 1px 2px rgba(255,255,255,0.5)'
+                          : unlocked
+                          ? '0 0 8px rgba(255,255,255,0.1), inset 0 1px 2px rgba(255,255,255,0.3)'
+                          : 'none',
+                      }}
+                    >
+                      {unlocked ? sub.emoji : <Lock size={14} color="rgba(255,255,255,0.3)" />}
+                    </motion.div>
 
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <p style={{
-                      color: done ? '#fbbf24' : unlocked ? 'white' : 'rgba(255,255,255,0.3)',
-                      fontSize: '0.78rem', fontWeight: 600, lineHeight: 1.2,
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                    }}>{sub.title}</p>
-                    <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.65rem' }}>
-                      {done ? '✓ Completed' : unlocked ? sub.level : '🔒 Locked'}
-                    </p>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                      <p style={{
+                        color: done ? '#fbbf24' : unlocked ? 'white' : 'rgba(255,255,255,0.3)',
+                        fontSize: '0.85rem', fontWeight: 600, lineHeight: 1.2,
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                      }}>{sub.title}</p>
+                      <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', marginTop: 2 }}>
+                        {done ? '✓ Completed' : unlocked ? sub.level : '🔒 Locked'}
+                      </p>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          )}
 
-          {/* RIGHT — content page */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            {/* Page header */}
-            <div style={{
-              padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)',
-              background: 'rgba(255,255,255,0.02)', flexShrink: 0,
-              display: 'flex', alignItems: 'center', gap: 12
-            }}>
+          {/* RIGHT — content page (Hide on mobile if NOT showing content) */}
+          {(!isMobile || showMobileContent) && (
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              {/* Page header */}
               <div style={{
-                width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '1.3rem',
-                background: isCompleted(selected.id)
-                  ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
-                  : 'linear-gradient(135deg, rgba(108,99,255,0.3), rgba(168,85,247,0.3))',
-                border: isCompleted(selected.id) ? '2px solid #fbbf24' : '1px solid rgba(168,85,247,0.4)',
-                boxShadow: isCompleted(selected.id) ? '0 0 20px rgba(245,158,11,0.5)' : '0 0 12px rgba(108,99,255,0.3)',
+                padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.02)', flexShrink: 0,
+                display: 'flex', alignItems: 'center', gap: 12
               }}>
-                {selected.emoji}
-              </div>
-              <div>
-                <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.05rem', margin: 0 }}>{selected.title}</h3>
-                <div style={{ display: 'flex', gap: 8, marginTop: 3, alignItems: 'center' }}>
-                  <span style={{
-                    fontSize: '0.68rem', fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-                    background: 'rgba(108,99,255,0.2)', color: '#a88dff',
-                    border: '1px solid rgba(108,99,255,0.3)'
-                  }}>{selected.level}</span>
-                  {isCompleted(selected.id) && (
+                {isMobile && (
+                  <button
+                    onClick={() => setShowMobileContent(false)}
+                    style={{
+                      background: 'rgba(255,255,255,0.1)', border: 'none',
+                      borderRadius: 8, padding: '0.5rem', color: 'white',
+                      marginRight: '0.5rem', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center'
+                    }}
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                )}
+                <div style={{
+                  width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.4rem',
+                  background: isCompleted(selected.id)
+                    ? 'linear-gradient(135deg, #fbbf24, #f59e0b)'
+                    : 'linear-gradient(135deg, rgba(108,99,255,0.3), rgba(168,85,247,0.3))',
+                  border: isCompleted(selected.id) ? '2px solid #fbbf24' : '1px solid rgba(168,85,247,0.4)',
+                  boxShadow: isCompleted(selected.id) ? '0 0 20px rgba(245,158,11,0.5)' : '0 0 12px rgba(108,99,255,0.3)',
+                }}>
+                  {selected.emoji}
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.05rem', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{selected.title}</h3>
+                  <div style={{ display: 'flex', gap: 8, marginTop: 4, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span style={{
                       fontSize: '0.68rem', fontWeight: 600, padding: '2px 8px', borderRadius: 20,
-                      background: 'rgba(245,158,11,0.2)', color: '#fbbf24',
-                      border: '1px solid rgba(245,158,11,0.3)'
-                    }}>✓ Completed</span>
-                  )}
-                  {!isCompleted(selected.id) && (
-                    <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <ChevronRight size={11} /> Scroll to bottom to unlock next
-                    </span>
-                  )}
+                      background: 'rgba(108,99,255,0.2)', color: '#a88dff',
+                      border: '1px solid rgba(108,99,255,0.3)'
+                    }}>{selected.level}</span>
+                    {isCompleted(selected.id) && (
+                      <span style={{
+                        fontSize: '0.68rem', fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+                        background: 'rgba(245,158,11,0.2)', color: '#fbbf24',
+                        border: '1px solid rgba(245,158,11,0.3)'
+                      }}>✓ Completed</span>
+                    )}
+                    {!isCompleted(selected.id) && !isMobile && (
+                      <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.68rem', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <ChevronRight size={11} /> Scroll to bottom to unlock
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Scrollable content */}
-            <div
-              ref={contentRef}
-              onScroll={handleScroll}
-              style={{
-                flex: 1, overflowY: 'auto', padding: '1.5rem',
-                color: 'rgba(255,255,255,0.82)', fontSize: '0.9rem', lineHeight: 1.85,
-                whiteSpace: 'pre-wrap', fontFamily: 'Inter, sans-serif',
-              }}
-            >
-              {selected.content.split('\n').map((line, i) => {
-                if (line.startsWith('**') && line.endsWith('**')) {
-                  return <p key={i} style={{ color: '#a88dff', fontWeight: 700, marginTop: '1.2rem', marginBottom: '0.3rem', fontSize: '0.95rem' }}>{line.replace(/\*\*/g, '')}</p>;
-                }
-                if (line.trim().startsWith('  ')) {
-                  return (
-                    <pre key={i} style={{
-                      background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)',
-                      borderRadius: 8, padding: '0.4rem 0.8rem', fontSize: '0.82rem',
-                      color: '#00f5d4', fontFamily: 'monospace', margin: '0.2rem 0',
-                      overflowX: 'auto', whiteSpace: 'pre-wrap'
-                    }}>{line}</pre>
-                  );
-                }
-                return <p key={i} style={{ margin: '0.25rem 0' }}>{line || <br />}</p>;
-              })}
+              {/* Scrollable content */}
+              <div
+                ref={contentRef}
+                onScroll={handleScroll}
+                style={{
+                  flex: 1, overflowY: 'auto', padding: isMobile ? '1rem' : '1.5rem 2rem',
+                  color: 'rgba(255,255,255,0.85)', fontSize: isMobile ? '0.95rem' : '1rem', lineHeight: 1.8,
+                  whiteSpace: 'pre-wrap', fontFamily: 'Inter, sans-serif',
+                }}
+              >
+                {selected.content.split('\n').map((line, i) => {
+                  if (line.startsWith('**') && line.endsWith('**')) {
+                    return <h4 key={i} style={{ color: '#a88dff', fontWeight: 800, marginTop: '1.5rem', marginBottom: '0.4rem', fontSize: '1.1rem' }}>{line.replace(/\*\*/g, '')}</h4>;
+                  }
+                  if (line.trim().startsWith('  ')) {
+                    return (
+                      <pre key={i} style={{
+                        background: 'rgba(108,99,255,0.1)', border: '1px solid rgba(108,99,255,0.2)',
+                        borderRadius: 10, padding: '0.6rem 1rem', fontSize: '0.85rem',
+                        color: '#00f5d4', fontFamily: 'monospace', margin: '0.5rem 0',
+                        overflowX: 'auto', whiteSpace: 'pre-wrap'
+                      }}>{line}</pre>
+                    );
+                  }
+                  return <p key={i} style={{ margin: '0.35rem 0' }}>{line || <br />}</p>;
+                })}
 
-              {/* Bottom scroll cue */}
-              {!isCompleted(selected.id) && (
-                <motion.div
-                  animate={{ y: [0, 6, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  style={{
-                    textAlign: 'center', paddingTop: '2rem', paddingBottom: '1rem',
-                    color: 'rgba(255,255,255,0.25)', fontSize: '0.78rem'
-                  }}
-                >
-                  ↓ Scroll to the end to complete this chapter ↓
-                </motion.div>
-              )}
-              {isCompleted(selected.id) && (
-                <div style={{
-                  textAlign: 'center', padding: '2rem 1rem',
-                  color: '#fbbf24', fontSize: '0.9rem', fontWeight: 600
-                }}>
-                  🌟 Chapter Complete! Coin turned Golden!
-                </div>
-              )}
+                {/* Bottom scroll cue */}
+                {!isCompleted(selected.id) && (
+                  <motion.div
+                    animate={{ y: [0, 6, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    style={{
+                      textAlign: 'center', paddingTop: '3rem', paddingBottom: '2rem',
+                      color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', fontWeight: 600
+                    }}
+                  >
+                    ↓ Keep scrolling to complete chapter ↓
+                  </motion.div>
+                )}
+                {isCompleted(selected.id) && (
+                  <div style={{
+                    textAlign: 'center', padding: '3rem 1rem',
+                    color: '#fbbf24', fontSize: '1.1rem', fontWeight: 700
+                  }}>
+                    🌟 Chapter Complete! Your coin has turned Golden!
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </motion.div>
     </div>
