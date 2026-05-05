@@ -14,18 +14,7 @@ import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
 import './index.css';
 
-// ─── HIGH DEFINITION SVG GOO FILTER ──────────────────────────────────────────
-const LiquidGooFilter = () => (
-  <svg style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }} aria-hidden="true">
-    <filter id="cinematic-goo">
-      <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
-      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -15" result="goo" />
-      <feBlend in="SourceGraphic" in2="goo" />
-    </filter>
-  </svg>
-);
-
-// ─── CINEMATIC THEME TRANSITION ──────────────────────────────────────────────
+// ─── ULTRA-SMOOTH THEME TRANSITION ───────────────────────────────────────────
 const ThemeTransitionOverlay = ({ targetTheme }) => {
   const [corePos, setCorePos] = useState({ x: 50, y: 53 });
 
@@ -42,220 +31,85 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
 
   if (!targetTheme) return null;
 
-  // ── DRAIN: Pink water being sucked into the center ball like a sink ──
+  const cx = `${corePos.x}px`;
+  const cy = `${corePos.y}px`;
+
+  // ── Pink → Dark: Soft, satisfying drain ──
   if (targetTheme === 'dark') {
-    const cx = `${corePos.x}px`;
-    const cy = `${corePos.y}px`;
     return (
       <motion.div
         exit={{ opacity: 0 }}
-        transition={{ duration: 1.2, ease: 'easeOut' }}
-        style={{ position: 'fixed', inset: 0, zIndex: 5, pointerEvents: 'none', overflow: 'hidden' }}
+        transition={{ duration: 2, ease: 'easeOut' }}
+        style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none' }}
       >
-        {/* LAYER 1: The rich pink "water" that drains away via clip-path circle shrink */}
+        {/* The pink color — drains inward like water down a sink */}
         <motion.div
-          initial={{ clipPath: `circle(150vw at ${cx} ${cy})` }}
+          initial={{ clipPath: `circle(150vmax at ${cx} ${cy})` }}
           animate={{ clipPath: `circle(0px at ${cx} ${cy})` }}
-          transition={{ duration: 4.5, ease: [0.4, 0.0, 0.2, 1] }}
+          transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1] }}
           style={{
             position: 'absolute', inset: 0,
-            background: `radial-gradient(circle at ${cx} ${cy}, transparent 0%, rgba(255,240,245,0.4) 15%, rgba(255,182,193,0.8) 40%, rgba(255,105,180,0.95) 70%, #ff69b4 100%)`,
+            background: `radial-gradient(circle at ${cx} ${cy},
+              rgba(255,240,245,0.2) 0%,
+              rgba(255,182,193,0.6) 30%,
+              rgba(255,105,180,0.85) 60%,
+              #ffb6c1 100%)`,
           }}
         />
-
-        {/* LAYER 2: Organic Gooey Vortex Ripples */}
-        <div style={{ position: 'absolute', inset: 0, filter: 'url(#cinematic-goo)' }}>
-          {[0, 1, 2, 3, 4].map(i => (
-            <motion.div
-              key={`ripple-${i}`}
-              initial={{ scale: 4 - i * 0.5, opacity: 0.9, rotate: 0 }}
-              animate={{ scale: 0, opacity: 0, rotate: -180 }}
-              transition={{ duration: 4 - i * 0.4, ease: [0.4, 0.0, 0.2, 1], delay: i * 0.3 }}
-              style={{
-                position: 'absolute',
-                left: cx, top: cy,
-                width: 300, height: 300,
-                transformOrigin: 'center center',
-                borderRadius: '50%',
-                background: `rgba(255,105,180,${0.4 - i * 0.05})`,
-                border: `10px solid rgba(255,20,147,${0.6 - i * 0.1})`,
-                willChange: 'transform, opacity',
-                marginLeft: -150, marginTop: -150,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* LAYER 3: Spiral rotation effect for "swirling drain" */}
+        {/* Soft warm halo that gently fades around the drain point */}
         <motion.div
-          initial={{ rotate: 0, scale: 3, opacity: 0.7 }}
-          animate={{ rotate: 1080, scale: 0, opacity: 0 }}
-          transition={{ duration: 4.5, ease: [0.4, 0.0, 0.2, 1] }}
+          initial={{ opacity: 0.6, scale: 1 }}
+          animate={{ opacity: 0, scale: 0.3 }}
+          transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1] }}
           style={{
             position: 'absolute',
             left: cx, top: cy,
-            width: 600, height: 600,
-            marginLeft: -300, marginTop: -300,
-            background: `conic-gradient(from 0deg at 50% 50%,
-              transparent 0deg, rgba(255,20,147,0.5) 45deg,
-              transparent 90deg, rgba(255,105,180,0.4) 135deg,
-              transparent 180deg, rgba(255,20,147,0.5) 225deg,
-              transparent 270deg, rgba(255,105,180,0.4) 315deg, transparent 360deg
-            )`,
+            width: 400, height: 400,
+            marginLeft: -200, marginTop: -200,
             borderRadius: '50%',
-            filter: 'blur(20px)',
-            transformOrigin: 'center center',
-          }}
-        />
-
-        {/* LAYER 4: The dark Event Horizon (black hole center) */}
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: [0, 1.5, 0], opacity: [0, 1, 0] }}
-          transition={{ duration: 4.5, ease: 'easeInOut' }}
-          style={{
-            position: 'absolute',
-            left: cx, top: cy,
-            width: 100, height: 100,
-            marginLeft: -50, marginTop: -50,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, #000000 0%, rgba(0,0,0,0.8) 50%, transparent 100%)',
-            boxShadow: '0 0 50px 20px #000000',
-            filter: 'blur(5px)',
+            background: 'radial-gradient(circle, rgba(255,182,193,0.5) 0%, transparent 70%)',
+            filter: 'blur(60px)',
           }}
         />
       </motion.div>
     );
   }
 
-  // ── BIG BANG: Universe is born from the center ball ──
-  const cx = `${corePos.x}px`;
-  const cy = `${corePos.y}px`;
-
-  // 12 nebula debris clouds fired outward at even angles
-  const DEBRIS_COUNT = 12;
-  const debris = Array.from({ length: DEBRIS_COUNT }, (_, i) => {
-    const angle = (i / DEBRIS_COUNT) * Math.PI * 2;
-    const dist  = Math.max(window.innerWidth, window.innerHeight) * 0.9;
-    return {
-      tx: Math.cos(angle) * dist,
-      ty: Math.sin(angle) * dist,
-      hue:  320 + (i % 3) * 20,          // hot pink → rose → magenta
-      size: 200 + (i % 4) * 80,          // varied sizes
-      blur: 35 + (i % 3) * 15,
-      delay: i * 0.04,
-    };
-  });
-
+  // ── Dark → Pink: Gentle bloom expanding outward ──
   return (
     <motion.div
       exit={{ opacity: 0 }}
-      transition={{ duration: 1.2, ease: 'easeOut' }}
-      style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none', overflow: 'hidden' }}
+      transition={{ duration: 2, ease: 'easeOut' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none' }}
     >
-      {/* ── PHASE 1: Supernova core — blindingly white singularity ── */}
+      {/* Soft white flash at the origin — like a gentle sunrise */}
       <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: [0, 1, 0.5], opacity: [0, 1, 0] }}
-        transition={{ duration: 0.5, ease: [0.0, 0.9, 0.1, 1], times: [0, 0.3, 1] }}
+        initial={{ opacity: 1, scale: 0 }}
+        animate={{ opacity: [1, 0.5, 0], scale: [0, 4, 10] }}
+        transition={{ duration: 3, ease: [0.25, 0.1, 0.25, 1], times: [0, 0.3, 1] }}
         style={{
           position: 'absolute',
           left: cx, top: cy,
-          width: 30, height: 30,
-          marginLeft: -15, marginTop: -15,
+          width: 100, height: 100,
+          marginLeft: -50, marginTop: -50,
           borderRadius: '50%',
-          background: '#ffffff',
-          boxShadow: '0 0 0 0 #ffffff',
-          filter: 'blur(0px)',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,228,225,0.5) 50%, transparent 100%)',
+          filter: 'blur(30px)',
         }}
       />
-
-      {/* ── PHASE 2: The shockwave pressure rings ── */}
-      {[0, 1, 2].map(i => (
-        <motion.div
-          key={`shock-${i}`}
-          initial={{ scale: 0, opacity: 0.9 }}
-          animate={{ scale: [0, 8, 20], opacity: [0.9, 0.3, 0] }}
-          transition={{
-            duration: 1.8,
-            ease: [0.0, 0.8, 0.2, 1],
-            delay: i * 0.12,
-            times: [0, 0.4, 1],
-          }}
-          style={{
-            position: 'absolute',
-            left: cx, top: cy,
-            width: 60, height: 60,
-            marginLeft: -30, marginTop: -30,
-            borderRadius: '50%',
-            border: `${3 - i}px solid rgba(255, ${180 - i * 20}, ${200 - i * 20}, ${0.9 - i * 0.2})`,
-            boxShadow: `0 0 ${30 + i * 20}px rgba(255, 20, 147, ${0.6 - i * 0.15}), inset 0 0 ${20 + i * 10}px rgba(255, 182, 193, 0.3)`,
-          }}
-        />
-      ))}
-
-      {/* ── PHASE 3: Supernova flash — pure white bloom ── */}
-      <motion.div
-        initial={{ scale: 0, opacity: 1 }}
-        animate={{ scale: [0, 3, 25], opacity: [1, 0.9, 0] }}
-        transition={{ duration: 1.0, ease: [0.0, 0.9, 0.1, 1], times: [0, 0.15, 1] }}
-        style={{
-          position: 'absolute',
-          left: cx, top: cy,
-          width: 80, height: 80,
-          marginLeft: -40, marginTop: -40,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, #ffffff 0%, rgba(255,240,245,0.95) 30%, rgba(255,200,220,0.5) 70%, transparent 100%)',
-          boxShadow: '0 0 150px 80px rgba(255,255,255,0.95)',
-          filter: 'blur(4px)',
-        }}
-      />
-
-      {/* ── PHASE 4: 12 nebula debris clouds tearing apart via Gooey Filter ── */}
-      <div style={{ position: 'absolute', inset: 0, filter: 'url(#cinematic-goo)', mixBlendMode: 'screen' }}>
-        {debris.map((d, i) => (
-          <motion.div
-            key={`debris-${i}`}
-            initial={{ x: 0, y: 0, scale: 0, opacity: 0.95 }}
-            animate={{
-              x: d.tx, y: d.ty,
-              scale: [0, 1.8, 1.2],
-              opacity: [0.95, 0.7, 0],
-            }}
-            transition={{
-              duration: 2.8,
-              ease: [0.05, 0.7, 0.1, 1],
-              delay: 0.1 + d.delay,
-              times: [0, 0.5, 1],
-            }}
-            style={{
-              position: 'absolute',
-              left: cx, top: cy,
-              width: d.size, height: d.size,
-              marginLeft: -d.size / 2, marginTop: -d.size / 2,
-              borderRadius: '50%',
-              background: `radial-gradient(circle, hsl(${d.hue}, 100%, 75%) 0%, hsl(${d.hue - 15}, 90%, 65%) 60%, transparent 100%)`,
-              transformOrigin: 'center center',
-              willChange: 'transform, opacity',
-            }}
-          />
-        ))}
-      </div>
-
-      {/* ── PHASE 5: Pink ink slowly bleeds outward — slow, gorgeous fill ── */}
+      {/* The pink universe — a single, clean, silky expansion */}
       <motion.div
         initial={{ clipPath: `circle(0px at ${cx} ${cy})` }}
         animate={{ clipPath: `circle(200vmax at ${cx} ${cy})` }}
-        transition={{ duration: 7, ease: [0.0, 0.3, 0.1, 1], delay: 0.1 }}
+        transition={{ duration: 6, ease: [0.25, 0.1, 0.25, 1] }}
         style={{
           position: 'absolute', inset: 0,
-          background: `radial-gradient(ellipse 120% 120% at ${cx} ${cy},
+          background: `radial-gradient(ellipse at ${cx} ${cy},
             rgba(255,255,255,1)       0%,
-            rgba(255,235,245,1)       8%,
-            rgba(255,210,230,0.98)   20%,
-            rgba(255,182,193,0.95)   40%,
-            rgba(255,150,180,0.85)   65%,
-            rgba(255,105,180,0.6)    85%,
+            rgba(255,240,245,0.98)   15%,
+            rgba(255,220,235,0.95)   35%,
+            rgba(255,182,193,0.9)    55%,
+            rgba(255,150,180,0.85)   75%,
             #ffb6c1 100%)`,
         }}
       />
@@ -377,7 +231,6 @@ export default function App() {
 
   const handleThemeToggle = () => {
     if (themeAnim) {
-      // allow re-toggling: cancel animation and flip back
       setThemeAnim(null);
       return;
     }
@@ -386,17 +239,15 @@ export default function App() {
     setThemeAnim(nextTheme);
     
     if (nextTheme === 'dark') {
-      // Drain effect: swap theme after 1s so pink water drains first
       document.body.classList.add('sucking-dark');
-      setTimeout(() => setTheme(nextTheme), 1000);
+      setTimeout(() => setTheme(nextTheme), 1500);
       setTimeout(() => {
         document.body.classList.remove('sucking-dark');
         setThemeAnim(null);
-      }, 5000);
+      }, 5500);
     } else {
-      // Big Bang ink: swap theme immediately, ink slowly bleeds in
       setTheme(nextTheme);
-      setTimeout(() => setThemeAnim(null), 8000);
+      setTimeout(() => setThemeAnim(null), 7000);
     }
   };
 
@@ -445,7 +296,6 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <LiquidGooFilter />
       <AnimatePresence>
         {themeAnim && <ThemeTransitionOverlay targetTheme={themeAnim} />}
       </AnimatePresence>
