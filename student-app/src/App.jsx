@@ -14,6 +14,17 @@ import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
 import './index.css';
 
+// ─── HIGH DEFINITION SVG GOO FILTER ──────────────────────────────────────────
+const LiquidGooFilter = () => (
+  <svg style={{ position: 'absolute', width: 0, height: 0, pointerEvents: 'none' }} aria-hidden="true">
+    <filter id="cinematic-goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -15" result="goo" />
+      <feBlend in="SourceGraphic" in2="goo" />
+    </filter>
+  </svg>
+);
+
 // ─── CINEMATIC THEME TRANSITION ──────────────────────────────────────────────
 const ThemeTransitionOverlay = ({ targetTheme }) => {
   const [corePos, setCorePos] = useState({ x: 50, y: 53 });
@@ -52,26 +63,28 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
           }}
         />
 
-        {/* LAYER 2: Swirling vortex ripples around the drain hole */}
-        {[0, 1, 2, 3, 4].map(i => (
-          <motion.div
-            key={`ripple-${i}`}
-            initial={{ scale: 4 - i * 0.5, opacity: 0.8, rotate: 0 }}
-            animate={{ scale: 0, opacity: 0, rotate: -180 }}
-            transition={{ duration: 4 - i * 0.4, ease: [0.4, 0.0, 0.2, 1], delay: i * 0.3 }}
-            style={{
-              position: 'absolute',
-              left: cx, top: cy,
-              width: 300, height: 300,
-              transformOrigin: 'center center',
-              borderRadius: '50%',
-              border: `2px solid rgba(255,20,147,${0.6 - i * 0.1})`,
-              boxShadow: `inset 0 0 ${60 - i * 10}px rgba(255,20,147,${0.5 - i * 0.1}), 0 0 ${40 - i * 5}px rgba(255,105,180,${0.4 - i * 0.1})`,
-              filter: `blur(${2 + i}px)`,
-              marginLeft: -150, marginTop: -150,
-            }}
-          />
-        ))}
+        {/* LAYER 2: Organic Gooey Vortex Ripples */}
+        <div style={{ position: 'absolute', inset: 0, filter: 'url(#cinematic-goo)' }}>
+          {[0, 1, 2, 3, 4].map(i => (
+            <motion.div
+              key={`ripple-${i}`}
+              initial={{ scale: 4 - i * 0.5, opacity: 0.9, rotate: 0 }}
+              animate={{ scale: 0, opacity: 0, rotate: -180 }}
+              transition={{ duration: 4 - i * 0.4, ease: [0.4, 0.0, 0.2, 1], delay: i * 0.3 }}
+              style={{
+                position: 'absolute',
+                left: cx, top: cy,
+                width: 300, height: 300,
+                transformOrigin: 'center center',
+                borderRadius: '50%',
+                background: `rgba(255,105,180,${0.4 - i * 0.05})`,
+                border: `10px solid rgba(255,20,147,${0.6 - i * 0.1})`,
+                willChange: 'transform, opacity',
+                marginLeft: -150, marginTop: -150,
+              }}
+            />
+          ))}
+        </div>
 
         {/* LAYER 3: Spiral rotation effect for "swirling drain" */}
         <motion.div
@@ -198,34 +211,36 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
         }}
       />
 
-      {/* ── PHASE 4: 12 nebula debris clouds hurtling outward ── */}
-      {debris.map((d, i) => (
-        <motion.div
-          key={`debris-${i}`}
-          initial={{ x: 0, y: 0, scale: 0, opacity: 0.95 }}
-          animate={{
-            x: d.tx, y: d.ty,
-            scale: [0, 1.8, 1.2],
-            opacity: [0.95, 0.7, 0],
-          }}
-          transition={{
-            duration: 2.8,
-            ease: [0.05, 0.7, 0.1, 1],
-            delay: 0.1 + d.delay,
-            times: [0, 0.5, 1],
-          }}
-          style={{
-            position: 'absolute',
-            left: cx, top: cy,
-            width: d.size, height: d.size,
-            marginLeft: -d.size / 2, marginTop: -d.size / 2,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, hsl(${d.hue}, 100%, 75%) 0%, hsl(${d.hue - 15}, 90%, 65%) 35%, transparent 75%)`,
-            filter: `blur(${d.blur}px)`,
-            transformOrigin: 'center center',
-          }}
-        />
-      ))}
+      {/* ── PHASE 4: 12 nebula debris clouds tearing apart via Gooey Filter ── */}
+      <div style={{ position: 'absolute', inset: 0, filter: 'url(#cinematic-goo)', mixBlendMode: 'screen' }}>
+        {debris.map((d, i) => (
+          <motion.div
+            key={`debris-${i}`}
+            initial={{ x: 0, y: 0, scale: 0, opacity: 0.95 }}
+            animate={{
+              x: d.tx, y: d.ty,
+              scale: [0, 1.8, 1.2],
+              opacity: [0.95, 0.7, 0],
+            }}
+            transition={{
+              duration: 2.8,
+              ease: [0.05, 0.7, 0.1, 1],
+              delay: 0.1 + d.delay,
+              times: [0, 0.5, 1],
+            }}
+            style={{
+              position: 'absolute',
+              left: cx, top: cy,
+              width: d.size, height: d.size,
+              marginLeft: -d.size / 2, marginTop: -d.size / 2,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, hsl(${d.hue}, 100%, 75%) 0%, hsl(${d.hue - 15}, 90%, 65%) 60%, transparent 100%)`,
+              transformOrigin: 'center center',
+              willChange: 'transform, opacity',
+            }}
+          />
+        ))}
+      </div>
 
       {/* ── PHASE 5: Pink ink slowly bleeds outward — slow, gorgeous fill ── */}
       <motion.div
@@ -430,6 +445,7 @@ export default function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <LiquidGooFilter />
       <AnimatePresence>
         {themeAnim && <ThemeTransitionOverlay targetTheme={themeAnim} />}
       </AnimatePresence>
