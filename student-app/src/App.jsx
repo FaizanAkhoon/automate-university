@@ -13,8 +13,24 @@ import Login from './components/Login';
 import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
 import './index.css';
+import {
+  BookOpen, User, Heart, PlayCircle, Timer, Calculator as CalcIcon
+} from 'lucide-react';
 
-// ─── ULTRA-SMOOTH THEME TRANSITION ───────────────────────────────────────────
+// ─── THE SPINNING WHEEL THEME TRANSITION ─────────────────────────────────────
+// The 6 tiles form a 2D wheel at the center ball. When you toggle themes,
+// the wheel spins and each tile acts as a paint brush, artistically
+// sweeping color across the screen.
+
+const WHEEL_TILES = [
+  { icon: BookOpen,    color: '#6c63ff', pinkColor: '#ff69b4' },
+  { icon: User,        color: '#a855f7', pinkColor: '#ff85c8' },
+  { icon: Heart,       color: '#ec4899', pinkColor: '#ff1493' },
+  { icon: PlayCircle,  color: '#ef4444', pinkColor: '#ff6b9d' },
+  { icon: Timer,       color: '#00f5d4', pinkColor: '#ffb6c1' },
+  { icon: CalcIcon,    color: '#f59e0b', pinkColor: '#ff9ecd' },
+];
+
 const ThemeTransitionOverlay = ({ targetTheme }) => {
   const [corePos, setCorePos] = useState({ x: 50, y: 53 });
 
@@ -33,84 +49,113 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
 
   const cx = `${corePos.x}px`;
   const cy = `${corePos.y}px`;
+  const WHEEL_RADIUS = 120;
+  const ARM_LENGTH = Math.max(window.innerWidth, window.innerHeight);
+  const toDark = targetTheme === 'dark';
 
-  // ── Pink → Dark: Soft, satisfying drain ──
-  if (targetTheme === 'dark') {
-    return (
-      <motion.div
-        exit={{ opacity: 0 }}
-        transition={{ duration: 2, ease: 'easeOut' }}
-        style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none' }}
-      >
-        {/* The pink color — drains inward like water down a sink */}
-        <motion.div
-          initial={{ clipPath: `circle(150vmax at ${cx} ${cy})` }}
-          animate={{ clipPath: `circle(0px at ${cx} ${cy})` }}
-          transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{
-            position: 'absolute', inset: 0,
-            background: `radial-gradient(circle at ${cx} ${cy},
-              rgba(255,240,245,0.2) 0%,
-              rgba(255,182,193,0.6) 30%,
-              rgba(255,105,180,0.85) 60%,
-              #ffb6c1 100%)`,
-          }}
-        />
-        {/* Soft warm halo that gently fades around the drain point */}
-        <motion.div
-          initial={{ opacity: 0.6, scale: 1 }}
-          animate={{ opacity: 0, scale: 0.3 }}
-          transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{
-            position: 'absolute',
-            left: cx, top: cy,
-            width: 400, height: 400,
-            marginLeft: -200, marginTop: -200,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255,182,193,0.5) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-          }}
-        />
-      </motion.div>
-    );
-  }
-
-  // ── Dark → Pink: Gentle bloom expanding outward ──
   return (
     <motion.div
       exit={{ opacity: 0 }}
-      transition={{ duration: 2, ease: 'easeOut' }}
+      transition={{ duration: 1.5, ease: 'easeOut' }}
       style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none' }}
     >
-      {/* Soft white flash at the origin — like a gentle sunrise */}
+      {/* ── LAYER 1: Background color reveal synced to the spin ── */}
       <motion.div
-        initial={{ opacity: 1, scale: 0 }}
-        animate={{ opacity: [1, 0.5, 0], scale: [0, 4, 10] }}
-        transition={{ duration: 3, ease: [0.25, 0.1, 0.25, 1], times: [0, 0.3, 1] }}
+        initial={toDark
+          ? { clipPath: `circle(150vmax at ${cx} ${cy})` }
+          : { clipPath: `circle(0px at ${cx} ${cy})` }
+        }
+        animate={toDark
+          ? { clipPath: `circle(0px at ${cx} ${cy})` }
+          : { clipPath: `circle(200vmax at ${cx} ${cy})` }
+        }
+        transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 }}
+        style={{
+          position: 'absolute', inset: 0,
+          background: toDark
+            ? `radial-gradient(circle at ${cx} ${cy}, transparent 0%, rgba(255,182,193,0.5) 30%, rgba(255,105,180,0.8) 60%, #ffb6c1 100%)`
+            : `radial-gradient(ellipse at ${cx} ${cy}, rgba(255,255,255,1) 0%, rgba(255,240,245,0.98) 15%, rgba(255,220,235,0.95) 35%, rgba(255,182,193,0.9) 55%, #ffb6c1 100%)`,
+        }}
+      />
+
+      {/* ── LAYER 2: 6 paint brush arms — long color trails ── */}
+      <motion.div
+        initial={{ rotate: 0 }}
+        animate={{ rotate: toDark ? -1080 : 1080 }}
+        transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1] }}
+        style={{
+          position: 'absolute',
+          left: corePos.x, top: corePos.y,
+          width: 0, height: 0,
+        }}
+      >
+        {WHEEL_TILES.map((tile, i) => {
+          const angle = (i / 6) * 360;
+          const rad   = (angle * Math.PI) / 180;
+          const brushColor = toDark ? tile.color : tile.pinkColor;
+
+          return (
+            <div key={i} style={{ position: 'absolute', width: 0, height: 0 }}>
+              {/* Paint brush arm — a long gradient that sweeps like a paint roller */}
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: [0, 0.7, 0.5, 0], scaleX: [0, 1, 1, 0.5] }}
+                transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1], times: [0, 0.15, 0.7, 1] }}
+                style={{
+                  position: 'absolute',
+                  width: ARM_LENGTH,
+                  height: 60 + i * 10,
+                  left: 0, top: -(30 + i * 5),
+                  transformOrigin: '0% 50%',
+                  transform: `rotate(${angle}deg)`,
+                  background: `linear-gradient(90deg, ${brushColor}88 0%, ${brushColor}44 40%, transparent 100%)`,
+                  filter: 'blur(25px)',
+                  borderRadius: '0 50% 50% 0',
+                }}
+              />
+
+              {/* The tile icon — orbiting at the end of each brush arm */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: [0, 1, 1, 0], scale: [0, 1.2, 1, 0.5] }}
+                transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1], times: [0, 0.1, 0.75, 1] }}
+                style={{
+                  position: 'absolute',
+                  left: Math.cos(rad) * WHEEL_RADIUS - 22,
+                  top:  Math.sin(rad) * WHEEL_RADIUS - 22,
+                  width: 44, height: 44,
+                  borderRadius: 12,
+                  background: toDark
+                    ? 'rgba(15,15,30,0.8)'
+                    : 'rgba(255,255,255,0.85)',
+                  backdropFilter: 'blur(10px)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: `0 0 20px ${brushColor}66, 0 4px 15px rgba(0,0,0,0.2)`,
+                  border: `1px solid ${brushColor}55`,
+                }}
+              >
+                <tile.icon size={20} color={brushColor} strokeWidth={2} />
+              </motion.div>
+            </div>
+          );
+        })}
+      </motion.div>
+
+      {/* ── LAYER 3: Soft central glow — the hub of the wheel ── */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: [0, 0.8, 0.6, 0], scale: [0.5, 1.5, 1.2, 0.3] }}
+        transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1], times: [0, 0.1, 0.7, 1] }}
         style={{
           position: 'absolute',
           left: cx, top: cy,
-          width: 100, height: 100,
-          marginLeft: -50, marginTop: -50,
+          width: 300, height: 300,
+          marginLeft: -150, marginTop: -150,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,228,225,0.5) 50%, transparent 100%)',
-          filter: 'blur(30px)',
-        }}
-      />
-      {/* The pink universe — a single, clean, silky expansion */}
-      <motion.div
-        initial={{ clipPath: `circle(0px at ${cx} ${cy})` }}
-        animate={{ clipPath: `circle(200vmax at ${cx} ${cy})` }}
-        transition={{ duration: 6, ease: [0.25, 0.1, 0.25, 1] }}
-        style={{
-          position: 'absolute', inset: 0,
-          background: `radial-gradient(ellipse at ${cx} ${cy},
-            rgba(255,255,255,1)       0%,
-            rgba(255,240,245,0.98)   15%,
-            rgba(255,220,235,0.95)   35%,
-            rgba(255,182,193,0.9)    55%,
-            rgba(255,150,180,0.85)   75%,
-            #ffb6c1 100%)`,
+          background: toDark
+            ? 'radial-gradient(circle, rgba(108,99,255,0.4) 0%, rgba(0,245,212,0.15) 50%, transparent 100%)'
+            : 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,182,193,0.4) 50%, transparent 100%)',
+          filter: 'blur(40px)',
         }}
       />
     </motion.div>
