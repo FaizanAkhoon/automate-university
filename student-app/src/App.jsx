@@ -16,7 +16,7 @@ import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
 import './index.css';
 import {
-  BookOpen, User, Heart, PlayCircle, Timer, GraduationCap
+  BookOpen, User, Heart, PlayCircle, Timer, GraduationCap, Users
 } from 'lucide-react';
 
 // ─── DUSTER THEME TRANSITION ─────────────────────────────────────────────────
@@ -253,7 +253,7 @@ function TechNewsBanner({ theme }) {
   const srcColor = sourceColors[article.source] || '#00f5d4';
 
   return (
-    <div style={{ overflow: 'hidden', maxWidth: 520, margin: '1rem auto 0', position: 'relative', zIndex: 5 }}>
+    <div style={{ overflow: 'hidden', width: '90%', maxWidth: 650, margin: '1.5rem auto 0', position: 'relative', zIndex: 5 }}>
       <AnimatePresence mode="wait">
         <motion.a
           key={article.id}
@@ -289,12 +289,12 @@ function TechNewsBanner({ theme }) {
             {article.source === 'Fireship' ? '🔥' : article.source === 'Hacker News' ? '🟠' : '📰'}
           </div>
           <div style={{ flex: 1, overflow: 'hidden' }}>
-            <p style={{ color: isPink ? '#ff1493' : srcColor, fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>
+            <p style={{ color: isPink ? '#ff1493' : srcColor, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
               {article.source} · CLICK TO READ ↗
             </p>
             <p style={{ 
               color: isPink ? '#5c454f' : 'rgba(255,255,255,0.9)', 
-              fontSize: '0.85rem', fontWeight: 600, margin: 0,
+              fontSize: '1.05rem', fontWeight: 600, margin: 0,
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' 
             }}>
               {article.title}
@@ -604,16 +604,16 @@ export default function App() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         style={{
-          position: 'fixed', bottom: 24, right: 24, zIndex: 50,
-          width: 56, height: 56, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #6c63ff, #a855f7)',
-          border: 'none', cursor: 'pointer',
+          position: 'fixed', bottom: 'clamp(16px, 4vw, 24px)', right: 'clamp(16px, 4vw, 24px)', zIndex: 50,
+          width: 'clamp(48px, 6vw, 64px)', height: 'clamp(48px, 6vw, 64px)', borderRadius: '50%',
+          background: 'linear-gradient(135deg, rgba(108,99,255,0.85), rgba(168,85,247,0.85))',
+          backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 8px 32px rgba(108,99,255,0.5), 0 0 20px rgba(108,99,255,0.3)',
-          fontSize: '1.5rem'
+          boxShadow: '0 8px 32px rgba(108,99,255,0.6), 0 0 20px rgba(108,99,255,0.4), inset 0 2px 4px rgba(255,255,255,0.3)',
         }}
       >
-        👥
+        <Users size={24} color="white" strokeWidth={2.5} />
       </motion.button>
 
       {/* Active tile modal */}
