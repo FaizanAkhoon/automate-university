@@ -10,6 +10,7 @@ import YouTubeChannels from './components/tiles/YouTubeChannels';
 import StudyTimer from './components/tiles/StudyTimer';
 import CsBook from './components/tiles/CsBook';
 import CommunityBoard from './components/tiles/CommunityBoard';
+import VoiceAssistant from './components/VoiceAssistant';
 import Login from './components/Login';
 import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
@@ -448,6 +449,7 @@ export default function App() {
         <Login onLogin={() => setIsAuthenticated(true)} theme={theme} />
       ) : (
         <>
+          <VoiceAssistant />
           {/* Top bar */}
           <header className="glass app-header" style={{
         padding: '0.75rem 1rem',
