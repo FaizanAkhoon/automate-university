@@ -30,11 +30,23 @@ export default function MusicWidget({ onClose, theme }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      className="absolute top-24 right-8 w-80 glass rounded-2xl overflow-hidden shadow-2xl"
       style={{
+        position: 'fixed',
+        top: 'auto',
+        bottom: 'env(safe-area-inset-bottom, 1rem)',
+        right: '1rem',
+        left: '1rem',
+        width: 'auto',
+        maxWidth: '360px',
+        marginLeft: 'auto',
         background: isPink ? 'rgba(255,255,255,0.7)' : 'rgba(15,15,30,0.8)',
         border: isPink ? '1px solid rgba(255,182,193,0.5)' : '1px solid rgba(255,255,255,0.1)',
-        zIndex: 50
+        borderRadius: '1.25rem',
+        overflow: 'hidden',
+        boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+        zIndex: 100,
+        backdropFilter: 'blur(40px)',
+        WebkitBackdropFilter: 'blur(40px)',
       }}
     >
       <div className="flex items-center justify-between p-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>

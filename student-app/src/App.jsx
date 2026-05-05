@@ -304,8 +304,8 @@ export default function App() {
       ) : (
         <>
           {/* Top bar */}
-          <header className="glass" style={{
-        padding: '0.75rem 2rem',
+          <header className="glass app-header" style={{
+        padding: '0.75rem 1rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -313,6 +313,7 @@ export default function App() {
         position: 'sticky',
         top: 0,
         zIndex: 10,
+        gap: '0.5rem',
       }}>
         <div className="flex items-center gap-3">
           <div
@@ -330,34 +331,34 @@ export default function App() {
             <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>Your learning hub</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2" style={{ flexWrap: 'nowrap' }}>
           {theme === 'pink' && (
             <button
               onClick={handleSOS}
               className="btn-3d-glass"
               style={{ background: 'rgba(255,50,50,0.1)', borderColor: 'rgba(255,50,50,0.4)', boxShadow: '0 0 15px rgba(255,50,50,0.2)' }}
             >
-              <AlertTriangle id="sos-btn-icon" size={18} color="#ff3333" />
+              <AlertTriangle id="sos-btn-icon" size={16} color="#ff3333" />
             </button>
           )}
           <button
             onClick={() => setShowMusic(!showMusic)}
             className="btn-3d-glass"
           >
-            <Headphones size={18} />
+            <Headphones size={16} />
           </button>
           <button
             onClick={openInbox}
             className="btn-3d-glass"
             style={{ position: 'relative' }}
           >
-            <Mail size={18} />
+            <Mail size={16} />
             {hasUnread && (
               <span 
                 className="animate-pulse"
                 style={{
                   position: 'absolute', top: 0, right: 0,
-                  width: 10, height: 10, borderRadius: '50%',
+                  width: 8, height: 8, borderRadius: '50%',
                   background: '#ef4444', border: '2px solid var(--bg)',
                   boxShadow: '0 0 8px #ef4444'
                 }} 
@@ -368,7 +369,7 @@ export default function App() {
             onClick={handleThemeToggle}
             className="btn-3d-glass"
           >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <button
             onClick={async () => {
@@ -377,17 +378,17 @@ export default function App() {
             }}
             className="btn-3d-glass"
           >
-            <LogOut size={18} />
+            <LogOut size={16} />
           </button>
-          <span style={{ color: 'var(--text-muted, rgba(255,255,255,0.3))', fontSize: '0.75rem' }}>
+          <span className="header-date" style={{ color: 'var(--text-muted, rgba(255,255,255,0.3))', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
             {new Date().toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' })}
           </span>
           <a
             href="http://localhost:3001"
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-ghost text-xs"
-            style={{ textDecoration:'none', padding:'0.4rem 0.9rem' }}
+            className="btn-ghost text-xs header-admin-link"
+            style={{ textDecoration:'none', padding:'0.4rem 0.9rem', whiteSpace: 'nowrap' }}
           >
             Admin →
           </a>
@@ -397,7 +398,7 @@ export default function App() {
       {/* Hero section */}
       <section style={{
         textAlign: 'center',
-        padding: '3rem 1rem 1rem',
+        padding: 'clamp(1.25rem, 4vw, 3rem) 1rem clamp(0.5rem, 2vw, 1rem)',
         position: 'relative',
       }}>
         {/* Ambient glow */}
@@ -435,8 +436,9 @@ export default function App() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '2rem 1rem 4rem',
-        minHeight: 580,
+        padding: 'clamp(0.5rem, 2vw, 2rem) 0 clamp(1rem, 3vw, 4rem)',
+        minHeight: 'clamp(360px, 60vh, 580px)',
+        overflow: 'hidden',
       }}>
         <KineticChain onSelect={setActiveTile} theme={theme} themeAnim={themeAnim} />
       </main>

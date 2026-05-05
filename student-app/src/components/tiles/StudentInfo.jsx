@@ -79,7 +79,7 @@ export default function StudentInfo({ onClose }) {
 
         <div className="space-y-4">
           {/* Name & Email */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="student-grid-2 grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Full Name</label>
               <input className="input-glass" placeholder="Your name" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} />
@@ -91,7 +91,7 @@ export default function StudentInfo({ onClose }) {
           </div>
 
           {/* Grade & GPA */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="student-grid-2 grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Grade / Year</label>
               <select

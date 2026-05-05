@@ -87,7 +87,7 @@ export default function YouTubeChannels({ onClose }) {
         </div>
 
         {/* Channel grid */}
-        <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto pr-1">
+        <div className="youtube-grid grid gap-3 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxHeight: 'clamp(280px, 45vh, 380px)' }}>
           {filtered.length === 0 ? (
             <div className="col-span-2 text-center py-10" style={{ color: 'rgba(255,255,255,0.3)' }}>
               <PlayCircle size={36} className="mx-auto mb-2 opacity-30" />

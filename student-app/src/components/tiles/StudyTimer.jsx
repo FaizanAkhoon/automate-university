@@ -92,7 +92,7 @@ export default function StudyTimer({ onClose }) {
         </div>
 
         {/* Mode selector */}
-        <div className="flex gap-2 mb-8 justify-center">
+        <div className="timer-modes flex gap-2 mb-6 justify-center">
           {MODES.map((m, i) => (
             <button
               key={m.id}
@@ -110,8 +110,8 @@ export default function StudyTimer({ onClose }) {
         </div>
 
         {/* Timer circle */}
-        <div className="flex justify-center mb-8">
-          <div style={{ position: 'relative', width: 220, height: 220 }}>
+        <div className="flex justify-center mb-6">
+          <div style={{ position: 'relative', width: 'clamp(160px, 45vw, 220px)', height: 'clamp(160px, 45vw, 220px)' }}>
             {/* Flash overlay */}
             <AnimatePresence>
               {flash && (
@@ -131,7 +131,7 @@ export default function StudyTimer({ onClose }) {
               )}
             </AnimatePresence>
 
-            <svg width={220} height={220} style={{ transform: 'rotate(-90deg)' }}>
+            <svg width="100%" height="100%" viewBox="0 0 220 220" style={{ transform: 'rotate(-90deg)' }}>
               {/* Track */}
               <circle cx={110} cy={110} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={12} />
               {/* Progress */}

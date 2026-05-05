@@ -61,16 +61,16 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme }) {
       onClick={() => onSelect(tile.id)}
       style={{
         position: 'absolute', left: '50%', top: '50%',
-        marginLeft: -110, marginTop: -36,
+        marginLeft: -130, marginTop: -42,
         x, y, z, scale, opacity, filter, boxShadow,
-        width: 220, height: 72,
+        width: 260, height: 84,
         background: bgDefault,
         border: borderDefault,
         backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
-        borderRadius: '1.25rem', cursor: 'pointer',
-        display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0 1.25rem',
+        borderRadius: '1.5rem', cursor: 'pointer',
+        display: 'flex', alignItems: 'center', gap: '1rem', padding: '0 1.5rem',
         color: isPink ? '#333' : 'white', fontFamily: 'Inter, sans-serif', fontWeight: 600,
-        fontSize: '0.85rem', letterSpacing: '0.01em',
+        fontSize: '1rem', letterSpacing: '0.02em',
         transition: 'background 0.6s cubic-bezier(0.16, 1, 0.3, 1), border 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
         willChange: 'transform, opacity',
         backfaceVisibility: 'hidden',
@@ -85,12 +85,12 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme }) {
       <motion.div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: 1, background: `linear-gradient(90deg, transparent, ${tile.color}, transparent)`, opacity: edgeOpacity }} />
       <motion.span
         style={{
-          width: 42, height: 42, borderRadius: '0.8rem',
+          width: 48, height: 48, borderRadius: '1rem',
           background: `linear-gradient(135deg, ${tile.color}33, ${tile.color}11)`, border: `1px solid ${tile.color}55`,
           display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: iconShadow
         }}
       >
-        <Icon size={20} color={tile.color} strokeWidth={2} />
+        <Icon size={24} color={tile.color} strokeWidth={2} />
       </motion.span>
       <motion.span style={{ textAlign: 'left', lineHeight: 1.2, textShadow }}>{tile.label}</motion.span>
       <motion.span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: tile.color, boxShadow: `0 0 10px ${tile.color}`, opacity: shadowOpacity }} />
@@ -211,10 +211,31 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
   const currentSlot = useRef(0);
   const [modeIdx, setModeIdx] = useState(0);
   const mode = ANIMATION_MODES[modeIdx];
+  const containerRef = useRef(null);
+  const [scaleFactor, setScaleFactor] = useState(1);
   
   // Parallax Mouse Tracking
   const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth / 2 : 0);
   const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight / 2 : 0);
+
+  // Dynamic scale: measure container, fit the 800px logical width
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const w = entry.contentRect.width;
+        const newScale = Math.min(w / 800, 1);
+        setScaleFactor(newScale);
+        // Auto-switch to vertical on narrow screens
+        if (w < 520) {
+          setModeIdx(1); // vertical
+        }
+      }
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -286,8 +307,12 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
   };
 
   return (
-    <div id="kinetic-container" className="relative flex flex-col items-center justify-center w-full h-full select-none cursor-grab active:cursor-grabbing" style={{ touchAction: 'none', padding: '2rem 0' }}>
-      
+    <div
+      id="kinetic-container"
+      ref={containerRef}
+      className="relative flex flex-col items-center justify-center w-full h-full select-none cursor-grab active:cursor-grabbing"
+      style={{ touchAction: 'none', padding: '1rem 0' }}
+    >
       {/* View Mode Toggle */}
       <div style={{ position: 'absolute', top: 20, right: 20, zIndex: 50 }}>
         <button
@@ -298,85 +323,117 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
         </button>
       </div>
 
-      {/* Perspective wrapper */}
-      <motion.div
-        style={{
-          perspective: '1400px',
-          perspectiveOrigin: '50% 30%',
-          width: 800,
-          height: 500,
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transformStyle: 'preserve-3d', 
-          rotateX: tiltX,
-          rotateY: tiltY
-        }}
-      >
-        {/* Animate presence completely transitions out the old wheel and drops in the new one! */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={mode.id}
-            initial={{ opacity: 0, rotateY: 90, scale: 0.85 }}
-            animate={{ opacity: 1, rotateY: 0, scale: 1 }}
-            exit={{ opacity: 0, rotateY: -90, scale: 0.85 }}
-            transition={{ type: 'spring', stiffness: 220, damping: 25, mass: 1.1 }}
-            style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }}
-          >
-            {renderLayout()}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Central Holographic Core / Magical Heart */}
+      {/* Sizing shell — collapses to match scaled height so layout flows correctly */}
+      <div style={{ width: 800 * scaleFactor, height: 500 * scaleFactor, position: 'relative', flexShrink: 0 }}>
+        {/* Perspective wrapper — scales down for smaller screens */}
         <motion.div
-          id="center-ball-core"
           style={{
-            position: 'absolute', left: '50%', top: '50%',
-            marginLeft: -40, marginTop: -40,
-            width: 80, height: 80, borderRadius: '50%',
-            background: (isPink && themeAnim !== 'dark') ? 'radial-gradient(circle, rgba(255,105,180,0.3) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(108,99,255,0.2) 0%, transparent 70%)',
-            boxShadow: (isPink && themeAnim !== 'dark') ? '0 0 50px rgba(255,182,193,0.5), inset 0 0 30px rgba(255,105,180,0.5)' : '0 0 30px rgba(0,245,212,0.2), inset 0 0 20px rgba(108,99,255,0.4)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transform: `translateZ(0px)`,
-            zIndex: 10000, 
-            transition: 'all 0.5s ease-in-out'
+            perspective: '1400px',
+            perspectiveOrigin: '50% 30%',
+            width: 800,
+            height: 500,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            transformStyle: 'preserve-3d',
+            rotateX: tiltX,
+            rotateY: tiltY,
+            scale: scaleFactor,
+            transformOrigin: 'top left',
           }}
-          animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {(isPink && themeAnim !== 'dark') ? (
-            <motion.div animate={{ rotate: [0, 8, -8, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
-              <Heart size={36} color="#ff1493" fill="rgba(255,105,180,0.6)" style={{ filter: 'drop-shadow(0 0 20px rgba(255,105,180,1))' }} />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={mode.id}
+              initial={{ opacity: 0, rotateY: 90, scale: 0.85 }}
+              animate={{ opacity: 1, rotateY: 0, scale: 1 }}
+              exit={{ opacity: 0, rotateY: -90, scale: 0.85 }}
+              transition={{ type: 'spring', stiffness: 220, damping: 25, mass: 1.1 }}
+              style={{ position: 'absolute', inset: 0, transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }}
+            >
+              {renderLayout()}
             </motion.div>
-          ) : (
-            <div style={{
-              width: 16, height: 16, borderRadius: '50%',
-              background: '#00f5d4',
-              boxShadow: '0 0 15px #00f5d4, 0 0 30px #6c63ff',
-              transition: 'all 0.5s ease-in-out'
-            }} />
-          )}
-        </motion.div>
+          </AnimatePresence>
 
-      </motion.div>
+          {/* Central Holographic Core / Magical Heart */}
+          <motion.div
+            id="center-ball-core"
+            style={{
+              position: 'absolute', left: '50%', top: '50%',
+              marginLeft: -60, marginTop: -60,
+              width: 120, height: 120, borderRadius: '50%',
+              background: (isPink && themeAnim !== 'dark') ? 'radial-gradient(circle, rgba(255,105,180,0.3) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(108,99,255,0.2) 0%, transparent 70%)',
+              boxShadow: (isPink && themeAnim !== 'dark') ? '0 0 60px rgba(255,182,193,0.6), inset 0 0 40px rgba(255,105,180,0.6)' : '0 0 40px rgba(0,245,212,0.3), inset 0 0 30px rgba(108,99,255,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transform: 'translateZ(0px)',
+              zIndex: 10000,
+              transition: 'all 0.5s ease-in-out'
+            }}
+            animate={{ scale: [1, 1.15, 1], opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            {(isPink && themeAnim !== 'dark') ? (
+              <motion.div animate={{ rotate: [0, 8, -8, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+                {/* Intricate detailed 2D line-art rose head */}
+                <svg
+                  width="64" height="64" viewBox="0 0 42 42"
+                  fill="none"
+                  style={{ filter: 'drop-shadow(0 0 15px rgba(255,20,147,0.9)) drop-shadow(0 0 25px rgba(255,105,180,0.7))' }}
+                >
+                  {/* Core Swirl */}
+                  <path d="M 21 22 C 22 22, 23 21, 23 20 C 23 18, 20 18, 19 20 C 18 22, 21 24, 24 23 C 26 21, 25 17, 22 16" stroke="#ff1493" strokeWidth="1.2" strokeLinecap="round" />
+                  
+                  {/* Inner Petals */}
+                  <path d="M 18 19 C 16 15, 22 13, 26 16 C 29 19, 28 25, 24 27 C 19 29, 14 26, 14 21" stroke="#ff1493" strokeWidth="1.5" strokeLinecap="round" />
+                  
+                  {/* Mid Petals */}
+                  <path d="M 16 15 C 11 11, 20 5, 29 10 C 35 15, 36 24, 30 30 C 24 36, 12 34, 8 26 C 5 19, 9 12, 15 11" stroke="#ff1493" strokeWidth="1.8" strokeLinecap="round" />
+
+                  {/* Outer Petals */}
+                  <path d="M 20 8 C 28 3, 38 9, 39 19" stroke="#ff1493" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M 36 25 C 38 34, 29 42, 19 40" stroke="#ff1493" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M 13 38 C 4 35, 1 24, 5 16" stroke="#ff1493" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M 5 16 C 7 10, 13 6, 20 8" stroke="#ff1493" strokeWidth="2" strokeLinecap="round" />
+                  
+                  {/* Detail crease lines inside petals */}
+                  <path d="M 21 16 Q 24 14 26 16" stroke="#ff1493" strokeWidth="1" strokeLinecap="round" opacity="0.6"/>
+                  <path d="M 14 21 Q 12 18 16 15" stroke="#ff1493" strokeWidth="1" strokeLinecap="round" opacity="0.6"/>
+                  <path d="M 24 27 Q 28 27 30 22" stroke="#ff1493" strokeWidth="1" strokeLinecap="round" opacity="0.6"/>
+                  <path d="M 25 36 Q 28 32 29 27" stroke="#ff1493" strokeWidth="1" strokeLinecap="round" opacity="0.6"/>
+                  <path d="M 13 31 Q 10 28 9 22" stroke="#ff1493" strokeWidth="1" strokeLinecap="round" opacity="0.6"/>
+                  <path d="M 13 13 Q 16 9 22 9" stroke="#ff1493" strokeWidth="1" strokeLinecap="round" opacity="0.6"/>
+                </svg>
+              </motion.div>
+            ) : (
+              <div style={{
+                width: 24, height: 24, borderRadius: '50%',
+                background: '#00f5d4',
+                boxShadow: '0 0 20px #00f5d4, 0 0 40px #6c63ff',
+                transition: 'all 0.5s ease-in-out'
+              }} />
+            )}
+          </motion.div>
+        </motion.div>
+      </div>
 
       {/* Interactive hints */}
       <div
+        className="kinetic-hint"
         style={{
-          position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+          marginTop: '0.75rem',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
           opacity: 0.6, fontSize: '0.75rem', color: isPink ? '#ff1493' : 'rgba(255,255,255,0.7)',
           pointerEvents: 'none', userSelect: 'none', letterSpacing: '0.05em',
-          textTransform: 'uppercase', fontWeight: 600
+          textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'nowrap',
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Sparkles size={14} color={isPink ? "#ff1493" : "#00f5d4"} />
+          <Sparkles size={12} color={isPink ? '#ff1493' : '#00f5d4'} />
           Scroll or swipe to explore
-          <Sparkles size={14} color={isPink ? "#ff1493" : "#a855f7"} />
+          <Sparkles size={12} color={isPink ? '#ff1493' : '#a855f7'} />
         </span>
       </div>
     </div>
   );
 }
+

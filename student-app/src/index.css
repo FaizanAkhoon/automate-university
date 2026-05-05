@@ -324,3 +324,77 @@ body.sucking-dark::before,
 body.sucking-dark::after {
   transition: background-image 3s ease-in-out, opacity 3s ease-in-out !important;
 }
+
+/* ─── RESPONSIVE / MOBILE ────────────────────────────────────────────────── */
+
+/* Tile overlay — respect iOS safe areas */
+.tile-overlay {
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+/* Modal — fluid padding and max-height */
+.tile-modal {
+  padding: clamp(1rem, 4vw, 2rem);
+  max-height: calc(100dvh - 2rem);
+  max-height: calc(100vh - 2rem);
+}
+
+/* Header safe-area on mobile */
+.app-header {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+/* Smaller 3D glass buttons on mobile */
+@media (max-width: 640px) {
+  .btn-3d-glass {
+    width: 36px;
+    height: 36px;
+  }
+
+  .tile-modal {
+    border-radius: 1.25rem;
+  }
+
+  /* Hide non-essential header items on mobile */
+  .header-date,
+  .header-admin-link {
+    display: none;
+  }
+
+  /* Kinetic chain hint smaller text */
+  .kinetic-hint {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tile-modal {
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+
+  /* YouTube grid single col on very small screens */
+  .youtube-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Study timer mode buttons wrap */
+  .timer-modes {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* StudentInfo 2-col grid → 1-col */
+  .student-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 481px) and (max-width: 768px) {
+  .youtube-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
