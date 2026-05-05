@@ -304,10 +304,23 @@ body.theme-pink .btn-ghost:hover {
   background: rgba(255,117,140, 0.15);
 }
 
-/* Global 6-second slow fade when sucking color into dark mode */
-body.sucking-dark,
+/* Drain transition: glass structure smoothly reveals dark theme as pink water drains */
+body.sucking-dark .glass,
+body.sucking-dark .btn-3d-glass,
+body.sucking-dark .btn-ghost,
+body.sucking-dark .btn-primary {
+  transition: background 3s ease-in-out, border-color 3s ease-in-out, color 3s ease-in-out, box-shadow 3s ease-in-out !important;
+}
+body.sucking-dark .text-white,
+body.sucking-dark .gradient-text,
+body.sucking-dark p,
+body.sucking-dark h1,
+body.sucking-dark h2,
+body.sucking-dark span,
+body.sucking-dark label {
+  transition: color 3s ease-in-out, background 3s ease-in-out, -webkit-text-fill-color 3s ease-in-out !important;
+}
 body.sucking-dark::before,
-body.sucking-dark::after,
-body.sucking-dark * {
-  transition: all 6s cubic-bezier(0.6, 0.05, 0.9, -0.05) !important;
+body.sucking-dark::after {
+  transition: background-image 3s ease-in-out, opacity 3s ease-in-out !important;
 }

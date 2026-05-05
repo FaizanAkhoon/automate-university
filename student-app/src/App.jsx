@@ -14,61 +14,169 @@ import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
 import './index.css';
 
+// ─── CINEMATIC THEME TRANSITION ──────────────────────────────────────────────
 const ThemeTransitionOverlay = ({ targetTheme }) => {
-  const [corePos, setCorePos] = useState({ left: '50%', top: '53%' });
+  const [corePos, setCorePos] = useState({ x: 50, y: 53 });
 
   useEffect(() => {
     const el = document.getElementById('center-ball-core');
     if (el) {
       const rect = el.getBoundingClientRect();
-      setCorePos({ left: rect.left + rect.width / 2 + 'px', top: rect.top + rect.height / 2 + 'px' });
+      setCorePos({
+        x: ((rect.left + rect.width / 2) / window.innerWidth) * 100,
+        y: ((rect.top + rect.height / 2) / window.innerHeight) * 100,
+      });
     }
   }, []);
 
   if (!targetTheme) return null;
 
+  // ── DRAIN: Pink water being sucked into the center ball like a sink ──
   if (targetTheme === 'dark') {
+    const cx = `${corePos.x}%`;
+    const cy = `${corePos.y}%`;
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', overflow: 'hidden' }}>
-        {/* Pink Background that shrinks into the center hole */}
+      <motion.div
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        style={{ position: 'fixed', inset: 0, zIndex: 5, pointerEvents: 'none', overflow: 'hidden' }}
+      >
+        {/* LAYER 1: The pink "water" that drains away via clip-path circle shrink */}
         <motion.div
-          initial={{ clipPath: `circle(150vmax at ${corePos.left} ${corePos.top})` }}
-          animate={{ clipPath: `circle(0vmax at ${corePos.left} ${corePos.top})` }}
-          transition={{ duration: 6, ease: [0.7, 0.05, 0.9, 0.3] }}
+          initial={{ clipPath: `circle(160% at ${cx} ${cy})` }}
+          animate={{ clipPath: `circle(0% at ${cx} ${cy})` }}
+          transition={{ duration: 4, ease: [0.45, 0, 0.15, 1] }}
           style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(135deg, #fff0f5 0%, #ffb6c1 100%)',
+            background: `
+              radial-gradient(circle at ${cx} ${cy}, transparent 0%, rgba(255,240,245,0.3) 20%, rgba(255,182,193,0.6) 50%, rgba(255,105,180,0.8) 80%, #ffb6c1 100%)
+            `,
           }}
         />
-        {/* Dark vignette suction ring */}
+
+        {/* LAYER 2: Swirling vortex ripples around the drain hole */}
+        {[0, 1, 2, 3].map(i => (
+          <motion.div
+            key={`ripple-${i}`}
+            initial={{ scale: 3, opacity: 0.6 }}
+            animate={{ scale: 0, opacity: 0 }}
+            transition={{ duration: 3.5 - i * 0.3, ease: [0.45, 0, 0.15, 1], delay: i * 0.5 }}
+            style={{
+              position: 'absolute',
+              left: cx, top: cy,
+              width: 200, height: 200,
+              transform: 'translate(-50%, -50%)',
+              borderRadius: '50%',
+              border: `2px solid rgba(255,105,180,${0.4 - i * 0.08})`,
+              boxShadow: `inset 0 0 ${40 - i * 8}px rgba(255,105,180,${0.3 - i * 0.06})`,
+            }}
+          />
+        ))}
+
+        {/* LAYER 3: Spiral rotation effect for "swirling drain" */}
         <motion.div
-          initial={{ width: '300vmax', height: '300vmax', opacity: 0 }}
-          animate={{ width: '0vmax', height: '0vmax', opacity: 1 }}
-          transition={{ duration: 6, ease: [0.7, 0.05, 0.9, 0.3] }}
+          initial={{ rotate: 0, scale: 2.5, opacity: 0.5 }}
+          animate={{ rotate: 720, scale: 0, opacity: 0 }}
+          transition={{ duration: 4, ease: [0.45, 0, 0.15, 1] }}
           style={{
             position: 'absolute',
-            left: corePos.left, top: corePos.top,
+            left: cx, top: cy,
+            width: 400, height: 400,
             transform: 'translate(-50%, -50%)',
+            background: `conic-gradient(from 0deg at 50% 50%,
+              transparent 0deg,
+              rgba(255,182,193,0.4) 60deg,
+              transparent 120deg,
+              rgba(255,105,180,0.3) 180deg,
+              transparent 240deg,
+              rgba(255,182,193,0.4) 300deg,
+              transparent 360deg
+            )`,
             borderRadius: '50%',
-            boxShadow: 'inset 0 0 150px 50px rgba(5,5,10,0.9), 0 0 200px 100px rgba(0,0,0,1)',
+            filter: 'blur(15px)',
           }}
         />
-      </div>
+
+        {/* LAYER 4: The dark "glass bottle" revealed beneath — subtle dark vignette */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 3, ease: 'easeIn', delay: 1 }}
+          style={{
+            position: 'absolute', inset: 0,
+            background: `radial-gradient(ellipse at ${cx} ${cy}, transparent 0%, transparent 10%, rgba(5,5,15,0.05) 50%, rgba(5,5,15,0.15) 100%)`,
+          }}
+        />
+      </motion.div>
     );
   }
 
+  // ── MIST SPRAY: Pink fog spraying from center ball outward ──
+  const cx = `${corePos.x}%`;
+  const cy = `${corePos.y}%`;
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', overflow: 'hidden' }}>
+    <motion.div
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 5, pointerEvents: 'none', overflow: 'hidden' }}
+    >
+      {/* LAYER 1: Main pink fog expanding from center */}
       <motion.div
-        initial={{ clipPath: `circle(0vmax at ${corePos.left} ${corePos.top})` }}
-        animate={{ clipPath: `circle(150vmax at ${corePos.left} ${corePos.top})` }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+        initial={{ clipPath: `circle(0% at ${cx} ${cy})` }}
+        animate={{ clipPath: `circle(160% at ${cx} ${cy})` }}
+        transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
         style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(135deg, #fff0f5 0%, #ffb6c1 100%)',
+          background: `radial-gradient(ellipse at ${cx} ${cy}, 
+            rgba(255,240,245,0.95) 0%, 
+            rgba(255,228,225,0.8) 25%, 
+            rgba(255,182,193,0.6) 50%, 
+            rgba(255,105,180,0.3) 75%, 
+            transparent 100%)`,
         }}
       />
-    </div>
+
+      {/* LAYER 2: Multiple mist particles spraying outward */}
+      {[0, 1, 2, 3, 4, 5].map(i => {
+        const angle = (i / 6) * 360;
+        return (
+          <motion.div
+            key={`mist-${i}`}
+            initial={{ scale: 0, opacity: 0.8, x: '-50%', y: '-50%' }}
+            animate={{ 
+              scale: [0, 1.5, 2.5],
+              opacity: [0.8, 0.5, 0],
+            }}
+            transition={{ duration: 2, ease: 'easeOut', delay: 0.1 + i * 0.12 }}
+            style={{
+              position: 'absolute',
+              left: cx, top: cy,
+              width: 250, height: 250,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, rgba(255,${150 + i * 15},${180 + i * 10},0.5) 0%, transparent 70%)`,
+              filter: 'blur(30px)',
+              transformOrigin: 'center center',
+            }}
+          />
+        );
+      })}
+
+      {/* LAYER 3: Central flash burst */}
+      <motion.div
+        initial={{ scale: 0, opacity: 1 }}
+        animate={{ scale: [0, 3, 8], opacity: [1, 0.6, 0] }}
+        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          position: 'absolute',
+          left: cx, top: cy,
+          width: 100, height: 100,
+          transform: 'translate(-50%, -50%)',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,182,193,0.6) 40%, transparent 70%)',
+          filter: 'blur(8px)',
+        }}
+      />
+    </motion.div>
   );
 };
 
@@ -185,23 +293,24 @@ export default function App() {
   }, []);
 
   const handleThemeToggle = () => {
-    if (themeAnim) return; // prevent spam clicking
+    if (themeAnim) return;
     const nextTheme = theme === 'dark' ? 'pink' : 'dark';
     
     setThemeAnim(nextTheme);
     
     if (nextTheme === 'dark') {
+      // Drain effect: add slow-transition class, then swap theme after 1s delay
+      // so the pink water visibly drains FIRST, then structure changes smoothly
       document.body.classList.add('sucking-dark');
-      // IMMEDIATELY change theme state so buttons/glass start draining smoothly
-      setTheme(nextTheme);
-      
+      setTimeout(() => setTheme(nextTheme), 1000);
       setTimeout(() => {
         document.body.classList.remove('sucking-dark');
         setThemeAnim(null);
-      }, 6000);
+      }, 4500);
     } else {
+      // Mist spray: swap theme immediately, mist covers the transition
       setTheme(nextTheme);
-      setTimeout(() => setThemeAnim(null), 1500);
+      setTimeout(() => setThemeAnim(null), 3000);
     }
   };
 
