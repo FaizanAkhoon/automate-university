@@ -115,77 +115,133 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
     );
   }
 
-  // ── MIST SPRAY: Pink fog spraying from center ball outward ──
+  // ── BIG BANG: Universe is born from the center ball ──
   const cx = `${corePos.x}px`;
   const cy = `${corePos.y}px`;
+
+  // 12 nebula debris clouds fired outward at even angles
+  const DEBRIS_COUNT = 12;
+  const debris = Array.from({ length: DEBRIS_COUNT }, (_, i) => {
+    const angle = (i / DEBRIS_COUNT) * Math.PI * 2;
+    const dist  = Math.max(window.innerWidth, window.innerHeight) * 0.9;
+    return {
+      tx: Math.cos(angle) * dist,
+      ty: Math.sin(angle) * dist,
+      hue:  320 + (i % 3) * 20,          // hot pink → rose → magenta
+      size: 200 + (i % 4) * 80,          // varied sizes
+      blur: 35 + (i % 3) * 15,
+      delay: i * 0.04,
+    };
+  });
+
   return (
     <motion.div
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
+      transition={{ duration: 1.2, ease: 'easeOut' }}
       style={{ position: 'fixed', inset: 0, zIndex: 5, pointerEvents: 'none', overflow: 'hidden' }}
     >
-      {/* LAYER 1: Main rich pink fog expanding from center */}
+      {/* ── PHASE 1: Supernova core — blindingly white singularity ── */}
       <motion.div
-        initial={{ clipPath: `circle(0px at ${cx} ${cy})` }}
-        animate={{ clipPath: `circle(150vw at ${cx} ${cy})` }}
-        transition={{ duration: 3, ease: [0.2, 0.8, 0.2, 1] }}
-        style={{
-          position: 'absolute', inset: 0,
-          background: `radial-gradient(ellipse at ${cx} ${cy}, 
-            rgba(255,240,245,1) 0%, 
-            rgba(255,228,225,0.9) 20%, 
-            rgba(255,182,193,0.7) 45%, 
-            rgba(255,105,180,0.4) 75%, 
-            transparent 100%)`,
-        }}
-      />
-
-      {/* LAYER 2: Dense volumetric mist particles spraying outward and rotating */}
-      {[0, 1, 2, 3, 4, 5, 6, 7].map(i => {
-        const angle = (i / 8) * Math.PI * 2;
-        const dist = window.innerWidth * 0.4;
-        const tx = Math.cos(angle) * dist;
-        const ty = Math.sin(angle) * dist;
-        return (
-          <motion.div
-            key={`mist-${i}`}
-            initial={{ scale: 0, opacity: 0.9, x: 0, y: 0, rotate: 0 }}
-            animate={{ 
-              scale: [0, 2, 4],
-              opacity: [0.9, 0.6, 0],
-              x: tx,
-              y: ty,
-              rotate: 180 * (i % 2 === 0 ? 1 : -1)
-            }}
-            transition={{ duration: 3, ease: 'easeOut', delay: i * 0.05 }}
-            style={{
-              position: 'absolute',
-              left: cx, top: cy,
-              width: 300, height: 300,
-              marginLeft: -150, marginTop: -150,
-              borderRadius: '50%',
-              background: `radial-gradient(circle, rgba(255,${130 + i * 15},${170 + i * 10},0.6) 0%, transparent 70%)`,
-              filter: 'blur(40px)',
-              transformOrigin: 'center center',
-            }}
-          />
-        );
-      })}
-
-      {/* LAYER 3: Blinding central flash burst of light */}
-      <motion.div
-        initial={{ scale: 0, opacity: 1 }}
-        animate={{ scale: [0, 5, 12], opacity: [1, 0.8, 0] }}
-        transition={{ duration: 2, ease: [0.2, 0.8, 0.2, 1] }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: [0, 1, 0.5], opacity: [0, 1, 0] }}
+        transition={{ duration: 0.5, ease: [0.0, 0.9, 0.1, 1], times: [0, 0.3, 1] }}
         style={{
           position: 'absolute',
           left: cx, top: cy,
-          width: 150, height: 150,
-          marginLeft: -75, marginTop: -75,
+          width: 30, height: 30,
+          marginLeft: -15, marginTop: -15,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, #ffffff 0%, rgba(255,240,245,0.8) 30%, rgba(255,182,193,0.4) 60%, transparent 100%)',
-          boxShadow: '0 0 100px 50px rgba(255,255,255,0.8)',
-          filter: 'blur(10px)',
+          background: '#ffffff',
+          boxShadow: '0 0 0 0 #ffffff',
+          filter: 'blur(0px)',
+        }}
+      />
+
+      {/* ── PHASE 2: The shockwave pressure rings ── */}
+      {[0, 1, 2].map(i => (
+        <motion.div
+          key={`shock-${i}`}
+          initial={{ scale: 0, opacity: 0.9 }}
+          animate={{ scale: [0, 8, 20], opacity: [0.9, 0.3, 0] }}
+          transition={{
+            duration: 1.8,
+            ease: [0.0, 0.8, 0.2, 1],
+            delay: i * 0.12,
+            times: [0, 0.4, 1],
+          }}
+          style={{
+            position: 'absolute',
+            left: cx, top: cy,
+            width: 60, height: 60,
+            marginLeft: -30, marginTop: -30,
+            borderRadius: '50%',
+            border: `${3 - i}px solid rgba(255, ${180 - i * 20}, ${200 - i * 20}, ${0.9 - i * 0.2})`,
+            boxShadow: `0 0 ${30 + i * 20}px rgba(255, 20, 147, ${0.6 - i * 0.15}), inset 0 0 ${20 + i * 10}px rgba(255, 182, 193, 0.3)`,
+          }}
+        />
+      ))}
+
+      {/* ── PHASE 3: Supernova flash — pure white bloom ── */}
+      <motion.div
+        initial={{ scale: 0, opacity: 1 }}
+        animate={{ scale: [0, 3, 25], opacity: [1, 0.9, 0] }}
+        transition={{ duration: 1.0, ease: [0.0, 0.9, 0.1, 1], times: [0, 0.15, 1] }}
+        style={{
+          position: 'absolute',
+          left: cx, top: cy,
+          width: 80, height: 80,
+          marginLeft: -40, marginTop: -40,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #ffffff 0%, rgba(255,240,245,0.95) 30%, rgba(255,200,220,0.5) 70%, transparent 100%)',
+          boxShadow: '0 0 150px 80px rgba(255,255,255,0.95)',
+          filter: 'blur(4px)',
+        }}
+      />
+
+      {/* ── PHASE 4: 12 nebula debris clouds hurtling outward ── */}
+      {debris.map((d, i) => (
+        <motion.div
+          key={`debris-${i}`}
+          initial={{ x: 0, y: 0, scale: 0, opacity: 0.95 }}
+          animate={{
+            x: d.tx, y: d.ty,
+            scale: [0, 1.8, 1.2],
+            opacity: [0.95, 0.7, 0],
+          }}
+          transition={{
+            duration: 2.8,
+            ease: [0.05, 0.7, 0.1, 1],
+            delay: 0.1 + d.delay,
+            times: [0, 0.5, 1],
+          }}
+          style={{
+            position: 'absolute',
+            left: cx, top: cy,
+            width: d.size, height: d.size,
+            marginLeft: -d.size / 2, marginTop: -d.size / 2,
+            borderRadius: '50%',
+            background: `radial-gradient(circle, hsl(${d.hue}, 100%, 75%) 0%, hsl(${d.hue - 15}, 90%, 65%) 35%, transparent 75%)`,
+            filter: `blur(${d.blur}px)`,
+            transformOrigin: 'center center',
+          }}
+        />
+      ))}
+
+      {/* ── PHASE 5: The pink universe expands behind everything ── */}
+      <motion.div
+        initial={{ clipPath: `circle(0px at ${cx} ${cy})` }}
+        animate={{ clipPath: `circle(200vmax at ${cx} ${cy})` }}
+        transition={{ duration: 3.5, ease: [0.05, 0.9, 0.2, 1], delay: 0.15 }}
+        style={{
+          position: 'absolute', inset: 0,
+          background: `radial-gradient(ellipse 120% 120% at ${cx} ${cy},
+            rgba(255,255,255,1)       0%,
+            rgba(255,235,245,1)       8%,
+            rgba(255,210,230,0.98)   20%,
+            rgba(255,182,193,0.95)   40%,
+            rgba(255,150,180,0.85)   65%,
+            rgba(255,105,180,0.6)    85%,
+            #ffb6c1 100%)`,
         }}
       />
     </motion.div>
