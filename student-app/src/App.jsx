@@ -17,147 +17,104 @@ import {
   BookOpen, User, Heart, PlayCircle, Timer, Calculator as CalcIcon
 } from 'lucide-react';
 
-// ─── THE SPINNING WHEEL THEME TRANSITION ─────────────────────────────────────
-// The 6 tiles form a 2D wheel at the center ball. When you toggle themes,
-// the wheel spins and each tile acts as a paint brush, artistically
-// sweeping color across the screen.
+// ─── DUSTER THEME TRANSITION ─────────────────────────────────────────────────
+// Screen is divided into 6 horizontal bands. Each tile sweeps across its band
+// from left to right like a duster, and the trail it leaves behind IS the new
+// theme being applied. No blur, no glow — pure, sharp, clean paint strokes.
 
-const WHEEL_TILES = [
-  { icon: BookOpen,    color: '#6c63ff', pinkColor: '#ff69b4' },
-  { icon: User,        color: '#a855f7', pinkColor: '#ff85c8' },
-  { icon: Heart,       color: '#ec4899', pinkColor: '#ff1493' },
-  { icon: PlayCircle,  color: '#ef4444', pinkColor: '#ff6b9d' },
-  { icon: Timer,       color: '#00f5d4', pinkColor: '#ffb6c1' },
-  { icon: CalcIcon,    color: '#f59e0b', pinkColor: '#ff9ecd' },
+const DUSTER_TILES = [
+  { icon: BookOpen,    label: 'Notes' },
+  { icon: User,        label: 'Student' },
+  { icon: Heart,       label: 'Health' },
+  { icon: PlayCircle,  label: 'YouTube' },
+  { icon: Timer,       label: 'Timer' },
+  { icon: CalcIcon,    label: 'Calc' },
 ];
 
 const ThemeTransitionOverlay = ({ targetTheme }) => {
-  const [corePos, setCorePos] = useState({ x: 50, y: 53 });
-
-  useEffect(() => {
-    const el = document.getElementById('center-ball-core');
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      setCorePos({
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      });
-    }
-  }, []);
-
   if (!targetTheme) return null;
 
-  const cx = `${corePos.x}px`;
-  const cy = `${corePos.y}px`;
-  const WHEEL_RADIUS = 120;
-  const ARM_LENGTH = Math.max(window.innerWidth, window.innerHeight);
   const toDark = targetTheme === 'dark';
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 1000;
+  const bandH = vh / 6;
+
+  // Stagger delays — alternating from top and bottom for visual interest
+  const delays = [0, 0.15, 0.05, 0.2, 0.1, 0.25];
 
   return (
     <motion.div
       exit={{ opacity: 0 }}
       transition={{ duration: 1.5, ease: 'easeOut' }}
-      style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none', overflow: 'hidden' }}
     >
-      {/* ── LAYER 1: Background color reveal synced to the spin ── */}
-      <motion.div
-        initial={toDark
-          ? { clipPath: `circle(150vmax at ${cx} ${cy})` }
-          : { clipPath: `circle(0px at ${cx} ${cy})` }
-        }
-        animate={toDark
-          ? { clipPath: `circle(0px at ${cx} ${cy})` }
-          : { clipPath: `circle(200vmax at ${cx} ${cy})` }
-        }
-        transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 }}
-        style={{
-          position: 'absolute', inset: 0,
-          background: toDark
-            ? `radial-gradient(circle at ${cx} ${cy}, transparent 0%, rgba(255,182,193,0.5) 30%, rgba(255,105,180,0.8) 60%, #ffb6c1 100%)`
-            : `radial-gradient(ellipse at ${cx} ${cy}, rgba(255,255,255,1) 0%, rgba(255,240,245,0.98) 15%, rgba(255,220,235,0.95) 35%, rgba(255,182,193,0.9) 55%, #ffb6c1 100%)`,
-        }}
-      />
+      {DUSTER_TILES.map((tile, i) => {
+        const Icon = tile.icon;
+        const yPos = i * bandH;
 
-      {/* ── LAYER 2: 6 paint brush arms — long color trails ── */}
-      <motion.div
-        initial={{ rotate: 0 }}
-        animate={{ rotate: toDark ? -1080 : 1080 }}
-        transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1] }}
-        style={{
-          position: 'absolute',
-          left: corePos.x, top: corePos.y,
-          width: 0, height: 0,
-        }}
-      >
-        {WHEEL_TILES.map((tile, i) => {
-          const angle = (i / 6) * 360;
-          const rad   = (angle * Math.PI) / 180;
-          const brushColor = toDark ? tile.color : tile.pinkColor;
+        // Colors for the painted band
+        const bandBg = toDark
+          ? '#05050a'
+          : `hsl(${340 + i * 4}, ${85 + i * 2}%, ${92 - i * 2}%)`;
 
-          return (
-            <div key={i} style={{ position: 'absolute', width: 0, height: 0 }}>
-              {/* Paint brush arm — a long gradient that sweeps like a paint roller */}
-              <motion.div
-                initial={{ opacity: 0, scaleX: 0 }}
-                animate={{ opacity: [0, 0.7, 0.5, 0], scaleX: [0, 1, 1, 0.5] }}
-                transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1], times: [0, 0.15, 0.7, 1] }}
-                style={{
-                  position: 'absolute',
-                  width: ARM_LENGTH,
-                  height: 60 + i * 10,
-                  left: 0, top: -(30 + i * 5),
-                  transformOrigin: '0% 50%',
-                  transform: `rotate(${angle}deg)`,
-                  background: `linear-gradient(90deg, ${brushColor}88 0%, ${brushColor}44 40%, transparent 100%)`,
-                  filter: 'blur(25px)',
-                  borderRadius: '0 50% 50% 0',
-                }}
-              />
+        const iconColor = toDark ? '#00f5d4' : '#ff1493';
+        const iconBg = toDark
+          ? 'rgba(15,15,30,0.95)'
+          : 'rgba(255,255,255,0.95)';
 
-              {/* The tile icon — orbiting at the end of each brush arm */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: [0, 1, 1, 0], scale: [0, 1.2, 1, 0.5] }}
-                transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1], times: [0, 0.1, 0.75, 1] }}
-                style={{
-                  position: 'absolute',
-                  left: Math.cos(rad) * WHEEL_RADIUS - 22,
-                  top:  Math.sin(rad) * WHEEL_RADIUS - 22,
-                  width: 44, height: 44,
-                  borderRadius: 12,
-                  background: toDark
-                    ? 'rgba(15,15,30,0.8)'
-                    : 'rgba(255,255,255,0.85)',
-                  backdropFilter: 'blur(10px)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: `0 0 20px ${brushColor}66, 0 4px 15px rgba(0,0,0,0.2)`,
-                  border: `1px solid ${brushColor}55`,
-                }}
-              >
-                <tile.icon size={20} color={brushColor} strokeWidth={2} />
-              </motion.div>
-            </div>
-          );
-        })}
-      </motion.div>
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: 0, top: yPos,
+              width: '100%', height: bandH,
+              overflow: 'hidden',
+            }}
+          >
+            {/* The painted trail — slides in from left to right */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: '0%' }}
+              transition={{
+                duration: 2.5,
+                ease: [0.25, 0.1, 0.25, 1],
+                delay: delays[i],
+              }}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: bandBg,
+              }}
+            />
 
-      {/* ── LAYER 3: Soft central glow — the hub of the wheel ── */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: [0, 0.8, 0.6, 0], scale: [0.5, 1.5, 1.2, 0.3] }}
-        transition={{ duration: 5, ease: [0.25, 0.1, 0.25, 1], times: [0, 0.1, 0.7, 1] }}
-        style={{
-          position: 'absolute',
-          left: cx, top: cy,
-          width: 300, height: 300,
-          marginLeft: -150, marginTop: -150,
-          borderRadius: '50%',
-          background: toDark
-            ? 'radial-gradient(circle, rgba(108,99,255,0.4) 0%, rgba(0,245,212,0.15) 50%, transparent 100%)'
-            : 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,182,193,0.4) 50%, transparent 100%)',
-          filter: 'blur(40px)',
-        }}
-      />
+            {/* The duster tile icon — rides at the leading edge */}
+            <motion.div
+              initial={{ x: -60 }}
+              animate={{ x: typeof window !== 'undefined' ? window.innerWidth + 20 : 1920 }}
+              transition={{
+                duration: 2.5,
+                ease: [0.25, 0.1, 0.25, 1],
+                delay: delays[i],
+              }}
+              style={{
+                position: 'absolute',
+                top: (bandH - 48) / 2,
+                width: 48, height: 48,
+                borderRadius: 14,
+                background: iconBg,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: toDark
+                  ? '4px 0 20px rgba(0,245,212,0.3), -2px 0 10px rgba(108,99,255,0.2)'
+                  : '4px 0 20px rgba(255,105,180,0.3), -2px 0 10px rgba(255,182,193,0.2)',
+                border: `1px solid ${toDark ? 'rgba(0,245,212,0.3)' : 'rgba(255,105,180,0.3)'}`,
+                zIndex: 2,
+              }}
+            >
+              <Icon size={22} color={iconColor} strokeWidth={2.5} />
+            </motion.div>
+          </div>
+        );
+      })}
     </motion.div>
   );
 };
@@ -283,16 +240,17 @@ export default function App() {
     
     setThemeAnim(nextTheme);
     
+    // Swap theme at 1s (dusters are mid-sweep, covering the change)
     if (nextTheme === 'dark') {
       document.body.classList.add('sucking-dark');
-      setTimeout(() => setTheme(nextTheme), 1500);
+      setTimeout(() => setTheme(nextTheme), 1000);
       setTimeout(() => {
         document.body.classList.remove('sucking-dark');
         setThemeAnim(null);
-      }, 5500);
+      }, 3500);
     } else {
-      setTheme(nextTheme);
-      setTimeout(() => setThemeAnim(null), 7000);
+      setTimeout(() => setTheme(nextTheme), 1000);
+      setTimeout(() => setThemeAnim(null), 3500);
     }
   };
 
