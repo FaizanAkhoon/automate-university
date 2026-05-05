@@ -65,11 +65,133 @@ const ROUTES = [
   { keywords: ['umang','umang app','government services'], url: 'https://web.umang.gov.in/', label: 'UMANG — Govt Services' },
 ];
 
+// ─── POPULAR SITES — Direct navigation for common websites ──────────────────
+const POPULAR_SITES = [
+  // Social Media
+  { keywords: ['facebook','fb'], url: 'https://www.facebook.com/', label: 'Facebook' },
+  { keywords: ['instagram','insta'], url: 'https://www.instagram.com/', label: 'Instagram' },
+  { keywords: ['twitter','x','tweet'], url: 'https://x.com/', label: 'X (Twitter)' },
+  { keywords: ['snapchat','snap'], url: 'https://www.snapchat.com/', label: 'Snapchat' },
+  { keywords: ['reddit'], url: 'https://www.reddit.com/', label: 'Reddit' },
+  { keywords: ['pinterest'], url: 'https://www.pinterest.com/', label: 'Pinterest' },
+  { keywords: ['tumblr'], url: 'https://www.tumblr.com/', label: 'Tumblr' },
+  { keywords: ['discord'], url: 'https://discord.com/', label: 'Discord' },
+  { keywords: ['telegram'], url: 'https://web.telegram.org/', label: 'Telegram Web' },
+  { keywords: ['whatsapp','whats app'], url: 'https://web.whatsapp.com/', label: 'WhatsApp Web' },
+  { keywords: ['tiktok','tik tok'], url: 'https://www.tiktok.com/', label: 'TikTok' },
+  { keywords: ['threads'], url: 'https://www.threads.net/', label: 'Threads' },
+
+  // Video & Streaming
+  { keywords: ['youtube','you tube'], url: 'https://www.youtube.com/', label: 'YouTube' },
+  { keywords: ['netflix'], url: 'https://www.netflix.com/', label: 'Netflix' },
+  { keywords: ['amazon prime','prime video'], url: 'https://www.primevideo.com/', label: 'Amazon Prime Video' },
+  { keywords: ['disney plus','disney+','hotstar'], url: 'https://www.hotstar.com/', label: 'Disney+ Hotstar' },
+  { keywords: ['twitch'], url: 'https://www.twitch.tv/', label: 'Twitch' },
+  { keywords: ['spotify'], url: 'https://open.spotify.com/', label: 'Spotify' },
+  { keywords: ['soundcloud'], url: 'https://soundcloud.com/', label: 'SoundCloud' },
+  { keywords: ['jio cinema','jiocinema'], url: 'https://www.jiocinema.com/', label: 'JioCinema' },
+  { keywords: ['zee5'], url: 'https://www.zee5.com/', label: 'ZEE5' },
+  { keywords: ['sony liv','sonyliv'], url: 'https://www.sonyliv.com/', label: 'SonyLIV' },
+  { keywords: ['voot'], url: 'https://www.voot.com/', label: 'Voot' },
+
+  // Shopping & E-Commerce
+  { keywords: ['amazon','amazon india'], url: 'https://www.amazon.in/', label: 'Amazon India' },
+  { keywords: ['flipkart'], url: 'https://www.flipkart.com/', label: 'Flipkart' },
+  { keywords: ['myntra'], url: 'https://www.myntra.com/', label: 'Myntra' },
+  { keywords: ['ajio'], url: 'https://www.ajio.com/', label: 'AJIO' },
+  { keywords: ['meesho'], url: 'https://www.meesho.com/', label: 'Meesho' },
+  { keywords: ['snapdeal'], url: 'https://www.snapdeal.com/', label: 'Snapdeal' },
+  { keywords: ['ebay'], url: 'https://www.ebay.com/', label: 'eBay' },
+  { keywords: ['aliexpress'], url: 'https://www.aliexpress.com/', label: 'AliExpress' },
+  { keywords: ['nykaa'], url: 'https://www.nykaa.com/', label: 'Nykaa' },
+
+  // Search Engines & Productivity
+  { keywords: ['google'], url: 'https://www.google.com/', label: 'Google' },
+  { keywords: ['bing'], url: 'https://www.bing.com/', label: 'Bing' },
+  { keywords: ['gmail','google mail'], url: 'https://mail.google.com/', label: 'Gmail' },
+  { keywords: ['outlook','hotmail'], url: 'https://outlook.live.com/', label: 'Outlook Mail' },
+  { keywords: ['google drive','gdrive'], url: 'https://drive.google.com/', label: 'Google Drive' },
+  { keywords: ['google docs'], url: 'https://docs.google.com/', label: 'Google Docs' },
+  { keywords: ['google sheets'], url: 'https://sheets.google.com/', label: 'Google Sheets' },
+  { keywords: ['google slides'], url: 'https://slides.google.com/', label: 'Google Slides' },
+  { keywords: ['google maps','maps'], url: 'https://maps.google.com/', label: 'Google Maps' },
+  { keywords: ['google translate','translate'], url: 'https://translate.google.com/', label: 'Google Translate' },
+  { keywords: ['google photos'], url: 'https://photos.google.com/', label: 'Google Photos' },
+  { keywords: ['google calendar','calendar'], url: 'https://calendar.google.com/', label: 'Google Calendar' },
+  { keywords: ['notion'], url: 'https://www.notion.so/', label: 'Notion' },
+  { keywords: ['trello'], url: 'https://trello.com/', label: 'Trello' },
+  { keywords: ['slack'], url: 'https://slack.com/', label: 'Slack' },
+  { keywords: ['zoom'], url: 'https://zoom.us/', label: 'Zoom' },
+  { keywords: ['google meet'], url: 'https://meet.google.com/', label: 'Google Meet' },
+  { keywords: ['microsoft teams','teams'], url: 'https://teams.microsoft.com/', label: 'Microsoft Teams' },
+  { keywords: ['dropbox'], url: 'https://www.dropbox.com/', label: 'Dropbox' },
+  { keywords: ['canva'], url: 'https://www.canva.com/', label: 'Canva' },
+
+  // Developer & Tech
+  { keywords: ['github','git hub'], url: 'https://github.com/', label: 'GitHub' },
+  { keywords: ['gitlab'], url: 'https://gitlab.com/', label: 'GitLab' },
+  { keywords: ['stack overflow','stackoverflow'], url: 'https://stackoverflow.com/', label: 'Stack Overflow' },
+  { keywords: ['codepen'], url: 'https://codepen.io/', label: 'CodePen' },
+  { keywords: ['replit','repl'], url: 'https://replit.com/', label: 'Replit' },
+  { keywords: ['leetcode','leet code'], url: 'https://leetcode.com/', label: 'LeetCode' },
+  { keywords: ['hackerrank','hacker rank'], url: 'https://www.hackerrank.com/', label: 'HackerRank' },
+  { keywords: ['codeforces'], url: 'https://codeforces.com/', label: 'Codeforces' },
+  { keywords: ['geeksforgeeks','gfg','geeks for geeks'], url: 'https://www.geeksforgeeks.org/', label: 'GeeksforGeeks' },
+  { keywords: ['w3schools','w3 schools'], url: 'https://www.w3schools.com/', label: 'W3Schools' },
+  { keywords: ['mdn','mozilla developer'], url: 'https://developer.mozilla.org/', label: 'MDN Web Docs' },
+  { keywords: ['npm'], url: 'https://www.npmjs.com/', label: 'npm' },
+  { keywords: ['figma'], url: 'https://www.figma.com/', label: 'Figma' },
+  { keywords: ['vercel'], url: 'https://vercel.com/', label: 'Vercel' },
+  { keywords: ['netlify'], url: 'https://www.netlify.com/', label: 'Netlify' },
+  { keywords: ['chatgpt','chat gpt','openai'], url: 'https://chat.openai.com/', label: 'ChatGPT — OpenAI' },
+  { keywords: ['gemini','google gemini','bard'], url: 'https://gemini.google.com/', label: 'Google Gemini' },
+  { keywords: ['claude','anthropic'], url: 'https://claude.ai/', label: 'Claude AI' },
+  { keywords: ['hugging face','huggingface'], url: 'https://huggingface.co/', label: 'Hugging Face' },
+  { keywords: ['kaggle'], url: 'https://www.kaggle.com/', label: 'Kaggle' },
+  { keywords: ['codechef','code chef'], url: 'https://www.codechef.com/', label: 'CodeChef' },
+  { keywords: ['coursera'], url: 'https://www.coursera.org/', label: 'Coursera' },
+  { keywords: ['udemy'], url: 'https://www.udemy.com/', label: 'Udemy' },
+  { keywords: ['edx','ed x'], url: 'https://www.edx.org/', label: 'edX' },
+  { keywords: ['khan academy'], url: 'https://www.khanacademy.org/', label: 'Khan Academy' },
+
+  // News & Info
+  { keywords: ['wikipedia','wiki'], url: 'https://en.wikipedia.org/', label: 'Wikipedia' },
+  { keywords: ['quora'], url: 'https://www.quora.com/', label: 'Quora' },
+  { keywords: ['medium'], url: 'https://medium.com/', label: 'Medium' },
+  { keywords: ['dev.to','dev to'], url: 'https://dev.to/', label: 'DEV Community' },
+
+  // Finance & Payments
+  { keywords: ['paytm'], url: 'https://paytm.com/', label: 'Paytm' },
+  { keywords: ['phonepe','phone pe'], url: 'https://www.phonepe.com/', label: 'PhonePe' },
+  { keywords: ['google pay','gpay'], url: 'https://pay.google.com/', label: 'Google Pay' },
+  { keywords: ['cred'], url: 'https://cred.club/', label: 'CRED' },
+  { keywords: ['groww'], url: 'https://groww.in/', label: 'Groww — Investing' },
+  { keywords: ['zerodha','kite'], url: 'https://kite.zerodha.com/', label: 'Zerodha Kite' },
+  { keywords: ['moneycontrol','money control'], url: 'https://www.moneycontrol.com/', label: 'Moneycontrol' },
+
+  // Travel & Transport
+  { keywords: ['irctc','train booking','railway booking','book train'], url: 'https://www.irctc.co.in/', label: 'IRCTC — Train Booking' },
+  { keywords: ['make my trip','makemytrip'], url: 'https://www.makemytrip.com/', label: 'MakeMyTrip' },
+  { keywords: ['goibibo'], url: 'https://www.goibibo.com/', label: 'Goibibo' },
+  { keywords: ['booking.com','hotel booking'], url: 'https://www.booking.com/', label: 'Booking.com' },
+  { keywords: ['airbnb'], url: 'https://www.airbnb.com/', label: 'Airbnb' },
+  { keywords: ['uber'], url: 'https://www.uber.com/', label: 'Uber' },
+  { keywords: ['ola'], url: 'https://www.olacabs.com/', label: 'Ola Cabs' },
+  { keywords: ['zomato'], url: 'https://www.zomato.com/', label: 'Zomato' },
+  { keywords: ['swiggy'], url: 'https://www.swiggy.com/', label: 'Swiggy' },
+
+  // Gaming
+  { keywords: ['steam'], url: 'https://store.steampowered.com/', label: 'Steam' },
+  { keywords: ['epic games','epic store'], url: 'https://store.epicgames.com/', label: 'Epic Games Store' },
+  { keywords: ['roblox'], url: 'https://www.roblox.com/', label: 'Roblox' },
+];
+
 function findBestMatch(transcript) {
   const lower = transcript.toLowerCase().trim();
   let bestMatch = null;
   let bestScore = 0;
 
+  // 1. Check government/service ROUTES first (highest priority)
   for (const route of ROUTES) {
     for (const kw of route.keywords) {
       if (lower.includes(kw)) {
@@ -82,15 +204,31 @@ function findBestMatch(transcript) {
     }
   }
 
-  // Fallback: Google search
-  if (!bestMatch) {
-    return {
-      url: `https://www.google.com/search?q=${encodeURIComponent(transcript + ' india official site')}`,
-      label: `Google Search: "${transcript}"`,
-      isFallback: true
-    };
+  if (bestMatch) return bestMatch;
+
+  // 2. Check popular websites database
+  bestScore = 0;
+  for (const site of POPULAR_SITES) {
+    for (const kw of site.keywords) {
+      if (lower.includes(kw)) {
+        const score = kw.length;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = site;
+        }
+      }
+    }
   }
-  return bestMatch;
+
+  if (bestMatch) return bestMatch;
+
+  // 3. Fallback: Google "I'm Feeling Lucky" — redirects directly to the
+  //    most visited / top-ranked site for the query, not to search results.
+  return {
+    url: `https://www.google.com/search?q=${encodeURIComponent(transcript)}&btnI=1`,
+    label: `Opening top result for "${transcript}"`,
+    isFallback: true
+  };
 }
 
 export default function VoiceAssistant() {
@@ -304,7 +442,7 @@ export default function VoiceAssistant() {
                       border: `1px solid ${result.isFallback ? 'rgba(251,191,36,0.3)' : 'rgba(0,245,212,0.3)'}`,
                     }}>
                       <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem', fontWeight: 600, marginBottom: 6 }}>
-                        {result.isFallback ? '🔍 BEST GUESS' : '✅ FOUND MATCH'}
+                        {result.isFallback ? '🚀 DIRECT REDIRECT' : '✅ FOUND MATCH'}
                       </p>
                       <p style={{ color: 'white', fontSize: '0.95rem', fontWeight: 700, margin: 0, lineHeight: 1.3 }}>{result.label}</p>
                       <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', marginTop: 4, wordBreak: 'break-all' }}>{result.url}</p>
