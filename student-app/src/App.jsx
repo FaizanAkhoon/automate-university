@@ -615,8 +615,8 @@ export default function App() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '0 0 clamp(1rem, 3vw, 4rem)',
-        marginTop: '-1rem',
-        minHeight: 'clamp(360px, 60vh, 580px)',
+        marginTop: 'clamp(-3rem, 8vw - 5rem, -1rem)',
+        minHeight: '280px',
         overflow: 'hidden',
       }}>
         <KineticChain onSelect={setActiveTile} theme={theme} themeAnim={themeAnim} />
