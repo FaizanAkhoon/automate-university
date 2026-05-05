@@ -1,18 +1,36 @@
 import { motion } from 'framer-motion';
 import { Mail, Lock, ShieldCheck, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { signInWithEmail, signInWithGoogle } from '../utils/auth';
+import { playNormalClick } from '../utils/sound';
 
 export default function Login({ onLogin, theme }) {
   const isPink = theme === 'pink';
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleAuth = (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
-    onLogin();
+    playNormalClick();
+    setLoading(true);
+    try {
+      await signInWithEmail(email, password);
+      onLogin();
+    } catch (err) {
+      alert("Sign in failed: " + err.message);
+    }
+    setLoading(false);
   };
 
-  const handleGoogle = () => {
-    // Placeholder for Better Auth Google redirect
-    alert("Google OAuth will be integrated here via Better Auth!");
-    onLogin();
+  const handleGoogle = async () => {
+    playNormalClick();
+    try {
+      await signInWithGoogle();
+      onLogin();
+    } catch (err) {
+      alert("Google sign in failed: " + err.message);
+    }
   };
 
   return (
@@ -43,19 +61,21 @@ export default function Login({ onLogin, theme }) {
             <label className="block text-xs font-semibold mb-1" style={{ color: isPink ? '#5c454f' : 'rgba(255,255,255,0.7)' }}>Email Address</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50" size={16} />
-              <input type="email" placeholder="student@university.edu" className="input-glass w-full pl-9 py-3" required />
+              <input type="email" placeholder="student@university.edu" className="input-glass w-full pl-9 py-3" required 
+                value={email} onChange={e => setEmail(e.target.value)} />
             </div>
           </div>
           <div>
             <label className="block text-xs font-semibold mb-1" style={{ color: isPink ? '#5c454f' : 'rgba(255,255,255,0.7)' }}>Password</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50" size={16} />
-              <input type="password" placeholder="••••••••" className="input-glass w-full pl-9 py-3" required />
+              <input type="password" placeholder="••••••••" className="input-glass w-full pl-9 py-3" required 
+                value={password} onChange={e => setPassword(e.target.value)} />
             </div>
           </div>
           
-          <button type="submit" className="btn-primary w-full py-3 mt-4 flex items-center justify-center gap-2 group">
-            Sign In <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          <button type="submit" disabled={loading} className="btn-primary w-full py-3 mt-4 flex items-center justify-center gap-2 group">
+            {loading ? 'Signing In...' : 'Sign In'} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
 

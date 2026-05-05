@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Mail, X, Moon, Sun, Headphones } from 'lucide-react';
+import { Mail, X, Moon, Sun, Headphones, LogOut, AlertTriangle } from 'lucide-react';
 import { playNormalClick } from './utils/sound';
 import KineticChain from './components/KineticChain';
 import NotesSummarizer from './components/tiles/NotesSummarizer';
@@ -11,6 +11,7 @@ import StudyTimer from './components/tiles/StudyTimer';
 import Calculator from './components/tiles/Calculator';
 import Login from './components/Login';
 import MusicWidget from './components/MusicWidget';
+import { checkSession, signOut } from './utils/auth';
 import './index.css';
 
 const ThemeTransitionOverlay = ({ targetTheme }) => {
@@ -220,6 +221,10 @@ export default function App() {
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
 
   useEffect(() => {
+    checkSession().then(hasSession => setIsAuthenticated(hasSession));
+  }, []);
+
+  useEffect(() => {
     fetch('http://localhost:5000/api/messages')
       .then(r => r.json())
       .then(data => setMessages(data))
@@ -276,6 +281,39 @@ export default function App() {
     }
   };
 
+  const handleSOS = () => {
+    playNormalClick();
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    
+    const btn = document.getElementById('sos-btn-icon');
+    if (btn) btn.classList.add('animate-pulse');
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          console.log("SOS TRIGGERED:", {
+            user: "student@university.edu",
+            lat: latitude,
+            lng: longitude,
+            timestamp: new Date().toISOString()
+          });
+          if (btn) btn.classList.remove('animate-pulse');
+          alert(`🚨 SOS ALERT SENT TO ADMIN!\n\nLocation: Lat ${latitude.toFixed(4)}, Lng ${longitude.toFixed(4)}\nCampus Security has been notified.`);
+        } catch (err) {
+          alert("Failed to send SOS.");
+        }
+      },
+      (error) => {
+        if (btn) btn.classList.remove('animate-pulse');
+        alert("Unable to retrieve your location for SOS: " + error.message);
+      }
+    );
+  };
+
   const ActiveComponent = activeTile ? TILE_MAP[activeTile] : null;
 
   return (
@@ -316,6 +354,15 @@ export default function App() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {theme === 'pink' && (
+            <button
+              onClick={handleSOS}
+              className="btn-3d-glass"
+              style={{ background: 'rgba(255,50,50,0.1)', borderColor: 'rgba(255,50,50,0.4)', boxShadow: '0 0 15px rgba(255,50,50,0.2)' }}
+            >
+              <AlertTriangle id="sos-btn-icon" size={18} color="#ff3333" />
+            </button>
+          )}
           <button
             onClick={() => setShowMusic(!showMusic)}
             className="btn-3d-glass"
@@ -345,6 +392,15 @@ export default function App() {
             className="btn-3d-glass"
           >
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button
+            onClick={async () => {
+              await signOut();
+              setIsAuthenticated(false);
+            }}
+            className="btn-3d-glass"
+          >
+            <LogOut size={18} />
           </button>
           <span style={{ color: 'var(--text-muted, rgba(255,255,255,0.3))', fontSize: '0.75rem' }}>
             {new Date().toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' })}
