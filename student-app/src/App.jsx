@@ -18,9 +18,9 @@ import {
 } from 'lucide-react';
 
 // ─── DUSTER THEME TRANSITION ─────────────────────────────────────────────────
-// Screen is divided into 6 horizontal bands. Each tile sweeps across its band
-// from left to right like a duster, and the trail it leaves behind IS the new
-// theme being applied. No blur, no glow — pure, sharp, clean paint strokes.
+// Overlay covers the screen with the OLD theme color. The actual CSS theme
+// swaps instantly underneath. Then dusters wipe the old color away left to
+// right, revealing the new theme beneath. Zero blank time.
 
 const DUSTER_TILES = [
   { icon: BookOpen,    label: 'Notes' },
@@ -31,36 +31,38 @@ const DUSTER_TILES = [
   { icon: CalcIcon,    label: 'Calc' },
 ];
 
-const ThemeTransitionOverlay = ({ targetTheme }) => {
-  if (!targetTheme) return null;
+const ThemeTransitionOverlay = ({ fromTheme }) => {
+  if (!fromTheme) return null;
 
-  const toDark = targetTheme === 'dark';
+  // fromTheme = the OLD theme we're wiping away
+  const wasPink = fromTheme === 'pink';
   const vh = typeof window !== 'undefined' ? window.innerHeight : 1000;
+  const w  = typeof window !== 'undefined' ? window.innerWidth : 1920;
   const bandH = vh / 6;
 
-  // Stagger delays — starts immediately, cascades elegantly
+  // Stagger: starts immediately, cascades for organic feel
   const delays = [0, 0.12, 0.04, 0.18, 0.08, 0.22];
 
   return (
     <motion.div
       exit={{ opacity: 0 }}
-      transition={{ duration: 1, ease: 'easeOut' }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
       style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none', overflow: 'hidden' }}
     >
       {DUSTER_TILES.map((tile, i) => {
         const Icon = tile.icon;
         const yPos = i * bandH;
 
-        const bandBg = toDark
-          ? '#05050a'
-          : `hsl(${340 + i * 4}, ${85 + i * 2}%, ${92 - i * 2}%)`;
+        // Band shows the OLD theme color — this is what gets wiped away
+        const bandBg = wasPink
+          ? `hsl(${340 + i * 4}, ${85 + i * 2}%, ${92 - i * 2}%)`
+          : '#05050a';
 
-        const iconColor = toDark ? '#00f5d4' : '#ff1493';
-        const iconBg = toDark
+        // Icon styled for the NEW theme (what's being revealed)
+        const iconColor = wasPink ? '#00f5d4' : '#ff1493';
+        const iconBg = wasPink
           ? 'rgba(15,15,30,0.95)'
           : 'rgba(255,255,255,0.95)';
-
-        const w = typeof window !== 'undefined' ? window.innerWidth : 1920;
 
         return (
           <div
@@ -68,14 +70,14 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
             style={{
               position: 'absolute',
               left: 0, top: yPos,
-              width: '100%', height: bandH + 1, // +1 prevents sub-pixel gap
+              width: '100%', height: bandH + 1,
               overflow: 'hidden',
             }}
           >
-            {/* The painted band — revealed from left to right via clipPath */}
+            {/* Old theme band — starts fully visible, wiped away left to right */}
             <motion.div
-              initial={{ clipPath: 'inset(0 100% 0 0)' }}
-              animate={{ clipPath: 'inset(0 0% 0 0)' }}
+              initial={{ clipPath: 'inset(0 0% 0 0)' }}
+              animate={{ clipPath: 'inset(0 0% 0 100%)' }}
               transition={{
                 duration: 2,
                 ease: [0.25, 0.1, 0.25, 1],
@@ -88,7 +90,7 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
               }}
             />
 
-            {/* The duster tile icon — tracks the leading edge of the reveal */}
+            {/* Duster icon — rides the wiping edge */}
             <motion.div
               initial={{ x: -60 }}
               animate={{ x: w + 20 }}
@@ -104,10 +106,10 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
                 borderRadius: 14,
                 background: iconBg,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: toDark
+                boxShadow: wasPink
                   ? '4px 0 20px rgba(0,245,212,0.3), -2px 0 10px rgba(108,99,255,0.2)'
                   : '4px 0 20px rgba(255,105,180,0.3), -2px 0 10px rgba(255,182,193,0.2)',
-                border: `1px solid ${toDark ? 'rgba(0,245,212,0.3)' : 'rgba(255,105,180,0.3)'}`,
+                border: `1px solid ${wasPink ? 'rgba(0,245,212,0.3)' : 'rgba(255,105,180,0.3)'}`,
                 zIndex: 2,
               }}
             >
@@ -237,22 +239,15 @@ export default function App() {
       setThemeAnim(null);
       return;
     }
+    const oldTheme = theme;
     const nextTheme = theme === 'dark' ? 'pink' : 'dark';
     
-    setThemeAnim(nextTheme);
+    // Show overlay with OLD theme color, then swap CSS immediately
+    setThemeAnim(oldTheme);
+    setTheme(nextTheme);
     
-    // Swap theme at 0.8s (dusters are already painting by then)
-    if (nextTheme === 'dark') {
-      document.body.classList.add('sucking-dark');
-      setTimeout(() => setTheme(nextTheme), 800);
-      setTimeout(() => {
-        document.body.classList.remove('sucking-dark');
-        setThemeAnim(null);
-      }, 2800);
-    } else {
-      setTimeout(() => setTheme(nextTheme), 800);
-      setTimeout(() => setThemeAnim(null), 2800);
-    }
+    // Cleanup after dusters finish wiping
+    setTimeout(() => setThemeAnim(null), 2800);
   };
 
   const openInbox = () => {
@@ -301,7 +296,7 @@ export default function App() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <AnimatePresence>
-        {themeAnim && <ThemeTransitionOverlay targetTheme={themeAnim} />}
+        {themeAnim && <ThemeTransitionOverlay fromTheme={themeAnim} />}
       </AnimatePresence>
       
       {!isAuthenticated ? (
