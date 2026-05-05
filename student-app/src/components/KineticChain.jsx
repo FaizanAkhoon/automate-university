@@ -211,7 +211,7 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
   const currentSlot = useRef(0);
   const userInteracting = useRef(false);
   const interactionTimeout = useRef(null);
-  const [modeIdx, setModeIdx] = useState(0);
+  const [modeIdx, setModeIdx] = useState(2);
   const mode = ANIMATION_MODES[modeIdx];
   const containerRef = useRef(null);
   const [scaleFactor, setScaleFactor] = useState(1);
@@ -238,10 +238,6 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
         const w = entry.contentRect.width;
         const newScale = Math.min(w / 800, 1);
         setScaleFactor(newScale);
-        // Auto-switch to vertical on narrow screens
-        if (w < 520) {
-          setModeIdx(1); // vertical
-        }
       }
     });
     obs.observe(el);
