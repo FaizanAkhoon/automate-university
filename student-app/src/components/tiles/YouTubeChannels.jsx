@@ -49,7 +49,7 @@ export default function YouTubeChannels({ onClose }) {
               <PlayCircle size={20} color="#ef4444" />
             </div>
             <div>
-              <h2 className="text-white font-bold text-xl">Free Programming Channels</h2>
+              <h2 className="text-white font-bold text-xl">Learn Skills</h2>
               <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{CHANNELS.length} curated channels · 100% free</p>
             </div>
           </div>

@@ -84,7 +84,7 @@ export default function StudyTimer({ onClose }) {
               <Timer size={20} color={mode.color} />
             </div>
             <div>
-              <h2 className="text-white font-bold text-xl">Study Timer</h2>
+              <h2 className="text-white font-bold text-xl">Pomodoro Technique</h2>
               <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Pomodoro technique · {cycles} sessions today</p>
             </div>
           </div>

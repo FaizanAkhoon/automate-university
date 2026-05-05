@@ -32,8 +32,8 @@ const DUSTER_TILES = [
   { icon: BookOpen,      label: 'Notes' },
   { icon: User,          label: 'Student' },
   { icon: Heart,         label: 'Health' },
-  { icon: PlayCircle,    label: 'YouTube' },
-  { icon: Timer,         label: 'Timer' },
+  { icon: PlayCircle,    label: 'Learn Skills' },
+  { icon: Timer,         label: 'Pomodoro Technique' },
   { icon: GraduationCap, label: 'CS Book' },
 ];
 

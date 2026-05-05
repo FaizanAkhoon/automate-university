@@ -9,8 +9,8 @@ const TILES = [
   { id: 'notes',    label: 'Notes Summarizer',  icon: BookOpen,      color: '#6c63ff', glow: 'rgba(108,99,255,0.8)' },
   { id: 'student',  label: 'Student Info',        icon: User,          color: '#a855f7', glow: 'rgba(168,85,247,0.8)' },
   { id: 'health',   label: 'Health Tracker',      icon: Heart,         color: '#ec4899', glow: 'rgba(236,72,153,0.8)' },
-  { id: 'youtube',  label: 'YouTube Channels',    icon: PlayCircle,    color: '#ef4444', glow: 'rgba(239,68,68,0.8)'  },
-  { id: 'timer',    label: 'Study Timer',         icon: Timer,         color: '#00f5d4', glow: 'rgba(0,245,212,0.8)'  },
+  { id: 'youtube',  label: 'Learn Skills',        icon: PlayCircle,    color: '#ef4444', glow: 'rgba(239,68,68,0.8)'  },
+  { id: 'timer',    label: 'Pomodoro Technique',  icon: Timer,         color: '#00f5d4', glow: 'rgba(0,245,212,0.8)'  },
   { id: 'csbook',   label: 'CS Book',             icon: GraduationCap, color: '#f59e0b', glow: 'rgba(245,158,11,0.8)' },
 ];
 
@@ -24,7 +24,7 @@ const ANIMATION_MODES = [
 ];
 
 // --- 120 FPS Universal Tile ---
-function UniversalTile({ tile, x, y, z, zRange, onSelect, theme }) {
+function UniversalTile({ tile, x, y, z, zRange, onSelect, theme, width = 260 }) {
   const isPink = theme === 'pink';
   const Icon = tile.icon;
   
@@ -61,9 +61,9 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme }) {
       onClick={() => onSelect(tile.id)}
       style={{
         position: 'absolute', left: '50%', top: '50%',
-        marginLeft: -130, marginTop: -42,
+        marginLeft: -(width / 2), marginTop: -42,
         x, y, z, scale, opacity, filter, boxShadow,
-        width: 260, height: 84,
+        width: width, height: 84,
         background: bgDefault,
         border: borderDefault,
         backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
@@ -167,7 +167,7 @@ function VerticalLayout({ springAngle, onSelect, theme }) {
         const x = useTransform(angle, a => 0); 
         const y = useTransform(angle, a => Math.sin(a) * VERTICAL);
         const z = useTransform(angle, a => Math.cos(a) * RADIUS_Z);
-        return <UniversalTile key={tile.id} tile={tile} x={x} y={y} z={z} zRange={RADIUS_Z} onSelect={onSelect} theme={theme} />;
+        return <UniversalTile key={tile.id} tile={tile} x={x} y={y} z={z} zRange={RADIUS_Z} onSelect={onSelect} theme={theme} width={340} />;
       })}
     </div>
   );
