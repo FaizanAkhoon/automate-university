@@ -199,6 +199,7 @@ export default function App() {
   const [theme, setTheme] = useState('dark');
   const [themeAnim, setThemeAnim] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [studentName, setStudentName] = useState('');
   const [showInbox, setShowInbox] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
@@ -211,6 +212,15 @@ export default function App() {
     fetch('http://localhost:5000/api/messages')
       .then(r => r.json())
       .then(data => setMessages(data))
+      .catch(() => {});
+
+    fetch('http://localhost:5000/api/students')
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setStudentName(data[0].name);
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -417,8 +427,8 @@ export default function App() {
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
         >
-          <p className="text-sm font-semibold mb-2" style={{ color: '#6c63ff', letterSpacing: '0.12em' }}>
-            WELCOME BACK
+          <p className="text-sm font-semibold mb-2" style={{ color: '#6c63ff', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            {studentName ? studentName : 'WELCOME BACK'}
           </p>
           <h2 className="gradient-text font-black" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, marginBottom: '0.75rem' }}>
             Your Smart<br />Learning Dashboard

@@ -35,8 +35,8 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme }) {
   const filter = useTransform(blurValue, b => `blur(${b}px)`);
 
   const boxShadow = useTransform(z, zv => zv > 0 
-    ? `0 20px 50px rgba(0,0,0,${isPink ? '0.1' : '0.6'}), inset 0 1px 2px rgba(255,255,255,${isPink ? '0.6' : '0.2'}), 0 0 50px ${tile.glow.replace('0.8', isPink ? '0.5' : '0.3')}`
-    : `0 4px 20px rgba(0,0,0,${isPink ? '0.05' : '0.3'}), inset 0 1px 1px rgba(255,255,255,${isPink ? '0.2' : '0.05'})`);
+    ? `0 20px 50px rgba(0,0,0,${isPink ? '0.15' : '0.7'}), inset 0 2px 4px rgba(255,255,255,${isPink ? '0.8' : '0.4'}), inset 0 -4px 10px rgba(0,0,0,${isPink ? '0.05' : '0.4'}), 0 0 50px ${tile.glow.replace('0.8', isPink ? '0.6' : '0.4')}`
+    : `0 4px 20px rgba(0,0,0,${isPink ? '0.05' : '0.3'}), inset 0 1px 2px rgba(255,255,255,${isPink ? '0.3' : '0.1'})`);
 
   const edgeOpacity = useTransform(z, zv => zv > 0 ? 0.8 : 0.2);
   const shadowOpacity = useTransform(z, zv => zv > 0 ? 1 : 0.2);
@@ -47,14 +47,14 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme }) {
   });
 
   const bgDefault = isPink 
-    ? `linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.01))`
-    : `linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.005))`;
+    ? `linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.02) 100%)`
+    : `linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.01) 100%)`;
   const bgHover = isPink
-    ? `linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.05))`
-    : `linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02))`;
+    ? `linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.05) 100%)`
+    : `linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0.03) 100%)`;
   
-  const borderDefault = isPink ? `1px solid rgba(255,255,255,0.4)` : `1px solid rgba(255,255,255,0.15)`;
-  const borderHover = isPink ? `1px solid rgba(255,255,255,0.8)` : `1px solid rgba(255,255,255,0.4)`;
+  const borderDefault = isPink ? `1px solid rgba(255,255,255,0.6)` : `1px solid rgba(255,255,255,0.3)`;
+  const borderHover = isPink ? `1px solid rgba(255,255,255,1)` : `1px solid rgba(255,255,255,0.6)`;
 
   return (
     <motion.button
