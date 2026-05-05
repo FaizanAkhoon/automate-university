@@ -9,6 +9,7 @@ import HealthTile from './components/tiles/HealthTile';
 import YouTubeChannels from './components/tiles/YouTubeChannels';
 import StudyTimer from './components/tiles/StudyTimer';
 import CsBook from './components/tiles/CsBook';
+import CommunityBoard from './components/tiles/CommunityBoard';
 import Login from './components/Login';
 import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
@@ -197,23 +198,44 @@ function InboxModal({ messages, onClose, theme }) {
 function TechNewsBanner({ theme }) {
   const [articles, setArticles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const isPink = theme === 'pink';
 
   useEffect(() => {
-    // Fetch top 5 tech/programming articles from DEV.to API (no key required)
-    fetch('https://dev.to/api/articles?tag=programming&per_page=5')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.length > 0) setArticles(data);
-      })
-      .catch(() => {});
+    const curated = [
+      { id: 'fs1', title: '🔥 Fireship: 100 Seconds of Code — Learn any tech fast', url: 'https://www.youtube.com/@Fireship', source: 'Fireship' },
+      { id: 'fs2', title: '🔥 Fireship: God-Tier Developer Roadmap 2025', url: 'https://www.youtube.com/watch?v=pEfrdAtAmqk', source: 'Fireship' },
+      { id: 'fs3', title: '🔥 Fireship: AI just changed everything... again', url: 'https://www.youtube.com/@Fireship/videos', source: 'Fireship' },
+    ];
+
+    // Fetch DEV.to trending articles
+    const devtoPromise = fetch('https://dev.to/api/articles?per_page=5&top=1')
+      .then(r => r.json())
+      .then(data => (data || []).map(a => ({ id: 'dev_' + a.id, title: a.title, url: a.url, source: 'DEV.to' })))
+      .catch(() => []);
+
+    // Fetch Hacker News top stories
+    const hnPromise = fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
+      .then(r => r.json())
+      .then(ids => Promise.all(
+        (ids || []).slice(0, 4).map(id =>
+          fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
+        )
+      ))
+      .then(items => items.filter(i => i && i.title).map(i => ({ id: 'hn_' + i.id, title: i.title, url: i.url || `https://news.ycombinator.com/item?id=${i.id}`, source: 'Hacker News' })))
+      .catch(() => []);
+
+    Promise.all([devtoPromise, hnPromise]).then(([devArticles, hnArticles]) => {
+      const all = [...curated, ...devArticles, ...hnArticles].filter(a => a.title && a.url);
+      if (all.length > 0) setArticles(all);
+    });
   }, []);
 
   useEffect(() => {
     if (articles.length === 0) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % articles.length);
-    }, 5000); // Rotate every 5 seconds
+    }, 5000);
     return () => clearInterval(interval);
   }, [articles.length]);
 
@@ -226,37 +248,48 @@ function TechNewsBanner({ theme }) {
   }
 
   const article = articles[currentIndex];
+  const sourceColors = { 'Fireship': '#ff4500', 'DEV.to': '#00f5d4', 'Hacker News': '#ff6600' };
+  const srcColor = sourceColors[article.source] || '#00f5d4';
 
   return (
-    <div style={{ overflow: 'hidden', maxWidth: 500, margin: '1rem auto 0' }}>
+    <div style={{ overflow: 'hidden', maxWidth: 520, margin: '1rem auto 0', position: 'relative', zIndex: 5 }}>
       <AnimatePresence mode="wait">
-        <motion.div
+        <motion.a
           key={article.id}
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -15 }}
           transition={{ duration: 0.4 }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           style={{
-            padding: '0.75rem 1rem',
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '0.75rem 1rem', textDecoration: 'none',
             background: isPink ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.03)',
-            border: isPink ? '1px solid rgba(255,182,193,0.5)' : '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 16, display: 'flex', alignItems: 'center', gap: 12,
-            boxShadow: isPink ? '0 4px 15px rgba(255,105,180,0.1)' : '0 4px 15px rgba(0,0,0,0.2)',
-            cursor: 'pointer', textAlign: 'left'
+            border: isPink ? '1px solid rgba(255,182,193,0.5)' : `1px solid ${isHovered ? 'rgba(108,99,255,0.5)' : 'rgba(255,255,255,0.1)'}`,
+            borderRadius: 16,
+            boxShadow: isHovered
+              ? (isPink ? '0 4px 25px rgba(255,105,180,0.3)' : '0 4px 25px rgba(108,99,255,0.3)')
+              : (isPink ? '0 4px 15px rgba(255,105,180,0.1)' : '0 4px 15px rgba(0,0,0,0.2)'),
+            cursor: 'pointer', textAlign: 'left',
+            transform: isHovered ? 'scale(1.02)' : 'scale(1)',
+            transition: 'transform 0.2s, box-shadow 0.2s, border 0.2s',
           }}
-          onClick={() => window.open(article.url, '_blank')}
         >
           <div style={{
             width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-            background: isPink ? 'linear-gradient(135deg, #ff1493, #ffb6c1)' : 'linear-gradient(135deg, #00f5d4, #00b4d8)',
+            background: isPink ? 'linear-gradient(135deg, #ff1493, #ffb6c1)' : `linear-gradient(135deg, ${srcColor}, #00b4d8)`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1rem', boxShadow: isPink ? '0 0 10px rgba(255,20,147,0.3)' : '0 0 10px rgba(0,245,212,0.3)'
+            fontSize: '1rem', boxShadow: `0 0 10px ${srcColor}44`
           }}>
-            📰
+            {article.source === 'Fireship' ? '🔥' : article.source === 'Hacker News' ? '🟠' : '📰'}
           </div>
           <div style={{ flex: 1, overflow: 'hidden' }}>
-            <p style={{ color: isPink ? '#ff1493' : '#00f5d4', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
-              LATEST IN TECH & AI
+            <p style={{ color: isPink ? '#ff1493' : srcColor, fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>
+              {article.source} · CLICK TO READ ↗
             </p>
             <p style={{ 
               color: isPink ? '#5c454f' : 'rgba(255,255,255,0.9)', 
@@ -266,7 +299,13 @@ function TechNewsBanner({ theme }) {
               {article.title}
             </p>
           </div>
-        </motion.div>
+          <div style={{
+            width: 24, height: 24, borderRadius: 6, flexShrink: 0,
+            background: 'rgba(255,255,255,0.08)', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem'
+          }}>↗</div>
+        </motion.a>
       </AnimatePresence>
     </div>
   );
@@ -283,6 +322,7 @@ export default function App() {
   const [showInbox, setShowInbox] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const [showWaterReminder, setShowWaterReminder] = useState(false);
+  const [showCommunity, setShowCommunity] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
 
   useEffect(() => {
@@ -556,6 +596,24 @@ export default function App() {
         Student Portal · Built with React + Framer Motion + Node.js
       </footer>
 
+      {/* Community Board floating button */}
+      <motion.button
+        onClick={() => setShowCommunity(true)}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 50,
+          width: 56, height: 56, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #6c63ff, #a855f7)',
+          border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 8px 32px rgba(108,99,255,0.5), 0 0 20px rgba(108,99,255,0.3)',
+          fontSize: '1.5rem'
+        }}
+      >
+        👥
+      </motion.button>
+
       {/* Active tile modal */}
       <AnimatePresence>
         {ActiveComponent && (
@@ -566,6 +624,13 @@ export default function App() {
         )}
         {showMusic && (
           <MusicWidget onClose={() => setShowMusic(false)} theme={theme} />
+        )}
+        {showCommunity && (
+          <CommunityBoard
+            onClose={() => setShowCommunity(false)}
+            studentName={studentName}
+            studentDept={studentDept}
+          />
         )}
         {showWaterReminder && (
           <motion.div

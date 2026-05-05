@@ -204,6 +204,38 @@ app.get('/api/admin/emergencies', (req, res) => {
   res.json(db.emergencies || []);
 });
 
+// ─── COMMUNITY BOARD ─────────────────────────────────────────────────────────
+app.get('/api/community', (req, res) => {
+  const db = readDB();
+  res.json(db.communityPosts || []);
+});
+
+app.post('/api/community', (req, res) => {
+  const db = readDB();
+  db.communityPosts = db.communityPosts || [];
+  const post = {
+    id: Date.now().toString(),
+    type: req.body.type || 'project',
+    title: req.body.title || '',
+    description: req.body.description || '',
+    skills: req.body.skills || '',
+    contact: req.body.contact || '',
+    authorName: req.body.authorName || 'Anonymous',
+    authorDept: req.body.authorDept || '',
+    createdAt: new Date().toISOString()
+  };
+  db.communityPosts.unshift(post);
+  writeDB(db);
+  res.status(201).json(post);
+});
+
+app.delete('/api/community/:id', (req, res) => {
+  const db = readDB();
+  db.communityPosts = (db.communityPosts || []).filter(p => p.id !== req.params.id);
+  writeDB(db);
+  res.json({ success: true });
+});
+
 // ─── START ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`🚀 Student Portal API running on http://localhost:${PORT}`);

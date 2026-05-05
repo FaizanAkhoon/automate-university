@@ -58,5 +58,6 @@
     }
   ],
   "adminPassword": "admin123",
-  "emergencies": []
+  "emergencies": [],
+  "communityPosts": []
 }
