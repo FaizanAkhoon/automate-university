@@ -23,6 +23,28 @@ import {
   BookOpen, User, Heart, PlayCircle, Timer, GraduationCap, Users
 } from 'lucide-react';
 
+function AxiomLogo({ theme }) {
+  const isPink = theme === 'pink';
+  const color1 = isPink ? '#ff1493' : '#00f5d4';
+  const color2 = isPink ? '#ffb6c1' : '#6c63ff';
+
+  return (
+    <svg width="120" height="30" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: `drop-shadow(0 0 8px ${color1}55)` }}>
+      <defs>
+        <linearGradient id="axiom-grad" x1="0" y1="0" x2="160" y2="40" gradientUnits="userSpaceOnUse">
+          <stop stopColor={color1} />
+          <stop offset="1" stopColor={color2} />
+        </linearGradient>
+      </defs>
+      <path 
+        d="M10 35 L25 10 L40 35 Q45 40 50 10 L70 35 M70 10 L50 35 Q65 40 85 10 L85 35 Q95 40 105 35 A12 15 0 1 0 105 10 Q120 10 130 35 L130 10 L142 25 L154 10 L154 35"
+        stroke="url(#axiom-grad)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" 
+      />
+      <path d="M18 22 L32 22" stroke="url(#axiom-grad)" strokeWidth="6" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 // ─── DUSTER THEME TRANSITION ─────────────────────────────────────────────────
 // Overlay covers the screen with the OLD theme color. The actual CSS theme
 // swaps instantly underneath. Then dusters wipe the old color away left to
@@ -483,7 +505,7 @@ export default function App() {
         <Login onLogin={() => setIsAuthenticated(true)} theme={theme} />
       ) : (
         <>
-          <VoiceAssistant />
+          <VoiceAssistant theme={theme} />
           {/* Top bar */}
           <header className="glass app-header" style={{
         padding: '0.75rem 1rem',
@@ -497,19 +519,9 @@ export default function App() {
         gap: '0.5rem',
       }}>
         <div className="flex items-center gap-3">
-          <div
-            style={{
-              width: 36, height: 36, borderRadius: 10,
-              background: 'linear-gradient(135deg,#6c63ff,#a855f7)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 16px rgba(108,99,255,0.5)',
-            }}
-          >
-            <span style={{ fontSize: 16 }}>🎓</span>
-          </div>
+          <AxiomLogo theme={theme} />
           <div>
-            <h1 className="text-white font-bold text-base leading-none">Student Portal</h1>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>Your learning hub</p>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', marginTop: 4 }}>Your learning hub</p>
           </div>
         </div>
         <div className="flex items-center gap-2" style={{ flexWrap: 'nowrap' }}>

@@ -231,7 +231,12 @@ function findBestMatch(transcript) {
   };
 }
 
-export default function VoiceAssistant() {
+export default function VoiceAssistant({ theme }) {
+  const isPink = theme === 'pink';
+  const themeColor1 = isPink ? '#ff1493' : '#00f5d4';
+  const themeColor2 = isPink ? '#ffb6c1' : '#00bbf9';
+  const themeColorHover = isPink ? '#ff69b4' : '#00f5d4';
+  
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -305,12 +310,12 @@ export default function VoiceAssistant() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.92 }}
         style={{
-          position: 'fixed', top: 80, left: 20, zIndex: 60,
+          position: 'fixed', bottom: 'clamp(16px, 4vw, 24px)', left: 'clamp(16px, 4vw, 24px)', zIndex: 60,
           width: 48, height: 48, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #00f5d4, #00bbf9)',
+          background: `linear-gradient(135deg, ${themeColor1}, ${themeColor2})`,
           border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 6px 24px rgba(0,245,212,0.4), 0 0 16px rgba(0,245,212,0.2)',
+          boxShadow: `0 6px 24px ${themeColor1}66, 0 0 16px ${themeColor1}33`,
           color: '#0a0a0a', fontSize: '1.2rem'
         }}
         title="Voice Navigator"
@@ -341,24 +346,24 @@ export default function VoiceAssistant() {
               onClick={e => e.stopPropagation()}
               style={{
                 width: '95vw', maxWidth: 440,
-                background: 'linear-gradient(145deg, #111827, #0d0f18)',
+                background: isPink ? 'linear-gradient(145deg, #2b1b24, #1a0f15)' : 'linear-gradient(145deg, #111827, #0d0f18)',
                 borderRadius: 24, overflow: 'hidden',
-                border: '1px solid rgba(0,245,212,0.25)',
-                boxShadow: '0 40px 80px rgba(0,0,0,0.7), 0 0 50px rgba(0,245,212,0.1)'
+                border: `1px solid ${themeColor1}44`,
+                boxShadow: `0 40px 80px rgba(0,0,0,0.7), 0 0 50px ${themeColor1}22`
               }}
             >
               {/* Header */}
               <div style={{
                 padding: '1rem 1.25rem', display: 'flex', alignItems: 'center',
                 justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.07)',
-                background: 'rgba(0,245,212,0.05)'
+                background: `${themeColor1}11`
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
                     width: 34, height: 34, borderRadius: 10,
-                    background: 'linear-gradient(135deg, #00f5d4, #00bbf9)',
+                    background: `linear-gradient(135deg, ${themeColor1}, ${themeColor2})`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 0 14px rgba(0,245,212,0.4)'
+                    boxShadow: `0 0 14px ${themeColor1}66`
                   }}>
                     <Mic size={16} color="#0a0a0a" />
                   </div>
@@ -382,29 +387,29 @@ export default function VoiceAssistant() {
                   {pulseAnim && (
                     <>
                       <motion.div animate={{ scale: [1, 1.8], opacity: [0.4, 0] }} transition={{ duration: 1.2, repeat: Infinity }}
-                        style={{ position: 'absolute', inset: -10, borderRadius: '50%', border: '2px solid #00f5d4' }} />
+                        style={{ position: 'absolute', inset: -10, borderRadius: '50%', border: `2px solid ${themeColor1}` }} />
                       <motion.div animate={{ scale: [1, 2.2], opacity: [0.2, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
-                        style={{ position: 'absolute', inset: -10, borderRadius: '50%', border: '2px solid #00bbf9' }} />
+                        style={{ position: 'absolute', inset: -10, borderRadius: '50%', border: `2px solid ${themeColor2}` }} />
                     </>
                   )}
                   <motion.button
                     onClick={isListening ? stopListening : startListening}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    animate={isListening ? { boxShadow: ['0 0 20px rgba(0,245,212,0.4)', '0 0 40px rgba(0,245,212,0.7)', '0 0 20px rgba(0,245,212,0.4)'] } : {}}
+                    animate={isListening ? { boxShadow: [`0 0 20px ${themeColor1}66`, `0 0 40px ${themeColor1}aa`, `0 0 20px ${themeColor1}66`] } : {}}
                     transition={isListening ? { duration: 1.2, repeat: Infinity } : {}}
                     style={{
                       width: 80, height: 80, borderRadius: '50%',
                       background: isListening
                         ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-                        : 'linear-gradient(135deg, #00f5d4, #00bbf9)',
+                        : `linear-gradient(135deg, ${themeColor1}, ${themeColor2})`,
                       border: 'none', cursor: 'pointer',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       color: isListening ? 'white' : '#0a0a0a',
                       position: 'relative', zIndex: 1,
                       boxShadow: isListening
                         ? '0 0 30px rgba(239,68,68,0.5)'
-                        : '0 0 30px rgba(0,245,212,0.4)'
+                        : `0 0 30px ${themeColor1}66`
                     }}
                   >
                     {isListening ? <MicOff size={28} /> : <Mic size={28} />}
@@ -438,8 +443,8 @@ export default function VoiceAssistant() {
                     style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <div style={{
                       padding: '1rem', borderRadius: 14,
-                      background: result.isFallback ? 'rgba(251,191,36,0.08)' : 'rgba(0,245,212,0.08)',
-                      border: `1px solid ${result.isFallback ? 'rgba(251,191,36,0.3)' : 'rgba(0,245,212,0.3)'}`,
+                      background: result.isFallback ? 'rgba(251,191,36,0.08)' : `${themeColor1}11`,
+                      border: `1px solid ${result.isFallback ? 'rgba(251,191,36,0.3)' : `${themeColor1}44`}`,
                     }}>
                       <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.68rem', fontWeight: 600, marginBottom: 6 }}>
                         {result.isFallback ? '🚀 DIRECT REDIRECT' : '✅ FOUND MATCH'}
@@ -454,11 +459,11 @@ export default function VoiceAssistant() {
                       whileTap={{ scale: 0.98 }}
                       style={{
                         width: '100%', padding: '0.75rem', borderRadius: 12,
-                        background: 'linear-gradient(135deg, #00f5d4, #00bbf9)',
+                        background: `linear-gradient(135deg, ${themeColor1}, ${themeColor2})`,
                         border: 'none', cursor: 'pointer', color: '#0a0a0a',
                         fontWeight: 800, fontSize: '0.9rem',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                        boxShadow: '0 4px 20px rgba(0,245,212,0.35)'
+                        boxShadow: `0 4px 20px ${themeColor1}55`
                       }}
                     >
                       <ExternalLink size={16} /> Go to this page
