@@ -614,7 +614,8 @@ export default function App() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'clamp(0.5rem, 2vw, 2rem) 0 clamp(1rem, 3vw, 4rem)',
+        padding: '0 0 clamp(1rem, 3vw, 4rem)',
+        marginTop: '-1rem',
         minHeight: 'clamp(360px, 60vh, 580px)',
         overflow: 'hidden',
       }}>

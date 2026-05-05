@@ -61,9 +61,9 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme, width = 260 }) 
       onClick={() => onSelect(tile.id)}
       style={{
         position: 'absolute', left: '50%', top: '50%',
-        marginLeft: -(width / 2), marginTop: -42,
+        marginLeft: `calc(min(${width}px, 100vw - 40px) / -2)`, marginTop: -42,
         x, y, z, scale, opacity, filter, boxShadow,
-        width: width, height: 84,
+        width: width, maxWidth: 'calc(100vw - 40px)', height: 84,
         background: bgDefault,
         border: borderDefault,
         backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
