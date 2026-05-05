@@ -138,7 +138,7 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
     <motion.div
       exit={{ opacity: 0 }}
       transition={{ duration: 1.2, ease: 'easeOut' }}
-      style={{ position: 'fixed', inset: 0, zIndex: 5, pointerEvents: 'none', overflow: 'hidden' }}
+      style={{ position: 'fixed', inset: 0, zIndex: 3, pointerEvents: 'none', overflow: 'hidden' }}
     >
       {/* ── PHASE 1: Supernova core — blindingly white singularity ── */}
       <motion.div
@@ -227,11 +227,11 @@ const ThemeTransitionOverlay = ({ targetTheme }) => {
         />
       ))}
 
-      {/* ── PHASE 5: The pink universe expands behind everything ── */}
+      {/* ── PHASE 5: Pink ink slowly bleeds outward — slow, gorgeous fill ── */}
       <motion.div
         initial={{ clipPath: `circle(0px at ${cx} ${cy})` }}
         animate={{ clipPath: `circle(200vmax at ${cx} ${cy})` }}
-        transition={{ duration: 3.5, ease: [0.05, 0.9, 0.2, 1], delay: 0.15 }}
+        transition={{ duration: 7, ease: [0.0, 0.3, 0.1, 1], delay: 0.1 }}
         style={{
           position: 'absolute', inset: 0,
           background: `radial-gradient(ellipse 120% 120% at ${cx} ${cy},
@@ -361,24 +361,27 @@ export default function App() {
   }, []);
 
   const handleThemeToggle = () => {
-    if (themeAnim) return;
+    if (themeAnim) {
+      // allow re-toggling: cancel animation and flip back
+      setThemeAnim(null);
+      return;
+    }
     const nextTheme = theme === 'dark' ? 'pink' : 'dark';
     
     setThemeAnim(nextTheme);
     
     if (nextTheme === 'dark') {
-      // Drain effect: add slow-transition class, then swap theme after 1s delay
-      // so the pink water visibly drains FIRST, then structure changes smoothly
+      // Drain effect: swap theme after 1s so pink water drains first
       document.body.classList.add('sucking-dark');
       setTimeout(() => setTheme(nextTheme), 1000);
       setTimeout(() => {
         document.body.classList.remove('sucking-dark');
         setThemeAnim(null);
-      }, 4500);
+      }, 5000);
     } else {
-      // Mist spray: swap theme immediately, mist covers the transition
+      // Big Bang ink: swap theme immediately, ink slowly bleeds in
       setTheme(nextTheme);
-      setTimeout(() => setThemeAnim(null), 3000);
+      setTimeout(() => setThemeAnim(null), 8000);
     }
   };
 
