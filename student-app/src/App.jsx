@@ -200,8 +200,8 @@ function TechNewsBanner({ theme }) {
   const isPink = theme === 'pink';
 
   useEffect(() => {
-    // Fetch top 5 tech/AI articles from DEV.to API (no key required)
-    fetch('https://dev.to/api/articles?tag=ai,technology&per_page=5')
+    // Fetch top 5 tech/programming articles from DEV.to API (no key required)
+    fetch('https://dev.to/api/articles?tag=programming&per_page=5')
       .then(res => res.json())
       .then(data => {
         if (data && data.length > 0) setArticles(data);
