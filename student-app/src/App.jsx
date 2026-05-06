@@ -542,37 +542,12 @@ export default function App() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.6rem',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
             cursor: 'default',
           }}>
             <AxiomLogo theme={theme} />
-            <div style={{
-              width: 1, height: 20,
-              background: 'rgba(255,255,255,0.12)',
-              flexShrink: 0,
-            }} />
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 4,
-              fontFamily: 'Inter, sans-serif',
-            }}>
-              <span style={{
-                fontSize: '0.85rem',
-                fontWeight: 800,
-                color: dailyScore >= 0
-                  ? (theme === 'pink' ? '#ff1493' : '#00f5d4')
-                  : '#ef4444',
-                textShadow: dailyScore >= 0
-                  ? (theme === 'pink' ? '0 0 8px rgba(255,20,147,0.4)' : '0 0 8px rgba(0,245,212,0.4)')
-                  : '0 0 8px rgba(239,68,68,0.4)',
-                letterSpacing: '0.02em',
-              }}>
-                {dailyScore >= 0 ? '+' : ''}{dailyScore}
-              </span>
-              <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>XP</span>
-            </div>
           </div>
         </div>
         <div className="flex items-center gap-1 sm:gap-2" style={{ flexWrap: 'nowrap' }}>
@@ -645,6 +620,41 @@ export default function App() {
         padding: 'clamp(1.25rem, 4vw, 3rem) 1rem clamp(0.5rem, 2vw, 1rem)',
         position: 'relative',
       }}>
+        {/* Daily Score Badge */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          style={{
+            position: 'absolute',
+            top: '1rem',
+            left: 'max(1rem, env(safe-area-inset-left))',
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: theme === 'pink' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            padding: '0.4rem 0.8rem',
+            borderRadius: '1rem',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            zIndex: 5,
+          }}
+        >
+          <span style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '0.9rem',
+            fontWeight: 800,
+            color: dailyScore >= 0
+              ? (theme === 'pink' ? '#ff1493' : '#00f5d4')
+              : '#ef4444',
+            textShadow: dailyScore >= 0
+              ? (theme === 'pink' ? '0 0 8px rgba(255,20,147,0.4)' : '0 0 8px rgba(0,245,212,0.4)')
+              : '0 0 8px rgba(239,68,68,0.4)',
+            letterSpacing: '0.02em',
+          }}>
+            {dailyScore >= 0 ? '+' : ''}{dailyScore}
+          </span>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>XP</span>
+        </motion.div>
+
         {/* Ambient glow */}
         <div style={{
           position: 'absolute',
