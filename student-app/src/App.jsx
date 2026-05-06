@@ -355,6 +355,7 @@ export default function App() {
   const [showCommunity, setShowCommunity] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
   const [dailyScore, setDailyScore] = useState(0);
+  const [quoteData, setQuoteData] = useState({ visible: false, text: '' });
   const waterTimerRef = useRef(null);
 
   useEffect(() => {
@@ -436,6 +437,28 @@ export default function App() {
 
     return () => {
       if (waterTimerRef.current) clearInterval(waterTimerRef.current);
+    };
+  }, [isAuthenticated]);
+
+  // ── Daily Quote Random Timer ───────────────────────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    const showRandomQuote = () => {
+      const randomQuote = dailyQuotes[Math.floor(Math.random() * dailyQuotes.length)];
+      setQuoteData({ visible: true, text: randomQuote });
+      
+      setTimeout(() => {
+        setQuoteData(prev => ({ ...prev, visible: false }));
+      }, 5000);
+    };
+
+    const initialTimer = setTimeout(showRandomQuote, 2000);
+    const intervalTimer = setInterval(showRandomQuote, 30 * 60 * 1000);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(intervalTimer);
     };
   }, [isAuthenticated]);
 
@@ -696,40 +719,54 @@ export default function App() {
       }}>
         <KineticChain onSelect={setActiveTile} theme={theme} themeAnim={themeAnim} />
 
-        {/* Daily Encouragement Quote */}
-        <div style={{
-          marginTop: '1.5rem',
-          maxWidth: 'clamp(300px, 80vw, 600px)',
-          width: '90%',
-          padding: 'clamp(1rem, 3vw, 1.5rem) clamp(1.2rem, 4vw, 2.5rem)',
-          textAlign: 'center',
-          borderRadius: '16px',
-          position: 'relative',
-          ...(theme === 'pink' 
-            ? {
-                background: 'rgba(255, 20, 147, 0.05)',
-                border: '2px solid rgba(255, 20, 147, 0.3)',
-                boxShadow: '0 0 15px rgba(255, 20, 147, 0.1)',
-              } 
-            : {
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-              })
-        }}>
-          <p style={{
-            fontStyle: 'italic',
-            fontWeight: 600,
-            fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
-            lineHeight: 1.6,
-            color: theme === 'pink' ? '#ff69b4' : 'rgba(255,255,255,0.85)',
-            margin: 0,
-            letterSpacing: '0.02em',
-          }}>
-            "{dailyQuotes[Math.abs(Array.from(new Date().toLocaleDateString('en-CA')).reduce((h,c)=>c.charCodeAt(0)+((h<<5)-h),0)) % 1000]}"
-          </p>
-        </div>
+        {/* Floating Daily Encouragement Quote */}
+        <AnimatePresence>
+          {quoteData.visible && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: 20, x: '-50%' }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              style={{
+                position: 'fixed',
+                bottom: 'clamp(70px, 10vw, 100px)',
+                left: '50%',
+                zIndex: 100,
+                maxWidth: 'clamp(300px, 80vw, 600px)',
+                width: 'max-content',
+                padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1.2rem, 4vw, 2rem)',
+                textAlign: 'center',
+                borderRadius: '24px',
+                pointerEvents: 'none',
+                ...(theme === 'pink' 
+                  ? {
+                      background: 'rgba(255, 20, 147, 0.08)',
+                      boxShadow: '0 8px 30px rgba(255, 20, 147, 0.15)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                    } 
+                  : {
+                      background: 'rgba(15, 15, 30, 0.4)',
+                      boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                    })
+              }}
+            >
+              <p style={{
+                fontStyle: 'italic',
+                fontWeight: 600,
+                fontSize: 'clamp(0.85rem, 2vw, 1rem)',
+                lineHeight: 1.6,
+                color: theme === 'pink' ? '#ff69b4' : 'rgba(255,255,255,0.9)',
+                margin: 0,
+                letterSpacing: '0.02em',
+              }}>
+                "{quoteData.text}"
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Footer */}
