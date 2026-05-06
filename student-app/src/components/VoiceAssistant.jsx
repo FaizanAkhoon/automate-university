@@ -313,9 +313,9 @@ export default function VoiceAssistant({ theme }) {
           position: 'fixed', bottom: 'clamp(16px, 4vw, 24px)', left: 'clamp(16px, 4vw, 24px)', zIndex: 60,
           width: 48, height: 48, borderRadius: '50%',
           background: `linear-gradient(135deg, ${themeColor1}, ${themeColor2})`,
-          border: 'none', cursor: 'pointer',
+          border: `1px solid ${themeColor1}44`, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: `0 6px 24px ${themeColor1}66, 0 0 16px ${themeColor1}33`,
+          boxShadow: `0 2px 12px ${themeColor1}44, 0 0 0 1px ${themeColor1}22`,
           color: '#0a0a0a', fontSize: '1.2rem'
         }}
         title="Voice Navigator"

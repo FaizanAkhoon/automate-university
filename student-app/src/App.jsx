@@ -5,6 +5,7 @@ import {
   recordActivity, getMissedWaterReminders, addWater, ackWater,
   requestNotificationPermission, sendWaterNotification
 } from './utils/healthTracker';
+import { getDailyScore, addScore, checkDayEnd, awardLoginBonus } from './utils/dailyScore';
 import { playNormalClick } from './utils/sound';
 import KineticChain from './components/KineticChain';
 import NotesSummarizer from './components/tiles/NotesSummarizer';
@@ -352,6 +353,7 @@ export default function App() {
   const [waterPopupIndex, setWaterPopupIndex] = useState(-1); // -1 = no popup
   const [showCommunity, setShowCommunity] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
+  const [dailyScore, setDailyScore] = useState(0);
   const waterTimerRef = useRef(null);
 
   useEffect(() => {
@@ -391,10 +393,24 @@ export default function App() {
     recordActivity();
     requestNotificationPermission();
 
+    // Award login bonus and load today's score
+    awardLoginBonus();
+    setDailyScore(getDailyScore());
+
+    // Check if day should be finalized (6 PM IST)
+    checkDayEnd();
+    const scoreInterval = setInterval(() => {
+      checkDayEnd();
+      setDailyScore(getDailyScore());
+    }, 60 * 1000); // check every minute
+
     // On focus, record activity
     const onFocus = () => recordActivity();
     window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      clearInterval(scoreInterval);
+    };
   }, [isAuthenticated]);
 
   // ── Water reminder: check missed hours on mount + hourly live timer ────────
@@ -526,12 +542,37 @@ export default function App() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            gap: '0.6rem',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
             cursor: 'default',
           }}>
             <AxiomLogo theme={theme} />
+            <div style={{
+              width: 1, height: 20,
+              background: 'rgba(255,255,255,0.12)',
+              flexShrink: 0,
+            }} />
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              fontFamily: 'Inter, sans-serif',
+            }}>
+              <span style={{
+                fontSize: '0.85rem',
+                fontWeight: 800,
+                color: dailyScore >= 0
+                  ? (theme === 'pink' ? '#ff1493' : '#00f5d4')
+                  : '#ef4444',
+                textShadow: dailyScore >= 0
+                  ? (theme === 'pink' ? '0 0 8px rgba(255,20,147,0.4)' : '0 0 8px rgba(0,245,212,0.4)')
+                  : '0 0 8px rgba(239,68,68,0.4)',
+                letterSpacing: '0.02em',
+              }}>
+                {dailyScore >= 0 ? '+' : ''}{dailyScore}
+              </span>
+              <span style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>XP</span>
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-1 sm:gap-2" style={{ flexWrap: 'nowrap' }}>
@@ -662,15 +703,14 @@ export default function App() {
         whileTap={{ scale: 0.95 }}
         style={{
           position: 'fixed', bottom: 'clamp(16px, 4vw, 24px)', right: 'clamp(16px, 4vw, 24px)', zIndex: 50,
-          width: 'clamp(48px, 6vw, 64px)', height: 'clamp(48px, 6vw, 64px)', borderRadius: '50%',
-          background: 'linear-gradient(135deg, rgba(108,99,255,0.85), rgba(168,85,247,0.85))',
-          backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer',
+          width: 48, height: 48, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #6c63ff, #a855f7)',
+          border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 8px 32px rgba(108,99,255,0.6), 0 0 20px rgba(108,99,255,0.4), inset 0 2px 4px rgba(255,255,255,0.3)',
+          boxShadow: '0 2px 12px rgba(108,99,255,0.35), 0 0 0 1px rgba(108,99,255,0.2)',
         }}
       >
-        <Users size={24} color="white" strokeWidth={2.5} />
+        <Users size={20} color="white" strokeWidth={2.5} />
       </motion.button>
 
       {/* Active tile modal */}
