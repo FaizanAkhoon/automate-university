@@ -356,6 +356,7 @@ export default function App() {
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
   const [dailyScore, setDailyScore] = useState(0);
   const [quoteData, setQuoteData] = useState({ visible: false, text: '' });
+  const [sosStatus, setSosStatus] = useState('idle'); // 'idle' | 'locating' | 'sending' | 'sent' | 'error'
   const waterTimerRef = useRef(null);
 
   useEffect(() => {
@@ -496,40 +497,57 @@ export default function App() {
     }
   };
 
+  const sendSOS = async (latitude, longitude, accuracy) => {
+    setSosStatus('sending');
+    try {
+      const res = await fetch('http://localhost:5000/api/emergencies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentName: studentName || 'Unknown Student',
+          department: studentDept || 'Unknown Dept',
+          latitude: latitude || null,
+          longitude: longitude || null,
+          accuracy: accuracy || null,
+        })
+      });
+      if (!res.ok) throw new Error('Server error');
+      setSosStatus('sent');
+      setTimeout(() => setSosStatus('idle'), 4000);
+    } catch {
+      setSosStatus('error');
+      setTimeout(() => setSosStatus('idle'), 4000);
+    }
+  };
+
   const handleSOS = () => {
     playNormalClick();
+    if (sosStatus === 'locating' || sosStatus === 'sending') return;
+
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.');
+      // No geolocation — send without coords
+      sendSOS(null, null, null);
       return;
     }
-    const btn = document.getElementById('sos-btn-icon');
-    if (btn) btn.classList.add('animate-pulse');
+
+    setSosStatus('locating');
+    const geoTimeout = setTimeout(() => {
+      // GPS timed out — send without coords anyway
+      sendSOS(null, null, null);
+    }, 8000);
+
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
+      (position) => {
+        clearTimeout(geoTimeout);
         const { latitude, longitude, accuracy } = position.coords;
-        try {
-          await fetch('http://localhost:5000/api/emergencies', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              studentName: studentName || 'Unknown Student',
-              department: studentDept || 'Unknown Dept',
-              latitude,
-              longitude
-            })
-          });
-          if (btn) btn.classList.remove('animate-pulse');
-          alert(`🚨 SOS ALERT SENT TO ADMIN!\n\nName: ${studentName}\nDept: ${studentDept}\nLocation: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}\nAccuracy: ±${Math.round(accuracy)}m\n\nCampus Security has been notified.`);
-        } catch {
-          if (btn) btn.classList.remove('animate-pulse');
-          alert('Failed to send SOS alert. Please try again.');
-        }
+        sendSOS(latitude, longitude, accuracy);
       },
-      (error) => {
-        if (btn) btn.classList.remove('animate-pulse');
-        alert('Unable to retrieve your location: ' + error.message);
+      () => {
+        clearTimeout(geoTimeout);
+        // Location denied — send without coords
+        sendSOS(null, null, null);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 0 }
     );
   };
 
@@ -575,15 +593,37 @@ export default function App() {
           </div>
         </div>
         <div className="flex items-center gap-1 sm:gap-2" style={{ flexWrap: 'nowrap' }}>
-          {theme === 'pink' && (
-            <button
+          <button
               onClick={handleSOS}
               className="btn-3d-glass"
-              style={{ background: 'rgba(255,50,50,0.1)', borderColor: 'rgba(255,50,50,0.4)', boxShadow: '0 0 15px rgba(255,50,50,0.2)' }}
+              disabled={sosStatus === 'locating' || sosStatus === 'sending'}
+              style={{
+                background: sosStatus === 'sent'
+                  ? 'rgba(16,185,129,0.2)'
+                  : sosStatus === 'error'
+                  ? 'rgba(239,68,68,0.2)'
+                  : 'rgba(255,50,50,0.1)',
+                borderColor: sosStatus === 'sent'
+                  ? 'rgba(16,185,129,0.5)'
+                  : sosStatus === 'error'
+                  ? 'rgba(239,68,68,0.5)'
+                  : 'rgba(255,50,50,0.4)',
+                boxShadow: '0 0 15px rgba(255,50,50,0.2)',
+                minWidth: 32,
+                position: 'relative',
+              }}
+              title={sosStatus === 'locating' ? 'Getting location...' : sosStatus === 'sending' ? 'Sending SOS...' : sosStatus === 'sent' ? 'SOS Sent!' : sosStatus === 'error' ? 'Failed - retry' : 'Send SOS Alert'}
             >
-              <AlertTriangle id="sos-btn-icon" size={16} color="#ff3333" />
+              {sosStatus === 'locating' || sosStatus === 'sending' ? (
+                <span style={{ fontSize: '0.75rem', animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span>
+              ) : sosStatus === 'sent' ? (
+                <span style={{ fontSize: '0.85rem' }}>✅</span>
+              ) : sosStatus === 'error' ? (
+                <span style={{ fontSize: '0.85rem' }}>❌</span>
+              ) : (
+                <AlertTriangle id="sos-btn-icon" size={16} color="#ff3333" />
+              )}
             </button>
-          )}
           <button
             onClick={() => setShowMusic(!showMusic)}
             className="btn-3d-glass"
