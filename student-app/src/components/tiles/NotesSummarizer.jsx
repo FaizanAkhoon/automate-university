@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Sparkles, Save, Trash2, X, FileText, Loader2 } from 'lucide-react';
+import { addScore } from '../../utils/dailyScore';
 import axios from 'axios';
 
 const API = 'http://localhost:5000';
@@ -44,6 +45,9 @@ export default function NotesSummarizer({ onClose }) {
         .filter(line => line.length > 0);
 
       setBullets(bulletList.length ? bulletList : ['⚠ No bullets generated.']);
+      if (bulletList.length > 0 && !bulletList[0].startsWith('⚠')) {
+        addScore('notes_summarized');
+      }
     } catch {
       setBullets(['⚠ Could not connect to AI service. Please try again.']);
     }

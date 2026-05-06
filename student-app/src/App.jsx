@@ -791,6 +791,8 @@ export default function App() {
                 <button
                   onClick={() => {
                     addWater();
+                    addScore('water_logged');
+                    setDailyScore(getDailyScore());
                     if (waterPopupIndex + 1 < waterQueue.length) {
                       setWaterPopupIndex(waterPopupIndex + 1);
                     } else {
@@ -810,6 +812,8 @@ export default function App() {
                 </button>
                 <button
                   onClick={() => {
+                    addScore('water_missed');
+                    setDailyScore(getDailyScore());
                     if (waterPopupIndex + 1 < waterQueue.length) {
                       setWaterPopupIndex(waterPopupIndex + 1);
                     } else {

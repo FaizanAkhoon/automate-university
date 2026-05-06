@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Timer, Play, Pause, RotateCcw, X, Coffee, Brain } from 'lucide-react';
+import { addScore } from '../../utils/dailyScore';
 
 const MODES = [
   { id: 'focus',  label: 'Focus',       duration: 25 * 60, color: '#6c63ff', icon: Brain },
@@ -35,7 +36,10 @@ export default function StudyTimer({ onClose }) {
         clearInterval(intervalRef.current);
         setRunning(false);
         setFlash(true);
-        if (modeIdx === 0) setCycles(c => c + 1);
+        if (modeIdx === 0) {
+          setCycles(c => c + 1);
+          addScore('pomodoro_complete');
+        }
         setTimeout(() => setFlash(false), 3000);
         return 0;
       }

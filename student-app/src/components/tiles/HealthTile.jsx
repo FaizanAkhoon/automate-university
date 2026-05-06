@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Droplets, Moon, Smile, Footprints, X, TrendingUp, Activity } from 'lucide-react';
 import axios from 'axios';
 import { startStepCounter, getSteps, checkSleepStatus, getWaterCount } from '../../utils/healthTracker';
+import { addScore } from '../../utils/dailyScore';
 
 const API = 'http://localhost:5000';
 
@@ -144,6 +145,13 @@ export default function HealthTile({ onClose }) {
     // Step counter
     const cleanup = startStepCounter((count) => {
       setSteps(count);
+      // Award steps_goal once when target is reached
+      if (count >= STEP_GOAL) {
+        const log = JSON.parse(localStorage.getItem('daily_score_log') || '[]');
+        if (!log.some(l => l.action === 'steps_goal')) {
+          addScore('steps_goal');
+        }
+      }
     });
     cleanupRef.current = cleanup;
 
@@ -154,9 +162,17 @@ export default function HealthTile({ onClose }) {
       }
     }, 3000);
 
-    // Sleep status
+    // Sleep status — award or penalize
     const sleep = checkSleepStatus();
     setSleepData(sleep);
+    if (sleep.status) {
+      const scoreLog = JSON.parse(localStorage.getItem('daily_score_log') || '[]');
+      const alreadyScored = scoreLog.some(l => l.action === 'good_sleep' || l.action === 'poor_sleep');
+      if (!alreadyScored) {
+        if (sleep.status === 'good') addScore('good_sleep');
+        else if (sleep.status === 'poor') addScore('poor_sleep');
+      }
+    }
 
     // Water count
     setWaterCount(getWaterCount());
@@ -187,6 +203,7 @@ export default function HealthTile({ onClose }) {
         steps,
       });
       setSaved(true);
+      addScore('health_saved');
       const res = await axios.get(`${API}/api/health`);
       setLogs(res.data);
       setTimeout(() => setSaved(false), 2000);

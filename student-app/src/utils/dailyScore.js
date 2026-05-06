@@ -15,20 +15,17 @@ const SCORE_KEYS = {
 // Positive points for productive activities, negative for missed goals.
 export const ACTIVITY_POINTS = {
   // Study & Learning (highest value)
-  study_session_complete: { points: +25, label: 'Completed a study session' },
   pomodoro_complete:      { points: +20, label: 'Finished Pomodoro timer' },
-  cs_book_read:           { points: +15, label: 'Read CS Book content' },
   video_watched:          { points: +15, label: 'Watched learning video' },
-  notes_summarized:       { points: +12, label: 'Summarized notes' },
+  notes_summarized:       { points: +1,  label: 'Asked a question / summarized notes' },
 
   // Health & Wellness
   water_logged:           { points: +5,  label: 'Drank water' },
   good_sleep:             { points: +10, label: 'Good sleep detected' },
   steps_goal:             { points: +10, label: 'Steps goal reached' },
+  health_saved:           { points: +5,  label: 'Saved daily health summary' },
 
-  // Community & Engagement
-  community_post:         { points: +8,  label: 'Posted on community board' },
-  voice_nav_used:         { points: +3,  label: 'Used voice navigator' },
+  // Daily
   app_login:              { points: +5,  label: 'Daily login bonus' },
 
   // Penalties (negative)
@@ -85,20 +82,37 @@ function finalizeDay(date) {
   // Check if this date is already finalized
   if (history.some(h => h.date === date)) return;
   
-  // Apply end-of-day penalties
-  const studyDone = log.some(l => 
-    l.action === 'study_session_complete' || 
-    l.action === 'pomodoro_complete' ||
-    l.action === 'cs_book_read' ||
-    l.action === 'video_watched'
-  );
-  
   let finalScore = score;
   const finalLog = [...log];
-  
+
+  // Penalty: no study done today
+  const studyDone = log.some(l => 
+    l.action === 'pomodoro_complete' ||
+    l.action === 'video_watched' ||
+    l.action === 'notes_summarized'
+  );
   if (!studyDone) {
     finalScore += ACTIVITY_POINTS.no_study.points;
     finalLog.push({ action: 'no_study', points: ACTIVITY_POINTS.no_study.points, time: new Date().toISOString() });
+  }
+
+  // Penalty: poor sleep
+  const hadPoorSleep = log.some(l => l.action === 'poor_sleep');
+  const hadGoodSleep = log.some(l => l.action === 'good_sleep');
+  if (hadPoorSleep && !hadGoodSleep) {
+    // already applied when detected, no double penalty
+  }
+
+  // Penalty: low steps (if step data present but under 2000)
+  const stepsLogged = log.find(l => l.action === 'steps_goal');
+  const lowStepsLogged = log.find(l => l.action === 'low_steps');
+  if (!stepsLogged && !lowStepsLogged) {
+    // Check localStorage for today's steps
+    const todaySteps = parseInt(localStorage.getItem('health_steps_today') || '0', 10);
+    if (todaySteps < 2000 && todaySteps > 0) {
+      finalScore += ACTIVITY_POINTS.low_steps.points;
+      finalLog.push({ action: 'low_steps', points: ACTIVITY_POINTS.low_steps.points, time: new Date().toISOString() });
+    }
   }
   
   history.push({ date, score: finalScore, log: finalLog });

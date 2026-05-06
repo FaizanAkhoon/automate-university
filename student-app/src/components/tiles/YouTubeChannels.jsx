@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { PlayCircle, Search, ExternalLink, Star, X, Play } from 'lucide-react';
+import { addScore } from '../../utils/dailyScore';
 
 const CHANNELS = [
   { id: 1, name: 'freeCodeCamp',        url: 'https://youtube.com/@freecodecamp',         subs: '9.2M', tag: 'Full Courses',        color: '#0A0A23', emoji: '🟦', desc: 'Full-length courses on web dev, Python, ML and more.' },
@@ -105,6 +106,7 @@ export default function YouTubeChannels({ onClose }) {
               className="glass rounded-xl p-3 flex gap-3 items-start group no-underline"
               style={{ textDecoration: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
               whileHover={{ scale: 1.02, boxShadow: '0 8px 30px rgba(239,68,68,0.15)' }}
+              onClick={() => addScore('video_watched')}
             >
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
