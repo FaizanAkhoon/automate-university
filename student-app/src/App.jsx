@@ -19,6 +19,7 @@ import VoiceAssistant from './components/VoiceAssistant';
 import Login from './components/Login';
 import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
+import { dailyQuotes } from './data/quotes';
 import './index.css';
 import {
   BookOpen, User, Heart, PlayCircle, Timer, GraduationCap, Users
@@ -685,6 +686,7 @@ export default function App() {
       <main style={{
         flex: 1,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '0 0 clamp(1rem, 3vw, 4rem)',
@@ -693,6 +695,49 @@ export default function App() {
         overflow: 'hidden',
       }}>
         <KineticChain onSelect={setActiveTile} theme={theme} themeAnim={themeAnim} />
+
+        {/* Daily Encouragement Quote */}
+        <div style={{
+          marginTop: '1.5rem',
+          maxWidth: '500px',
+          width: '90%',
+          padding: '1.25rem 2rem',
+          textAlign: 'center',
+          borderRadius: '16px',
+          position: 'relative',
+          ...(theme === 'pink' 
+            ? {
+                background: 'rgba(255, 20, 147, 0.05)',
+                border: '2px solid rgba(255, 20, 147, 0.3)',
+                boxShadow: '0 0 15px rgba(255, 20, 147, 0.1)',
+              } 
+            : {
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+              })
+        }}>
+          {theme === 'pink' && (
+            <>
+              <span style={{ position: 'absolute', top: -14, left: -14, fontSize: '1.5rem' }}>🌹</span>
+              <span style={{ position: 'absolute', top: -14, right: -14, fontSize: '1.5rem' }}>🌹</span>
+              <span style={{ position: 'absolute', bottom: -14, left: -14, fontSize: '1.5rem' }}>🌹</span>
+              <span style={{ position: 'absolute', bottom: -14, right: -14, fontSize: '1.5rem' }}>🌹</span>
+            </>
+          )}
+          <p style={{
+            fontStyle: 'italic',
+            fontWeight: 600,
+            fontSize: '0.95rem',
+            lineHeight: 1.5,
+            color: theme === 'pink' ? '#ff69b4' : 'rgba(255,255,255,0.85)',
+            margin: 0,
+            letterSpacing: '0.02em',
+          }}>
+            "{dailyQuotes[Math.abs(Array.from(new Date().toLocaleDateString('en-CA')).reduce((h,c)=>c.charCodeAt(0)+((h<<5)-h),0)) % 1000]}"
+          </p>
+        </div>
       </main>
 
       {/* Footer */}
