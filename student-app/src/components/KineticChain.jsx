@@ -432,23 +432,7 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
         </motion.div>
       </div>
 
-      {/* Interactive hints */}
-      <div
-        className="kinetic-hint"
-        style={{
-          marginTop: '0.75rem',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-          opacity: 0.6, fontSize: '0.75rem', color: isPink ? '#ff1493' : 'rgba(255,255,255,0.7)',
-          pointerEvents: 'none', userSelect: 'none', letterSpacing: '0.05em',
-          textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'nowrap',
-        }}
-      >
-        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <Sparkles size={12} color={isPink ? '#ff1493' : '#00f5d4'} />
-          Scroll or swipe to explore
-          <Sparkles size={12} color={isPink ? '#ff1493' : '#a855f7'} />
-        </span>
-      </div>
+
     </div>
   );
 }

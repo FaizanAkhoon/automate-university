@@ -699,9 +699,9 @@ export default function App() {
         {/* Daily Encouragement Quote */}
         <div style={{
           marginTop: '1.5rem',
-          maxWidth: '500px',
+          maxWidth: 'clamp(300px, 80vw, 600px)',
           width: '90%',
-          padding: '1.25rem 2rem',
+          padding: 'clamp(1rem, 3vw, 1.5rem) clamp(1.2rem, 4vw, 2.5rem)',
           textAlign: 'center',
           borderRadius: '16px',
           position: 'relative',
@@ -718,19 +718,11 @@ export default function App() {
                 WebkitBackdropFilter: 'blur(10px)',
               })
         }}>
-          {theme === 'pink' && (
-            <>
-              <span style={{ position: 'absolute', top: -14, left: -14, fontSize: '1.5rem' }}>🌹</span>
-              <span style={{ position: 'absolute', top: -14, right: -14, fontSize: '1.5rem' }}>🌹</span>
-              <span style={{ position: 'absolute', bottom: -14, left: -14, fontSize: '1.5rem' }}>🌹</span>
-              <span style={{ position: 'absolute', bottom: -14, right: -14, fontSize: '1.5rem' }}>🌹</span>
-            </>
-          )}
           <p style={{
             fontStyle: 'italic',
             fontWeight: 600,
-            fontSize: '0.95rem',
-            lineHeight: 1.5,
+            fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+            lineHeight: 1.6,
             color: theme === 'pink' ? '#ff69b4' : 'rgba(255,255,255,0.85)',
             margin: 0,
             letterSpacing: '0.02em',
