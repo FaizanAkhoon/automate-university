@@ -29,7 +29,7 @@ function AxiomLogo({ theme }) {
   const color2 = isPink ? '#ffb6c1' : '#6c63ff';
 
   return (
-    <svg width="120" height="30" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: `drop-shadow(0 0 8px ${color1}55)` }}>
+    <svg className="axiom-logo-svg" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: `drop-shadow(0 0 8px ${color1}55)` }}>
       <defs>
         <linearGradient id="axiom-grad" x1="0" y1="0" x2="160" y2="40" gradientUnits="userSpaceOnUse">
           <stop stopColor={color1} />
@@ -508,7 +508,7 @@ export default function App() {
           <VoiceAssistant theme={theme} />
           {/* Top bar */}
           <header className="glass app-header" style={{
-        padding: '0.75rem 1rem',
+        padding: '0.6rem 1rem',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -516,15 +516,25 @@ export default function App() {
         position: 'sticky',
         top: 0,
         zIndex: 10,
-        gap: '0.5rem',
       }}>
-        <div className="flex items-center gap-3">
-          <AxiomLogo theme={theme} />
-          <div>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', marginTop: 4 }}>Your learning hub</p>
+        <div className="flex items-center">
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02))',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: '2rem',
+            padding: '0.4rem 0.8rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+            cursor: 'default',
+          }}>
+            <AxiomLogo theme={theme} />
           </div>
         </div>
-        <div className="flex items-center gap-2" style={{ flexWrap: 'nowrap' }}>
+        <div className="flex items-center gap-1 sm:gap-2" style={{ flexWrap: 'nowrap' }}>
           {theme === 'pink' && (
             <button
               onClick={handleSOS}

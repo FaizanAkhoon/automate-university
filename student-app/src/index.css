@@ -345,6 +345,12 @@ body.sucking-dark::after {
   transition: background-image 3s ease-in-out, opacity 3s ease-in-out !important;
 }
 
+.axiom-logo-svg {
+  width: 120px;
+  height: 30px;
+  transition: all 0.3s ease;
+}
+
 /* ─── RESPONSIVE / MOBILE ────────────────────────────────────────────────── */
 
 /* Tile overlay — respect iOS safe areas */
@@ -381,6 +387,11 @@ body.sucking-dark::after {
   .header-date,
   .header-admin-link {
     display: none;
+  }
+
+  .axiom-logo-svg {
+    width: 90px;
+    height: 22.5px;
   }
 
   /* Kinetic chain hint smaller text */
