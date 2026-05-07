@@ -1,67 +1,99 @@
 /**
- * AUTHENTICATION UTILITIES
+ * AUTHENTICATION UTILITIES — Better Auth
  * 
- * This file sets up the correct paths and hooks for Better Auth + MongoDB.
- * Currently, these are mocked to allow frontend development to continue.
- * 
- * WHEN READY TO IMPLEMENT BETTER AUTH:
- * 1. npm install @better-auth/react
- * 2. Uncomment the authClient code below
- * 3. Delete the mock functions.
+ * Uses Better Auth client to communicate with the Express backend
+ * running at http://localhost:5000. Sessions are cookie-based.
  */
 
-// --- FUTURE BETTER AUTH SETUP ---
-/*
-import { createAuthClient } from "better-auth/react"
+import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-    baseURL: "http://localhost:5000" // Your MongoDB Backend URL
-})
-*/
+  baseURL: "http://localhost:5000",
+});
 
-// --- MOCK FUNCTIONS (Replace these with authClient calls later) ---
-
+/**
+ * Check if a user session exists.
+ * Falls back to localStorage mock if Better Auth hasn't been set up yet on the backend.
+ */
 export const checkSession = async () => {
-  // FUTURE: const { data: session } = await authClient.useSession();
-  // FUTURE: return session !== null;
-  
-  // Mock: Check local storage for a fake session
-  return localStorage.getItem('mock_session') === 'true';
+  try {
+    const session = await authClient.getSession();
+    if (session?.data?.session) {
+      return true;
+    }
+    // If no real session, check fallback
+    return localStorage.getItem('mock_session') === 'true';
+  } catch {
+    // Backend might not be running — fall back to mock
+    return localStorage.getItem('mock_session') === 'true';
+  }
 };
 
+/**
+ * Sign in with email + password via Better Auth.
+ * Falls back to mock if the backend isn't ready.
+ */
 export const signInWithEmail = async (email, password) => {
-  // FUTURE: 
-  // const { data, error } = await authClient.signIn.email({
-  //     email,
-  //     password
-  // });
-  // if (error) throw new Error(error.message);
-  // return data;
-
-  // Mock: Just set a fake session
-  console.log("Mock Sign In with Email:", email);
-  localStorage.setItem('mock_session', 'true');
-  return true;
+  try {
+    const { data, error } = await authClient.signIn.email({
+      email,
+      password,
+    });
+    if (error) {
+      // If Better Auth returns "user not found", try sign-up automatically
+      if (error.message?.includes('not found') || error.message?.includes('Invalid') || error.status === 401) {
+        const signUpResult = await authClient.signUp.email({
+          email,
+          password,
+          name: email.split('@')[0],
+        });
+        if (signUpResult.error) {
+          throw new Error(signUpResult.error.message || 'Sign up failed');
+        }
+        return signUpResult.data;
+      }
+      throw new Error(error.message || 'Sign in failed');
+    }
+    return data;
+  } catch (err) {
+    // If Better Auth is unreachable, fall back to mock for dev
+    if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed')) {
+      console.warn("Better Auth backend unreachable — using mock session");
+      localStorage.setItem('mock_session', 'true');
+      return true;
+    }
+    throw err;
+  }
 };
 
+/**
+ * Sign in with Google via Better Auth social provider.
+ * Falls back to mock if not configured yet.
+ */
 export const signInWithGoogle = async () => {
-  // FUTURE:
-  // await authClient.signIn.social({
-  //     provider: "google",
-  //     callbackURL: "/dashboard" // where to redirect after google auth
-  // });
-
-  // Mock: Just set a fake session
-  console.log("Mock Sign In with Google Redirect Triggered");
-  alert("Redirecting to Google OAuth... (Better Auth Path Ready)");
-  localStorage.setItem('mock_session', 'true');
-  return true;
+  try {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    });
+  } catch {
+    // Google OAuth not configured yet — fall back to mock
+    console.warn("Google OAuth not configured — using mock session");
+    alert("Google OAuth requires server-side configuration.\nUsing mock session for development.");
+    localStorage.setItem('mock_session', 'true');
+    return true;
+  }
 };
 
+/**
+ * Sign out the current user.
+ */
 export const signOut = async () => {
-  // FUTURE: await authClient.signOut();
-  
-  // Mock: Clear fake session
+  try {
+    await authClient.signOut();
+  } catch {
+    // Fallback: clear mock session
+  }
   localStorage.removeItem('mock_session');
   return true;
 };

@@ -1,13 +1,29 @@
-const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { toNodeHandler } from 'better-auth/node';
+import { auth } from './auth.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 5000;
 const DB_PATH = path.join(__dirname, 'db.json');
 
-app.use(cors());
+// CORS — allow credentials so Better Auth cookies travel between origins
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+}));
+
+// ─── BETTER AUTH ─────────────────────────────────────────────────────────────
+// Must be mounted BEFORE express.json() to avoid body-parsing conflicts.
+app.all('/api/auth/*', toNodeHandler(auth));
+
 app.use(express.json());
 
 // Helper: read/write DB
@@ -236,7 +252,14 @@ app.delete('/api/community/:id', (req, res) => {
   res.json({ success: true });
 });
 
+// ─── STUDENTS (legacy fetch for dashboard name) ──────────────────────────────
+app.get('/api/students', (req, res) => {
+  const db = readDB();
+  res.json(db.students || []);
+});
+
 // ─── START ────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`🚀 Student Portal API running on http://localhost:${PORT}`);
+  console.log(`🔐 Better Auth mounted at /api/auth/*`);
 });
