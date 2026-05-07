@@ -16,7 +16,7 @@ export default function CommunityBoard({ onClose, studentName, studentDept }) {
   const [loading, setLoading] = useState(true);
 
   const fetchPosts = () => {
-    fetch('http://localhost:5000/api/community')
+    fetch('http://localhost:5001/api/community')
       .then(r => r.json())
       .then(data => { setPosts(data || []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -27,7 +27,7 @@ export default function CommunityBoard({ onClose, studentName, studentDept }) {
   const handleSubmit = async () => {
     if (!form.title.trim()) return;
     try {
-      await fetch('http://localhost:5000/api/community', {
+      await fetch('http://localhost:5001/api/community', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -47,7 +47,7 @@ export default function CommunityBoard({ onClose, studentName, studentDept }) {
   };
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:5000/api/community/${id}`, { method: 'DELETE' });
+    await fetch(`http://localhost:5001/api/community/${id}`, { method: 'DELETE' });
     fetchPosts();
   };
 

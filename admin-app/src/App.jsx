@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import './index.css';
 
-const API = 'http://localhost:5000';
+const API = 'http://localhost:5001';
 
 const MOODS = { 1:'😞', 2:'😐', 3:'🙂', 4:'😊', 5:'🤩' };
 

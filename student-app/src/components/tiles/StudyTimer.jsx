@@ -74,7 +74,12 @@ export default function StudyTimer({ onClose }) {
     <div className="tile-overlay" onClick={onClose}>
       <motion.div
         className="tile-modal"
-        style={{ maxWidth: 480 }}
+        style={{
+          maxWidth: 480,
+          background: 'linear-gradient(145deg, rgba(14,18,35,0.96), rgba(11,15,28,0.96))',
+          border: '1px solid rgba(0,245,212,0.3)',
+          boxShadow: '0 25px 85px rgba(0,0,0,0.55), 0 0 45px rgba(0,245,212,0.14)',
+        }}
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -111,6 +116,24 @@ export default function StudyTimer({ onClose }) {
               {m.label}
             </button>
           ))}
+        </div>
+
+        <div className="glass rounded-xl mb-4" style={{ padding: '0.75rem 0.9rem', border: '1px solid rgba(0,245,212,0.22)' }}>
+          <p className="text-xs font-semibold mb-2" style={{ color: 'rgba(0,245,212,0.9)', letterSpacing: '0.08em' }}>FOCUS CONTROL PANEL</p>
+          <div className="grid grid-cols-3 gap-2">
+            <div style={{ padding: '0.45rem', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Mode</p>
+              <p className="text-xs font-semibold text-white">{mode.label}</p>
+            </div>
+            <div style={{ padding: '0.45rem', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Status</p>
+              <p className="text-xs font-semibold text-white">{running ? 'Running' : 'Paused'}</p>
+            </div>
+            <div style={{ padding: '0.45rem', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>Cycle</p>
+              <p className="text-xs font-semibold text-white">{cycles}</p>
+            </div>
+          </div>
         </div>
 
         {/* Timer circle */}

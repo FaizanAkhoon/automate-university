@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { User, Save, X, BookOpen, Star, Mail, GraduationCap } from 'lucide-react';
 import axios from 'axios';
 
-const API = 'http://localhost:5000';
+const API = 'http://localhost:5001';
 
 const GRADES = ['7th','8th','9th','10th','11th','12th','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year'];
 const SUBJECT_OPTIONS = ['Math','Physics','Chemistry','Biology','English','History','Geography','Computer Science','Economics','Art','Music','PE'];
@@ -44,6 +44,11 @@ export default function StudentInfo({ onClose }) {
     <div className="tile-overlay" onClick={onClose}>
       <motion.div
         className="tile-modal"
+        style={{
+          background: 'linear-gradient(145deg, rgba(22,15,34,0.96), rgba(16,12,26,0.96))',
+          border: '1px solid rgba(168,85,247,0.35)',
+          boxShadow: '0 25px 85px rgba(0,0,0,0.55), 0 0 45px rgba(168,85,247,0.16)',
+        }}
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -77,7 +82,30 @@ export default function StudentInfo({ onClose }) {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="student-grid-2 grid grid-cols-2 gap-4">
+          <div className="glass rounded-xl p-4" style={{ border: '1px solid rgba(168,85,247,0.2)' }}>
+            <p className="text-xs font-semibold mb-3" style={{ color: '#c4b5fd', letterSpacing: '0.08em' }}>PROFILE SNAPSHOT</p>
+            <div className="space-y-3">
+              <div style={{ padding: '0.6rem 0.75rem', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>Student</p>
+                <p className="text-sm font-semibold text-white">{form.name || 'Unnamed Student'}</p>
+              </div>
+              <div style={{ padding: '0.6rem 0.75rem', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>Academic Level</p>
+                <p className="text-sm font-semibold text-white">{form.grade || 'Not selected'}</p>
+              </div>
+              <div style={{ padding: '0.6rem 0.75rem', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>Subject Load</p>
+                <p className="text-sm font-semibold text-white">{form.subjects.length} active subject{form.subjects.length === 1 ? '' : 's'}</p>
+              </div>
+              <div style={{ padding: '0.6rem 0.75rem', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>GPA Indicator</p>
+                <p className="text-sm font-semibold" style={{ color: gpaColor }}>{form.gpa || '—'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
           {/* Name & Email */}
           <div className="student-grid-2 grid grid-cols-2 gap-3">
             <div>
@@ -163,6 +191,7 @@ export default function StudentInfo({ onClose }) {
             <Save size={16} />
             {saved ? '✓ Saved!' : 'Save Profile'}
           </button>
+          </div>
         </div>
       </motion.div>
     </div>

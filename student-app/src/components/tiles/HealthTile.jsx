@@ -5,7 +5,7 @@ import axios from 'axios';
 import { startStepCounter, getSteps, checkSleepStatus, getWaterCount } from '../../utils/healthTracker';
 import { addScore } from '../../utils/dailyScore';
 
-const API = 'http://localhost:5000';
+const API = 'http://localhost:5001';
 
 const MOODS = [
   { val: 1, emoji: '😞', label: 'Rough' },
@@ -214,6 +214,11 @@ export default function HealthTile({ onClose }) {
     <div className="tile-overlay" onClick={onClose}>
       <motion.div
         className="tile-modal"
+        style={{
+          background: 'linear-gradient(145deg, rgba(18,15,28,0.96), rgba(12,18,26,0.96))',
+          border: '1px solid rgba(236,72,153,0.32)',
+          boxShadow: '0 25px 85px rgba(0,0,0,0.55), 0 0 45px rgba(236,72,153,0.14)',
+        }}
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -250,6 +255,43 @@ export default function HealthTile({ onClose }) {
               {t === 'dashboard' ? '📊 Dashboard' : '📈 History'}
             </button>
           ))}
+        </div>
+
+        <div
+          className="glass rounded-xl mb-4"
+          style={{
+            padding: '0.8rem 1rem',
+            border: '1px solid rgba(236,72,153,0.24)',
+            background: 'linear-gradient(90deg, rgba(236,72,153,0.08), rgba(59,130,246,0.06))',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
+          <p className="text-xs font-semibold mb-2" style={{ color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em' }}>
+            LIVE WELLNESS SIGNAL
+          </p>
+          <motion.div
+            animate={{ x: ['-100%', '100%'] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'linear' }}
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              width: '18%',
+              background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.08), rgba(255,255,255,0))',
+              pointerEvents: 'none',
+            }}
+          />
+          <svg width="100%" height="34" viewBox="0 0 600 34" style={{ opacity: 0.9 }}>
+            <path
+              d="M0 20 L80 20 L110 20 L130 10 L150 26 L170 6 L190 20 L250 20 L280 20 L300 12 L320 24 L340 8 L360 20 L600 20"
+              fill="none"
+              stroke="#ec4899"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
 
         <AnimatePresence mode="wait">

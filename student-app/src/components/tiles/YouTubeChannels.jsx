@@ -32,11 +32,18 @@ export default function YouTubeChannels({ onClose }) {
     });
   }, [query, activeTag]);
 
+  const featured = filtered.slice(0, 3);
+
   return (
     <div className="tile-overlay" onClick={onClose}>
       <motion.div
         className="tile-modal"
-        style={{ maxWidth: 780 }}
+        style={{
+          maxWidth: 780,
+          background: 'linear-gradient(145deg, rgba(30,13,18,0.96), rgba(22,11,15,0.96))',
+          border: '1px solid rgba(239,68,68,0.32)',
+          boxShadow: '0 25px 85px rgba(0,0,0,0.55), 0 0 45px rgba(239,68,68,0.14)',
+        }}
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -86,6 +93,38 @@ export default function YouTubeChannels({ onClose }) {
             </button>
           ))}
         </div>
+
+        {/* Featured rail */}
+        {featured.length > 0 && (
+          <div className="mb-5">
+            <p className="text-xs font-semibold mb-2" style={{ color: '#fca5a5', letterSpacing: '0.08em' }}>FEATURED PICKS</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+              {featured.map((ch) => (
+                <motion.a
+                  key={`featured-${ch.id}`}
+                  href={ch.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ y: -2 }}
+                  onClick={() => addScore('video_watched')}
+                  style={{
+                    textDecoration: 'none',
+                    borderRadius: 12,
+                    padding: '0.7rem',
+                    border: '1px solid rgba(239,68,68,0.2)',
+                    background: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04))',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span style={{ fontSize: '1rem' }}>{ch.emoji}</span>
+                    <p className="text-sm font-semibold text-white truncate">{ch.name}</p>
+                  </div>
+                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>{ch.tag}</p>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Channel grid */}
         <div className="youtube-grid grid gap-3 overflow-y-auto pr-1" style={{ gridTemplateColumns: 'repeat(2, 1fr)', maxHeight: 'clamp(280px, 45vh, 380px)' }}>
