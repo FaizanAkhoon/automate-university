@@ -8,8 +8,16 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
+<<<<<<< HEAD
   baseURL: "http://localhost:5000",
 });
+=======
+    baseURL: "http://localhost:5001" // Your MongoDB Backend URL
+})
+*/
+
+// --- MOCK FUNCTIONS (Replace these with authClient calls later) ---
+>>>>>>> 53cd6a01a2b5f6e1c37f21d9710dbe34c8b1b85c
 
 /**
  * Check if a user session exists.

@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const DB_PATH = path.join(__dirname, 'db.json');
 
 // CORS — allow credentials so Better Auth cookies travel between origins
@@ -93,6 +93,11 @@ app.post('/api/notes/summarize', (req, res) => {
 });
 
 // ─── STUDENT ──────────────────────────────────────────────────────────────────
+app.get('/api/students', (req, res) => {
+  const db = readDB();
+  res.json(db.students);
+});
+
 app.get('/api/student', (req, res) => {
   const db = readDB();
   res.json(db.students[0] || {});

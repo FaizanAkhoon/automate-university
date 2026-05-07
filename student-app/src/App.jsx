@@ -161,6 +161,163 @@ const TILE_MAP = {
   csbook:  CsBook,
 };
 
+const TILE_REVEAL_MAP = {
+  notes: 'book',
+  student: 'nodes',
+  health: 'ripple',
+  youtube: 'lens',
+  timer: 'timeline',
+  csbook: 'circuit',
+};
+
+const TILES_LABELS = {
+  notes: 'Note Summarizer',
+  student: 'Data Analyzer',
+  health: 'Creative Composer',
+  youtube: 'Research Explorer',
+  timer: 'Task Planner',
+  csbook: 'Automation Runner',
+};
+
+function ActionLoadingOverlay({ theme, reveal, label }) {
+  const isPink = theme === 'pink';
+  const baseBg = isPink ? 'rgba(255,240,245,0.92)' : 'rgba(6,6,14,0.92)';
+  const textColor = isPink ? '#5c454f' : 'rgba(255,255,255,0.92)';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1200,
+        background: baseBg,
+        backdropFilter: 'blur(12px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        gap: 16,
+        pointerEvents: 'none',
+      }}
+    >
+      <div style={{ position: 'relative', width: 220, height: 120 }}>
+        {reveal === 'book' && (
+          <>
+            <motion.div
+              initial={{ rotateY: 0, x: 0 }}
+              animate={{ rotateY: -25, x: -24 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                position: 'absolute',
+                left: 20,
+                top: 20,
+                width: 86,
+                height: 80,
+                borderRadius: '12px 0 0 12px',
+                background: 'linear-gradient(90deg, #f7ebd2, #ead2a6)',
+                transformOrigin: 'right center',
+              }}
+            />
+            <motion.div
+              initial={{ rotateY: 0, x: 0 }}
+              animate={{ rotateY: 25, x: 24 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                position: 'absolute',
+                right: 20,
+                top: 20,
+                width: 86,
+                height: 80,
+                borderRadius: '0 12px 12px 0',
+                background: 'linear-gradient(270deg, #f7ebd2, #ead2a6)',
+                transformOrigin: 'left center',
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0.2, scaleY: 0.4 }}
+              animate={{ opacity: 1, scaleY: 1 }}
+              transition={{ duration: 0.25, delay: 0.08 }}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: 20,
+                width: 1,
+                height: 80,
+                background: 'rgba(194,154,96,0.95)',
+              }}
+            />
+          </>
+        )}
+        {reveal === 'nodes' && (
+          <>
+            {[[-50, -10], [0, -28], [50, -10], [-28, 30], [28, 30]].map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.2 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.18, delay: i * 0.05 }}
+                style={{ position: 'absolute', left: `calc(50% + ${p[0]}px)`, top: `calc(50% + ${p[1]}px)`, width: 10, height: 10, borderRadius: '50%', background: '#91d5ff', boxShadow: '0 0 10px #91d5ff' }}
+              />
+            ))}
+          </>
+        )}
+        {reveal === 'ripple' && [0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            initial={{ scale: 0.25, opacity: 0.75 }}
+            animate={{ scale: 1.8 + i * 0.35, opacity: 0 }}
+            transition={{ duration: 0.55, delay: i * 0.1, repeat: Infinity }}
+            style={{ position: 'absolute', left: '50%', top: '50%', width: 36, height: 36, marginLeft: -18, marginTop: -18, borderRadius: '50%', border: '2px solid rgba(255,129,218,0.7)' }}
+          />
+        ))}
+        {reveal === 'lens' && (
+          <motion.div
+            initial={{ x: -120 }}
+            animate={{ x: 220 }}
+            transition={{ duration: 0.7, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ position: 'absolute', top: 8, width: 80, height: 104, background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,174,174,0.5), rgba(255,255,255,0))' }}
+          />
+        )}
+        {reveal === 'timeline' && (
+          <>
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 0.4 }}
+              style={{ position: 'absolute', left: 24, right: 24, top: 60, height: 2, background: 'rgba(0,245,212,0.8)', transformOrigin: 'left center' }}
+            />
+            {[0, 1, 2, 3].map((i) => (
+              <motion.div
+                key={i}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: i * 0.08, type: 'spring', stiffness: 400, damping: 20 }}
+                style={{ position: 'absolute', left: `${30 + i * 20}%`, top: 55, width: 10, height: 10, borderRadius: '50%', background: '#00f5d4' }}
+              />
+            ))}
+          </>
+        )}
+        {reveal === 'circuit' && [0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            initial={{ scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ duration: 0.22, delay: i * 0.08 }}
+            style={{ position: 'absolute', left: 30 + i * 26, top: 34 + i * 15, width: 95 - i * 12, height: 2, background: 'rgba(245,158,11,0.9)', transformOrigin: 'left center' }}
+          />
+        ))}
+      </div>
+      <p style={{ color: textColor, fontWeight: 700, letterSpacing: '0.02em' }}>
+        Opening {label}...
+      </p>
+    </motion.div>
+  );
+}
+
 // ─── INBOX MODAL ─────────────────────────────────────────────────────────────
 function InboxModal({ messages, onClose, theme }) {
   const isPink = theme === 'pink';
@@ -358,18 +515,20 @@ export default function App() {
   const [quoteData, setQuoteData] = useState({ visible: false, text: '' });
   const [sosStatus, setSosStatus] = useState('idle'); // 'idle' | 'locating' | 'sending' | 'sent' | 'error'
   const waterTimerRef = useRef(null);
+  const launchTimerRef = useRef(null);
+  const [loadingTransition, setLoadingTransition] = useState(null);
 
   useEffect(() => {
     checkSession().then(hasSession => setIsAuthenticated(hasSession));
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/messages')
+    fetch('http://localhost:5001/api/messages')
       .then(r => r.json())
       .then(data => setMessages(data))
       .catch(() => {});
 
-    fetch('http://localhost:5000/api/students')
+    fetch('http://localhost:5001/api/students')
       .then(r => r.json())
       .then(data => {
         if (data && data.length > 0) {
@@ -500,7 +659,7 @@ export default function App() {
   const sendSOS = async (latitude, longitude, accuracy) => {
     setSosStatus('sending');
     try {
-      const res = await fetch('http://localhost:5000/api/emergencies', {
+      const res = await fetch('http://localhost:5001/api/emergencies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -552,6 +711,22 @@ export default function App() {
   };
 
   const ActiveComponent = activeTile ? TILE_MAP[activeTile] : null;
+  const handleTileSelect = (tileId) => {
+    const reveal = TILE_REVEAL_MAP[tileId] || 'ripple';
+    const label = TILES_LABELS[tileId] || 'module';
+    setLoadingTransition({ reveal, label });
+    if (launchTimerRef.current) clearTimeout(launchTimerRef.current);
+    launchTimerRef.current = setTimeout(() => {
+      setActiveTile(tileId);
+      setLoadingTransition(null);
+    }, 520);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (launchTimerRef.current) clearTimeout(launchTimerRef.current);
+    };
+  }, []);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -757,7 +932,7 @@ export default function App() {
         minHeight: '280px',
         overflow: 'hidden',
       }}>
-        <KineticChain onSelect={setActiveTile} theme={theme} themeAnim={themeAnim} />
+        <KineticChain onSelect={handleTileSelect} theme={theme} themeAnim={themeAnim} />
 
         {/* Floating Daily Encouragement Quote */}
         <AnimatePresence>
@@ -839,6 +1014,13 @@ export default function App() {
 
       {/* Active tile modal */}
       <AnimatePresence>
+        {loadingTransition && (
+          <ActionLoadingOverlay
+            theme={theme}
+            reveal={loadingTransition.reveal}
+            label={loadingTransition.label}
+          />
+        )}
         {ActiveComponent && (
           <ActiveComponent onClose={() => setActiveTile(null)} />
         )}

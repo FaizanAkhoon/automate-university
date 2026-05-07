@@ -1,18 +1,26 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useSpring, useTransform, useAnimationFrame, AnimatePresence, useMotionValue } from 'framer-motion';
+import { motion, useSpring, useTransform, useAnimationFrame, AnimatePresence, useMotionValue, useReducedMotion } from 'framer-motion';
 import {
   BookOpen, User, Heart, PlayCircle, Timer, GraduationCap, Sparkles, Layers
 } from 'lucide-react';
-import { playDropSound } from '../utils/sound';
+import { playDropSound, playTileRevealSound } from '../utils/sound';
 
 const TILES = [
-  { id: 'notes',    label: 'Notes Summarizer',  icon: BookOpen,      color: '#6c63ff', glow: 'rgba(108,99,255,0.8)' },
-  { id: 'student',  label: 'Student Info',        icon: User,          color: '#a855f7', glow: 'rgba(168,85,247,0.8)' },
-  { id: 'health',   label: 'Health Tracker',      icon: Heart,         color: '#ec4899', glow: 'rgba(236,72,153,0.8)' },
-  { id: 'youtube',  label: 'Learn Skills',        icon: PlayCircle,    color: '#ef4444', glow: 'rgba(239,68,68,0.8)'  },
-  { id: 'timer',    label: 'Pomodoro Technique',  icon: Timer,         color: '#00f5d4', glow: 'rgba(0,245,212,0.8)'  },
-  { id: 'csbook',   label: 'CS Book',             icon: GraduationCap, color: '#f59e0b', glow: 'rgba(245,158,11,0.8)' },
+  { id: 'notes', label: 'Note Summarizer', icon: BookOpen, color: '#6c63ff', glow: 'rgba(108,99,255,0.8)', reveal: 'book' },
+  { id: 'student', label: 'Data Analyzer', icon: User, color: '#4f9cff', glow: 'rgba(79,156,255,0.85)', reveal: 'nodes' },
+  { id: 'health', label: 'Creative Composer', icon: Heart, color: '#ec4899', glow: 'rgba(236,72,153,0.8)', reveal: 'ripple' },
+  { id: 'youtube', label: 'Research Explorer', icon: PlayCircle, color: '#ef4444', glow: 'rgba(239,68,68,0.8)', reveal: 'lens' },
+  { id: 'timer', label: 'Task Planner', icon: Timer, color: '#00f5d4', glow: 'rgba(0,245,212,0.8)', reveal: 'timeline' },
+  { id: 'csbook', label: 'Automation Runner', icon: GraduationCap, color: '#f59e0b', glow: 'rgba(245,158,11,0.8)', reveal: 'circuit' },
 ];
+
+const MOTION_TOKENS = {
+  launchDurationMs: 520,
+  reducedLaunchDurationMs: 170,
+  easing: [0.22, 1, 0.36, 1],
+  pressScale: 0.95,
+  hoverScale: 1.05,
+};
 
 const ITEM_COUNT = TILES.length;
 const STEP = (2 * Math.PI) / ITEM_COUNT;
@@ -27,6 +35,8 @@ const ANIMATION_MODES = [
 function UniversalTile({ tile, x, y, z, zRange, onSelect, theme, width = 260 }) {
   const isPink = theme === 'pink';
   const Icon = tile.icon;
+  const [isLaunching, setIsLaunching] = useState(false);
+  const reduceMotion = useReducedMotion();
   
   const zNorm = useTransform(z, zv => (zv + zRange) / (2 * zRange));
   const scale = useTransform(zNorm, zn => 0.6 + zn * 0.55);
@@ -56,9 +66,20 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme, width = 260 }) 
   const borderDefault = isPink ? `1px solid rgba(255,255,255,0.6)` : `1px solid rgba(255,255,255,0.3)`;
   const borderHover = isPink ? `1px solid rgba(255,255,255,1)` : `1px solid rgba(255,255,255,0.6)`;
 
+  const triggerLaunch = () => {
+    if (isLaunching) return;
+    setIsLaunching(true);
+    playTileRevealSound(tile.reveal);
+    const delay = reduceMotion ? MOTION_TOKENS.reducedLaunchDurationMs : MOTION_TOKENS.launchDurationMs;
+    setTimeout(() => {
+      onSelect(tile.id);
+      setIsLaunching(false);
+    }, delay);
+  };
+
   return (
     <motion.button
-      onClick={() => onSelect(tile.id)}
+      onClick={triggerLaunch}
       style={{
         position: 'absolute', left: '50%', top: '50%',
         marginLeft: `calc(min(${width}px, 100vw - 40px) / -2)`, marginTop: -42,
@@ -77,9 +98,8 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme, width = 260 }) 
         WebkitBackfaceVisibility: 'hidden',
         outline: 'none',
       }}
-      whileHover={{ scale: 1.05, background: bgHover, border: borderHover }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => onSelect(tile.id)}
+      whileHover={{ scale: MOTION_TOKENS.hoverScale, background: bgHover, border: borderHover }}
+      whileTap={{ scale: MOTION_TOKENS.pressScale }}
       aria-label={`Open ${tile.label}`}
     >
       <motion.div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: 1, background: `linear-gradient(90deg, transparent, ${tile.color}, transparent)`, opacity: edgeOpacity }} />
@@ -94,6 +114,283 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme, width = 260 }) 
       </motion.span>
       <motion.span style={{ textAlign: 'left', lineHeight: 1.2, textShadow }}>{tile.label}</motion.span>
       <motion.span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', background: tile.color, boxShadow: `0 0 10px ${tile.color}`, opacity: shadowOpacity }} />
+
+      <AnimatePresence>
+        {isLaunching && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0.12 : 0.2 }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '1.5rem',
+              overflow: 'hidden',
+              pointerEvents: 'none',
+              background: 'rgba(5,5,15,0.25)',
+            }}
+          >
+            {tile.reveal === 'book' && !reduceMotion && (
+              <>
+                {/* Left cover/page block */}
+                <motion.span
+                  initial={{ rotateY: 0, x: 0, opacity: 0.9 }}
+                  animate={{ rotateY: -22, x: -16, opacity: 0.95 }}
+                  transition={{ duration: 0.38, ease: MOTION_TOKENS.easing }}
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    bottom: 10,
+                    left: 14,
+                    width: 'calc(50% - 14px)',
+                    borderRadius: '12px 0 0 12px',
+                    transformOrigin: 'right center',
+                    background: 'linear-gradient(90deg, rgba(248,239,220,0.96), rgba(236,213,167,0.85))',
+                    boxShadow: 'inset -1px 0 0 rgba(214,174,110,0.3), 0 0 12px rgba(245,222,179,0.2)',
+                  }}
+                >
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <motion.span
+                      key={`left-rule-${i}`}
+                      initial={{ opacity: 0, scaleX: 0.4 }}
+                      animate={{ opacity: 0.28, scaleX: 1 }}
+                      transition={{ duration: 0.18, delay: 0.08 + i * 0.03 }}
+                      style={{
+                        position: 'absolute',
+                        left: 8,
+                        right: 8,
+                        top: `${20 + i * 15}%`,
+                        height: 1,
+                        background: 'rgba(163, 142, 109, 0.55)',
+                        transformOrigin: 'left center',
+                      }}
+                    />
+                  ))}
+                </motion.span>
+                {/* Right cover/page block */}
+                <motion.span
+                  initial={{ rotateY: 0, x: 0, opacity: 0.9 }}
+                  animate={{ rotateY: 22, x: 16, opacity: 0.95 }}
+                  transition={{ duration: 0.38, ease: MOTION_TOKENS.easing }}
+                  style={{
+                    position: 'absolute',
+                    top: 10,
+                    bottom: 10,
+                    right: 14,
+                    width: 'calc(50% - 14px)',
+                    borderRadius: '0 12px 12px 0',
+                    transformOrigin: 'left center',
+                    background: 'linear-gradient(270deg, rgba(248,239,220,0.96), rgba(236,213,167,0.85))',
+                    boxShadow: 'inset 1px 0 0 rgba(214,174,110,0.3), 0 0 12px rgba(245,222,179,0.2)',
+                  }}
+                >
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <motion.span
+                      key={`right-rule-${i}`}
+                      initial={{ opacity: 0, scaleX: 0.4 }}
+                      animate={{ opacity: 0.28, scaleX: 1 }}
+                      transition={{ duration: 0.18, delay: 0.08 + i * 0.03 }}
+                      style={{
+                        position: 'absolute',
+                        left: 8,
+                        right: 8,
+                        top: `${20 + i * 15}%`,
+                        height: 1,
+                        background: 'rgba(163, 142, 109, 0.55)',
+                        transformOrigin: 'right center',
+                      }}
+                    />
+                  ))}
+                </motion.span>
+                {/* Center book spine/page divider line */}
+                <motion.span
+                  initial={{ opacity: 0.2, scaleY: 0.5 }}
+                  animate={{ opacity: 0.95, scaleY: 1 }}
+                  transition={{ duration: 0.28, delay: 0.07 }}
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: 10,
+                    bottom: 10,
+                    width: 1,
+                    marginLeft: -0.5,
+                    background: 'linear-gradient(180deg, rgba(255,244,219,0.2), rgba(255,244,219,1), rgba(255,244,219,0.2))',
+                    boxShadow: '0 0 10px rgba(255,244,219,0.45)',
+                  }}
+                />
+              </>
+            )}
+            {tile.reveal === 'nodes' && !reduceMotion && (
+              <>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <motion.span
+                    key={`node-${i}`}
+                    initial={{ scale: 0.2, opacity: 0, x: 0, y: 0 }}
+                    animate={{
+                      scale: [0.35, 1, 0.9],
+                      opacity: [0, 1, 0.75],
+                      x: [0, -26, 26, -10, 14][i],
+                      y: [0, -16, -8, 16, 20][i],
+                    }}
+                    transition={{ duration: 0.4, delay: i * 0.03, ease: 'easeOut' }}
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: '50%',
+                      width: 9,
+                      height: 9,
+                      borderRadius: '50%',
+                      background: '#91d5ff',
+                      boxShadow: '0 0 10px rgba(79,156,255,0.8)',
+                    }}
+                  />
+                ))}
+                {[[-26, -16], [26, -8], [-10, 16], [14, 20]].map((line, idx) => (
+                  <motion.span
+                    key={`path-${idx}`}
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{ scaleX: 1, opacity: 0.7 }}
+                    transition={{ duration: 0.2, delay: 0.08 + idx * 0.03 }}
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: '50%',
+                      width: Math.hypot(line[0], line[1]),
+                      height: 2,
+                      transformOrigin: 'left center',
+                      transform: `rotate(${Math.atan2(line[1], line[0])}rad)`,
+                      background: 'linear-gradient(90deg, rgba(145,213,255,0.9), rgba(145,213,255,0))',
+                    }}
+                  />
+                ))}
+              </>
+            )}
+            {tile.reveal === 'ripple' && !reduceMotion && (
+              <>
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={`ripple-${i}`}
+                    initial={{ scale: 0.3, opacity: 0.7 }}
+                    animate={{ scale: 1.8 + i * 0.3, opacity: 0 }}
+                    transition={{ duration: 0.45, delay: i * 0.08, ease: 'easeOut' }}
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: '50%',
+                      width: 46,
+                      height: 46,
+                      marginLeft: -23,
+                      marginTop: -23,
+                      borderRadius: '50%',
+                      border: '2px solid rgba(255,129,218,0.7)',
+                    }}
+                  />
+                ))}
+              </>
+            )}
+            {tile.reveal === 'lens' && !reduceMotion && (
+              <motion.span
+                initial={{ x: '-115%', opacity: 0.2 }}
+                animate={{ x: '115%', opacity: [0.2, 0.8, 0.2] }}
+                transition={{ duration: 0.45, ease: 'easeInOut' }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  width: '45%',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0), rgba(255,174,174,0.45), rgba(255,255,255,0))',
+                  filter: 'blur(2px)',
+                }}
+              />
+            )}
+            {tile.reveal === 'timeline' && !reduceMotion && (
+              <>
+                <motion.span
+                  initial={{ scaleX: 0, opacity: 0.2 }}
+                  animate={{ scaleX: 1, opacity: 0.8 }}
+                  transition={{ duration: 0.34 }}
+                  style={{
+                    position: 'absolute',
+                    left: 24,
+                    right: 24,
+                    top: '50%',
+                    height: 2,
+                    background: 'linear-gradient(90deg, rgba(0,245,212,0.1), rgba(0,245,212,0.95), rgba(0,245,212,0.1))',
+                    transformOrigin: 'left center',
+                  }}
+                />
+                {[0, 1, 2, 3].map((i) => (
+                  <motion.span
+                    key={`dot-${i}`}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 0.95 }}
+                    transition={{ delay: 0.08 + i * 0.06, type: 'spring', stiffness: 400, damping: 18 }}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: `${28 + i * 22}%`,
+                      width: 8,
+                      height: 8,
+                      marginTop: -3,
+                      borderRadius: '50%',
+                      background: '#00f5d4',
+                      boxShadow: '0 0 12px rgba(0,245,212,0.7)',
+                    }}
+                  />
+                ))}
+              </>
+            )}
+            {tile.reveal === 'circuit' && !reduceMotion && (
+              <>
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={`circuit-${i}`}
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{ scaleX: 1, opacity: 0.85 }}
+                    transition={{ duration: 0.2, delay: i * 0.07 }}
+                    style={{
+                      position: 'absolute',
+                      left: `${18 + i * 24}%`,
+                      top: `${28 + i * 10}%`,
+                      width: `${20 + i * 6}%`,
+                      height: 2,
+                      background: 'linear-gradient(90deg, rgba(245,158,11,0), rgba(245,158,11,0.95), rgba(245,158,11,0))',
+                      transformOrigin: 'left center',
+                    }}
+                  />
+                ))}
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 1, 0.4] }}
+                  transition={{ duration: 0.5 }}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'radial-gradient(circle at center, rgba(245,158,11,0.22), transparent 65%)',
+                  }}
+                />
+              </>
+            )}
+            {reduceMotion && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 0.9, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.12 }}
+                style={{
+                  position: 'absolute',
+                  inset: 8,
+                  borderRadius: '1rem',
+                  border: `1px solid ${tile.color}88`,
+                  background: `radial-gradient(circle at center, ${tile.color}33 0%, transparent 70%)`,
+                  boxShadow: `0 0 18px ${tile.color}55`,
+                }}
+              />
+            )}
+          </motion.span>
+        )}
+      </AnimatePresence>
     </motion.button>
   );
 }

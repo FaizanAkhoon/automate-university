@@ -4,7 +4,7 @@ import { BookOpen, Sparkles, Save, Trash2, X, FileText, Loader2 } from 'lucide-r
 import { addScore } from '../../utils/dailyScore';
 import axios from 'axios';
 
-const API = 'http://localhost:5000';
+const API = 'http://localhost:5001';
 
 export default function NotesSummarizer({ onClose }) {
   const [text, setText]       = useState('');
@@ -75,10 +75,23 @@ export default function NotesSummarizer({ onClose }) {
     } catch {}
   };
 
+  const bookPaperStyle = {
+    background: 'linear-gradient(180deg, rgba(250,241,223,0.95), rgba(242,228,199,0.92))',
+    border: '1px solid rgba(214,174,110,0.35)',
+    color: '#3d2f1f',
+  };
+  const ruledPaper = 'repeating-linear-gradient(to bottom, rgba(255,255,255,0.22) 0px, rgba(255,255,255,0.22) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 28px)';
+
   return (
     <div className="tile-overlay" onClick={onClose}>
       <motion.div
         className="tile-modal"
+        style={{
+          maxWidth: 920,
+          background: 'linear-gradient(145deg, rgba(84,54,24,0.96), rgba(60,37,14,0.96))',
+          border: '1px solid rgba(214,174,110,0.45)',
+          boxShadow: '0 25px 80px rgba(0,0,0,0.6), 0 0 40px rgba(214,174,110,0.22)',
+        }}
         initial={{ opacity: 0, scale: 0.9, y: 30 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 30 }}
@@ -92,11 +105,11 @@ export default function NotesSummarizer({ onClose }) {
               <BookOpen size={20} color="#6c63ff" />
             </div>
             <div>
-              <h2 className="text-white font-bold text-xl">Notes Summarizer</h2>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>AI-style bullet extraction</p>
+              <h2 className="font-bold text-xl" style={{ color: '#f4e6c8' }}>Notes Summarizer</h2>
+              <p className="text-xs" style={{ color: 'rgba(244,230,200,0.75)' }}>Open-book AI bullet extraction</p>
             </div>
           </div>
-          <button onClick={onClose} className="btn-ghost p-2">
+          <button onClick={onClose} className="btn-ghost p-2" style={{ color: '#f4e6c8', borderColor: 'rgba(244,230,200,0.35)', background: 'rgba(255,255,255,0.06)' }}>
             <X size={18} />
           </button>
         </div>
@@ -109,9 +122,9 @@ export default function NotesSummarizer({ onClose }) {
               onClick={() => { setTab(t); if (t === 'saved') fetchNotes(); }}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
               style={{
-                background: tab === t ? 'linear-gradient(135deg,#6c63ff,#a855f7)' : 'rgba(255,255,255,0.06)',
-                color: tab === t ? 'white' : 'rgba(255,255,255,0.5)',
-                border: tab === t ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                background: tab === t ? 'linear-gradient(135deg,#b07a32,#7a5121)' : 'rgba(250,241,223,0.2)',
+                color: tab === t ? '#fff5e5' : 'rgba(244,230,200,0.85)',
+                border: tab === t ? 'none' : '1px solid rgba(244,230,200,0.3)',
               }}
             >
               {t === 'summarize' ? '✨ Summarize' : '📂 Saved Notes'}
@@ -122,96 +135,181 @@ export default function NotesSummarizer({ onClose }) {
         <AnimatePresence mode="wait">
           {tab === 'summarize' ? (
             <motion.div key="sum" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <textarea
-                ref={textRef}
-                className="input-glass mb-3"
-                style={{ minHeight: 160, resize: 'vertical', lineHeight: 1.6 }}
-                placeholder="Paste your notes, article, or any text here..."
-                value={text}
-                onChange={e => setText(e.target.value)}
-              />
-              <button onClick={summarize} className="btn-primary w-full mb-5 flex items-center justify-center gap-2" disabled={loading}>
-                {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                {loading ? 'Summarizing...' : 'Generate Bullet Points'}
-              </button>
+              <div
+                style={{
+                  position: 'relative',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 0,
+                  borderRadius: 16,
+                  overflow: 'hidden',
+                  border: '1px solid rgba(214,174,110,0.35)',
+                  background: 'linear-gradient(180deg, rgba(250,241,223,0.95), rgba(242,228,199,0.92))',
+                  minHeight: 360,
+                }}
+              >
+                <div style={{ padding: '1rem', borderRight: '1px solid rgba(214,174,110,0.25)', backgroundImage: ruledPaper, backgroundSize: '100% 29px' }}>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#7f5c2c', letterSpacing: '0.06em' }}>SOURCE PAGE</p>
+                  <textarea
+                    ref={textRef}
+                    className="input-glass mb-3"
+                    style={{
+                      minHeight: 230,
+                      resize: 'vertical',
+                      lineHeight: 1.7,
+                      background: 'rgba(255,255,255,0.5)',
+                      color: '#3d2f1f',
+                      border: '1px solid rgba(174,132,66,0.35)',
+                    }}
+                    placeholder="Paste your notes, article, or any text here..."
+                    value={text}
+                    onChange={e => setText(e.target.value)}
+                  />
+                  <button onClick={summarize} className="btn-primary w-full flex items-center justify-center gap-2" disabled={loading}>
+                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                    {loading ? 'Summarizing...' : 'Generate Bullet Points'}
+                  </button>
+                </div>
 
-              <AnimatePresence>
-                {bullets.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="glass rounded-xl p-4 mb-4"
+                <div style={{ padding: '1rem', borderLeft: '1px solid rgba(214,174,110,0.2)', backgroundImage: ruledPaper, backgroundSize: '100% 29px' }}>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#7f5c2c', letterSpacing: '0.06em' }}>SUMMARY PAGE</p>
+                  <div
+                    style={{
+                      minHeight: 230,
+                      borderRadius: 12,
+                      padding: '0.9rem',
+                      background: 'rgba(255,255,255,0.45)',
+                      border: '1px solid rgba(174,132,66,0.28)',
+                    }}
                   >
-                    <p className="text-xs font-semibold mb-3" style={{ color: '#a855f7' }}>KEY POINTS</p>
-                    <ul className="space-y-2">
-                      {bullets.map((b, i) => (
-                        <motion.li
-                          key={i}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.07 }}
-                          className="flex items-start gap-2 text-sm"
-                          style={{ color: 'rgba(255,255,255,0.85)' }}
-                        >
-                          <span style={{ color: '#6c63ff', flexShrink: 0, marginTop: 2 }}>▸</span>
-                          {b}
-                        </motion.li>
-                      ))}
-                    </ul>
-                    <div className="flex gap-2 mt-4">
-                      <input
-                        className="input-glass flex-1"
-                        placeholder="Give this note a title..."
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                      />
-                      <button onClick={saveNote} className="btn-primary flex items-center gap-1 px-4">
-                        <Save size={14} />
-                        {saved ? 'Saved!' : 'Save'}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    {bullets.length === 0 ? (
+                      <p style={{ color: 'rgba(61,47,31,0.7)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                        Your extracted points will appear here like notes written on the right page.
+                      </p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {bullets.map((b, i) => (
+                          <motion.li
+                            key={i}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.07 }}
+                            className="flex items-start gap-2 text-sm"
+                            style={{ color: '#3d2f1f' }}
+                          >
+                            <span style={{ color: '#6c63ff', flexShrink: 0, marginTop: 2 }}>▸</span>
+                            {b}
+                          </motion.li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <input
+                      className="input-glass flex-1"
+                      style={{ background: 'rgba(255,255,255,0.5)', color: '#3d2f1f', border: '1px solid rgba(174,132,66,0.35)' }}
+                      placeholder="Give this note a title..."
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                    />
+                    <button onClick={saveNote} className="btn-primary flex items-center gap-1 px-4">
+                      <Save size={14} />
+                      {saved ? 'Saved!' : 'Save'}
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: '50%',
+                    width: 2,
+                    transform: 'translateX(-50%)',
+                    background: 'linear-gradient(180deg, rgba(163,118,54,0.15), rgba(163,118,54,0.9), rgba(163,118,54,0.15))',
+                    boxShadow: '0 0 8px rgba(163,118,54,0.35)',
+                    pointerEvents: 'none',
+                  }}
+                />
+              </div>
             </motion.div>
           ) : (
             <motion.div key="saved" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              {notes.length === 0 ? (
-                <div className="text-center py-12" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                  <FileText size={40} className="mx-auto mb-3 opacity-30" />
-                  <p>No saved notes yet</p>
-                </div>
-              ) : (
-                <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
-                  {notes.map(note => (
-                    <div key={note.id} className="glass rounded-xl p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-white text-sm">{note.title}</h3>
-                        <div className="flex gap-2">
-                          <button onClick={() => deleteNote(note.id)} className="text-red-400 hover:text-red-300">
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </div>
-                      <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                        {new Date(note.createdAt).toLocaleDateString()}
-                      </p>
-                      <ul className="space-y-1">
-                        {note.bullets.slice(0, 3).map((b, i) => (
-                          <li key={i} className="text-xs flex gap-1" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                            <span style={{ color: '#6c63ff' }}>▸</span> {b}
-                          </li>
-                        ))}
-                        {note.bullets.length > 3 && (
-                          <li className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                            +{note.bullets.length - 3} more...
-                          </li>
-                        )}
-                      </ul>
+              <div
+                style={{
+                  position: 'relative',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 0,
+                  borderRadius: 16,
+                  overflow: 'hidden',
+                  ...bookPaperStyle,
+                  minHeight: 330,
+                }}
+              >
+                <div style={{ padding: '1rem', borderRight: '1px solid rgba(214,174,110,0.25)', backgroundImage: ruledPaper, backgroundSize: '100% 29px' }}>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#7f5c2c', letterSpacing: '0.06em' }}>SAVED TITLES</p>
+                  {notes.length === 0 ? (
+                    <div className="text-center py-10" style={{ color: 'rgba(61,47,31,0.65)' }}>
+                      <FileText size={34} className="mx-auto mb-2 opacity-60" />
+                      <p>No saved notes yet</p>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                      {notes.map(note => (
+                        <div key={note.id} style={{ border: '1px solid rgba(174,132,66,0.25)', borderRadius: 10, padding: '0.55rem 0.6rem', background: 'rgba(255,255,255,0.45)' }}>
+                          <p className="text-sm font-semibold" style={{ color: '#3d2f1f' }}>{note.title}</p>
+                          <p className="text-xs" style={{ color: 'rgba(61,47,31,0.6)' }}>
+                            {new Date(note.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
+                <div style={{ padding: '1rem', borderLeft: '1px solid rgba(214,174,110,0.2)', backgroundImage: ruledPaper, backgroundSize: '100% 29px' }}>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#7f5c2c', letterSpacing: '0.06em' }}>HIGHLIGHTS & ACTION</p>
+                  {notes.length === 0 ? (
+                    <p style={{ color: 'rgba(61,47,31,0.7)', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                      Saved summaries will appear here with quick insight bullets.
+                    </p>
+                  ) : (
+                    <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                      {notes.map(note => (
+                        <div key={`r-${note.id}`} style={{ border: '1px solid rgba(174,132,66,0.25)', borderRadius: 10, padding: '0.6rem', background: 'rgba(255,255,255,0.45)' }}>
+                          <div className="flex justify-between items-start mb-2">
+                            <p className="text-sm font-semibold" style={{ color: '#3d2f1f' }}>{note.title}</p>
+                            <button onClick={() => deleteNote(note.id)} style={{ color: '#b91c1c', background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                          <ul className="space-y-1">
+                            {note.bullets.slice(0, 2).map((b, i) => (
+                              <li key={i} className="text-xs flex gap-1" style={{ color: '#3d2f1f' }}>
+                                <span style={{ color: '#6c63ff' }}>▸</span> {b}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: '50%',
+                    width: 2,
+                    transform: 'translateX(-50%)',
+                    background: 'linear-gradient(180deg, rgba(163,118,54,0.15), rgba(163,118,54,0.9), rgba(163,118,54,0.15))',
+                    boxShadow: '0 0 8px rgba(163,118,54,0.35)',
+                    pointerEvents: 'none',
+                  }}
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
