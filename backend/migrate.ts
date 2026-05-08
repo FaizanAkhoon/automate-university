@@ -23,28 +23,28 @@ async function migrate() {
 
     // Migrate Students
     if (data.students && data.students.length > 0) {
-      await db.collection('students').deleteMany({});
-      await db.collection('students').insertMany(data.students);
+      await db!.collection('students').deleteMany({});
+      await db!.collection('students').insertMany(data.students);
       console.log(`✅ Migrated ${data.students.length} students`);
     }
 
     // Migrate Notes
     if (data.notes && data.notes.length > 0) {
-      await db.collection('notes').deleteMany({});
-      await db.collection('notes').insertMany(data.notes);
+      await db!.collection('notes').deleteMany({});
+      await db!.collection('notes').insertMany(data.notes);
       console.log(`✅ Migrated ${data.notes.length} notes`);
     }
 
     // Migrate Health
     if (data.health && data.health.length > 0) {
-      await db.collection('health').deleteMany({});
-      await db.collection('health').insertMany(data.health);
+      await db!.collection('health').deleteMany({});
+      await db!.collection('health').insertMany(data.health);
       console.log(`✅ Migrated ${data.health.length} health records`);
     }
 
     // Migrate Admin Password
     if (data.adminPassword) {
-      await db.collection('settings').updateOne(
+      await db!.collection('settings').updateOne(
         { id: 'admin' },
         { $set: { id: 'admin', adminPassword: data.adminPassword } },
         { upsert: true }
@@ -54,15 +54,15 @@ async function migrate() {
 
     // Migrate Emergencies
     if (data.emergencies && data.emergencies.length > 0) {
-      await db.collection('emergencies').deleteMany({});
-      await db.collection('emergencies').insertMany(data.emergencies);
+      await db!.collection('emergencies').deleteMany({});
+      await db!.collection('emergencies').insertMany(data.emergencies);
       console.log(`✅ Migrated ${data.emergencies.length} emergencies`);
     }
 
     // Migrate Community Posts
     if (data.communityPosts && data.communityPosts.length > 0) {
-      await db.collection('communityPosts').deleteMany({});
-      await db.collection('communityPosts').insertMany(data.communityPosts);
+      await db!.collection('communityPosts').deleteMany({});
+      await db!.collection('communityPosts').insertMany(data.communityPosts);
       console.log(`✅ Migrated ${data.communityPosts.length} community posts`);
     }
 

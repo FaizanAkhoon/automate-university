@@ -54,7 +54,7 @@ app.use(express.json());
 
 // ─── NOTES ───────────────────────────────────────────────────────────────────
 app.get('/api/notes', async (req: Request, res: Response) => {
-  const notes = await db.collection('notes').find().sort({ createdAt: -1 }).toArray();
+  const notes = await db!.collection('notes').find().sort({ createdAt: -1 }).toArray();
   res.json(notes);
 });
 
@@ -66,12 +66,12 @@ app.post('/api/notes', async (req: Request, res: Response) => {
     bullets: req.body.bullets || [],
     createdAt: new Date().toISOString()
   };
-  await db.collection('notes').insertOne(note);
+  await db!.collection('notes').insertOne(note);
   res.status(201).json(note);
 });
 
 app.delete('/api/notes/:id', async (req: Request, res: Response) => {
-  await db.collection('notes').deleteOne({ id: req.params.id });
+  await db!.collection('notes').deleteOne({ id: req.params.id });
   res.json({ success: true });
 });
 
@@ -112,34 +112,34 @@ app.post('/api/notes/summarize', (req: Request, res: Response): any => {
 
 // ─── STUDENT ──────────────────────────────────────────────────────────────────
 app.get('/api/students', async (req: Request, res: Response) => {
-  const students = await db.collection('students').find().toArray();
+  const students = await db!.collection('students').find().toArray();
   res.json(students);
 });
 
 app.get('/api/student', async (req: Request, res: Response): Promise<any> => {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const session = await auth.api.getSession({ headers: req.headers as unknown as Headers });
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
-  const student = await db.collection('students').findOne({ id: session.user.id });
+  const student = await db!.collection('students').findOne({ id: session.user.id });
   // If no profile exists yet, return default data from their auth account
   res.json(student || { id: session.user.id, name: session.user.name, email: session.user.email });
 });
 
 app.put('/api/student', async (req: Request, res: Response): Promise<any> => {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const session = await auth.api.getSession({ headers: req.headers as unknown as Headers });
   if (!session) return res.status(401).json({ error: 'Unauthorized' });
 
-  await db.collection('students').updateOne(
+  await db!.collection('students').updateOne(
     { id: session.user.id },
     { $set: { ...req.body, id: session.user.id } },
     { upsert: true }
   );
-  const student = await db.collection('students').findOne({ id: session.user.id });
+  const student = await db!.collection('students').findOne({ id: session.user.id });
   res.json(student);
 });
 
 // ─── HEALTH ───────────────────────────────────────────────────────────────────
 app.get('/api/health', async (req: Request, res: Response) => {
-  const health = await db.collection('health').find().sort({ createdAt: -1 }).toArray();
+  const health = await db!.collection('health').find().sort({ createdAt: -1 }).toArray();
   res.json(health);
 });
 
@@ -155,19 +155,19 @@ app.post('/api/health', async (req: Request, res: Response) => {
     createdAt: new Date().toISOString()
   };
 
-  await db.collection('health').updateOne(
+  await db!.collection('health').updateOne(
     { date: entry.date },
     { $set: entry },
     { upsert: true }
   );
 
-  const updatedEntry = await db.collection('health').findOne({ date: entry.date });
+  const updatedEntry = await db!.collection('health').findOne({ date: entry.date });
   res.status(201).json(updatedEntry);
 });
 
 // ─── MESSAGES ─────────────────────────────────────────────────────────────────
 app.get('/api/messages', async (req: Request, res: Response) => {
-  const messages = await db.collection('messages').find().sort({ createdAt: -1 }).toArray();
+  const messages = await db!.collection('messages').find().sort({ createdAt: -1 }).toArray();
   res.json(messages);
 });
 
@@ -178,13 +178,13 @@ app.post('/api/admin/messages', async (req: Request, res: Response) => {
     content: req.body.content || '',
     createdAt: new Date().toISOString()
   };
-  await db.collection('messages').insertOne(msg);
+  await db!.collection('messages').insertOne(msg);
   res.status(201).json(msg);
 });
 
 // ─── ADMIN ────────────────────────────────────────────────────────────────────
 app.post('/api/admin/login', async (req: Request, res: Response) => {
-  const settings = await db.collection('settings').findOne({ id: 'admin' });
+  const settings = await db!.collection('settings').findOne({ id: 'admin' });
   const adminPassword = settings?.adminPassword || 'admin123';
   if (req.body.password === adminPassword) {
     res.json({ success: true, token: 'admin-token-2024' });
@@ -194,16 +194,16 @@ app.post('/api/admin/login', async (req: Request, res: Response) => {
 });
 
 app.get('/api/admin/students', async (req: Request, res: Response) => {
-  const students = await db.collection('students').find().toArray();
+  const students = await db!.collection('students').find().toArray();
   res.json(students);
 });
 
 app.get('/api/admin/stats', async (req: Request, res: Response) => {
-  const totalStudents = await db.collection('students').countDocuments();
-  const totalNotes = await db.collection('notes').countDocuments();
-  const totalHealthLogs = await db.collection('health').countDocuments();
-  const recentNotes = await db.collection('notes').find().sort({ createdAt: -1 }).limit(5).toArray();
-  const recentHealth = await db.collection('health').find().sort({ createdAt: -1 }).limit(7).toArray();
+  const totalStudents = await db!.collection('students').countDocuments();
+  const totalNotes = await db!.collection('notes').countDocuments();
+  const totalHealthLogs = await db!.collection('health').countDocuments();
+  const recentNotes = await db!.collection('notes').find().sort({ createdAt: -1 }).limit(5).toArray();
+  const recentHealth = await db!.collection('health').find().sort({ createdAt: -1 }).limit(7).toArray();
 
   res.json({
     totalStudents,
@@ -215,17 +215,17 @@ app.get('/api/admin/stats', async (req: Request, res: Response) => {
 });
 
 app.get('/api/admin/notes', async (req: Request, res: Response) => {
-  const notes = await db.collection('notes').find().sort({ createdAt: -1 }).toArray();
+  const notes = await db!.collection('notes').find().sort({ createdAt: -1 }).toArray();
   res.json(notes);
 });
 
 app.delete('/api/admin/notes/:id', async (req: Request, res: Response) => {
-  await db.collection('notes').deleteOne({ id: req.params.id });
+  await db!.collection('notes').deleteOne({ id: req.params.id });
   res.json({ success: true });
 });
 
 app.get('/api/admin/health', async (req: Request, res: Response) => {
-  const health = await db.collection('health').find().sort({ createdAt: -1 }).toArray();
+  const health = await db!.collection('health').find().sort({ createdAt: -1 }).toArray();
   res.json(health);
 });
 
@@ -239,18 +239,18 @@ app.post('/api/emergencies', async (req: Request, res: Response) => {
     longitude: req.body.longitude,
     timestamp: new Date().toISOString()
   };
-  await db.collection('emergencies').insertOne(event);
+  await db!.collection('emergencies').insertOne(event);
   res.status(201).json(event);
 });
 
 app.get('/api/admin/emergencies', async (req: Request, res: Response) => {
-  const emergencies = await db.collection('emergencies').find().sort({ timestamp: -1 }).toArray();
+  const emergencies = await db!.collection('emergencies').find().sort({ timestamp: -1 }).toArray();
   res.json(emergencies);
 });
 
 // ─── COMMUNITY BOARD ─────────────────────────────────────────────────────────
 app.get('/api/community', async (req: Request, res: Response) => {
-  const posts = await db.collection('communityPosts').find().sort({ createdAt: -1 }).toArray();
+  const posts = await db!.collection('communityPosts').find().sort({ createdAt: -1 }).toArray();
   res.json(posts);
 });
 
@@ -266,12 +266,12 @@ app.post('/api/community', async (req: Request, res: Response) => {
     authorDept: req.body.authorDept || '',
     createdAt: new Date().toISOString()
   };
-  await db.collection('communityPosts').insertOne(post);
+  await db!.collection('communityPosts').insertOne(post);
   res.status(201).json(post);
 });
 
 app.delete('/api/community/:id', async (req: Request, res: Response) => {
-  await db.collection('communityPosts').deleteOne({ id: req.params.id });
+  await db!.collection('communityPosts').deleteOne({ id: req.params.id });
   res.json({ success: true });
 });
 
