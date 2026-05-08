@@ -17,6 +17,7 @@ import CsBook from './components/tiles/CsBook';
 import CommunityBoard from './components/tiles/CommunityBoard';
 import VoiceAssistant from './components/VoiceAssistant';
 import Login from './components/Login';
+import ProfileWidget from './components/ProfileWidget';
 import MusicWidget from './components/MusicWidget';
 import { checkSession, signOut } from './utils/auth';
 import { dailyQuotes } from './data/quotes';
@@ -548,16 +549,17 @@ export default function App() {
       .then(data => setMessages(data))
       .catch(() => {});
 
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/students`)
+    // Fetch the authenticated student's own profile
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/student`, { credentials: 'include' })
       .then(r => r.json())
       .then(data => {
-        if (data && data.length > 0) {
-          setStudentName(data[0].name);
-          setStudentDept(data[0].grade || data[0].subjects?.[0] || 'General');
+        if (data && data.name) {
+          setStudentName(data.name);
+          setStudentDept(data.grade || data.subjects?.[0] || 'Student');
         }
       })
       .catch(() => {});
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (theme === 'pink') {
@@ -849,15 +851,10 @@ export default function App() {
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
-          <button
-            onClick={async () => {
-              await signOut();
-              setIsAuthenticated(false);
-            }}
-            className="btn-3d-glass"
-          >
-            <LogOut size={16} />
-          </button>
+          <ProfileWidget
+            theme={theme}
+            onSignOut={() => setIsAuthenticated(false)}
+          />
           <span className="header-date" style={{ color: 'var(--text-muted, rgba(255,255,255,0.3))', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
             {new Date().toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' })}
           </span>
