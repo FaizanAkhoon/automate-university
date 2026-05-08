@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // CORS — allow credentials so Better Auth cookies travel between origins
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3002'],
+  origin: ['http://localhost:5173', 'http://localhost:3002', 'http://localhost:3001'],
   credentials: true,
 }));
 

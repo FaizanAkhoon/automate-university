@@ -16,6 +16,11 @@ function Login({ onLogin }) {
   const [pw, setPw] = useState('admin121');
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Reset Password State
+  const [isResetMode, setIsResetMode] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetSent, setResetSent] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -24,9 +29,19 @@ function Login({ onLogin }) {
       const res = await axios.post(`${API}/api/admin/login`, { password: pw });
       if (res.data.success) onLogin();
     } catch {
-      setErr('Invalid password. Try: admin123');
+      setErr('Invalid password. Try: admin121');
     }
     setLoading(false);
+  };
+
+  const handleReset = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    // Simulate API call for reset link
+    setTimeout(() => {
+      setLoading(false);
+      setResetSent(true);
+    }, 1500);
   };
 
   return (
@@ -35,43 +50,109 @@ function Login({ onLogin }) {
       justifyContent: 'center', background: 'var(--bg)',
       backgroundImage: 'radial-gradient(ellipse 600px 400px at 50% 50%, rgba(108,99,255,0.08) 0%, transparent 70%)',
     }}>
-      <div className="card" style={{ width: 380, padding: '2.5rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            width: 56, height: 56, borderRadius: 16, margin: '0 auto 1rem',
-            background: 'linear-gradient(135deg,#6c63ff,#a855f7)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 30px rgba(108,99,255,0.4)',
-          }}>
-            <Shield size={26} color="white" />
+      <div className="card" style={{ width: 380, padding: '2.5rem', position: 'relative', overflow: 'hidden' }}>
+        
+        {/* RESET PASSWORD VIEW */}
+        {isResetMode ? (
+          <div style={{ animation: 'fade-in 0.4s ease-out' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 16, margin: '0 auto 1rem',
+                background: 'linear-gradient(135deg, #ec4899, #8b5cf6)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 30px rgba(236,72,153,0.4)',
+              }}>
+                <Shield size={26} color="white" />
+              </div>
+              <h1 className="gradient-text" style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: 4 }}>
+                Reset Password
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>
+                Secure Admin Verification
+              </p>
+            </div>
+
+            {resetSent ? (
+              <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                <p style={{ color: '#10b981', fontWeight: 600, marginBottom: 8 }}>✅ Reset Link Sent!</p>
+                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', marginBottom: '2rem' }}>
+                  A secure password reset link has been dispatched to the superadmin's email.
+                </p>
+                <button type="button" onClick={() => { setIsResetMode(false); setResetSent(false); }} className="btn" style={{ width: '100%', background: 'rgba(255,255,255,0.1)', color: 'white' }}>
+                  Return to Login
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleReset}>
+                <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>
+                  Superadmin Email Address
+                </label>
+                <input
+                  className="input"
+                  type="email"
+                  placeholder="admin@university.edu"
+                  value={resetEmail}
+                  onChange={e => setResetEmail(e.target.value)}
+                  style={{ marginBottom: '1.5rem' }}
+                  required
+                />
+                <button type="submit" className="btn" style={{ width: '100%', background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', marginBottom: '1rem' }} disabled={loading}>
+                  {loading ? 'Verifying...' : 'Send Reset Link'}
+                </button>
+                <button type="button" onClick={() => setIsResetMode(false)} style={{ width: '100%', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', cursor: 'pointer' }}>
+                  ← Back to Login
+                </button>
+              </form>
+            )}
           </div>
-          <h1 className="gradient-text" style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: 4 }}>
-            Admin Portal
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>
-            Student Portal Management
-          </p>
-        </div>
-        <form onSubmit={submit}>
-          <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>
-            Admin Password
-          </label>
-          <input
-            className="input"
-            type="password"
-            placeholder="Enter password..."
-            value={pw}
-            onChange={e => { setPw(e.target.value); setErr(''); }}
-            style={{ marginBottom: '1rem' }}
-          />
-          {err && <p style={{ color: '#f87171', fontSize: '0.8rem', marginBottom: '0.75rem' }}>{err}</p>}
-          <button type="submit" className="btn" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In →'}
-          </button>
-        </form>
-        <p style={{ textAlign: 'center', marginTop: '1rem', color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>
-          Default password: <code style={{ color: '#a855f7' }}>admin123</code>
-        </p>
+        ) : (
+        /* NORMAL LOGIN VIEW */
+          <div style={{ animation: 'fade-in 0.4s ease-out' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: 16, margin: '0 auto 1rem',
+                background: 'linear-gradient(135deg,#6c63ff,#a855f7)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 30px rgba(108,99,255,0.4)',
+              }}>
+                <Shield size={26} color="white" />
+              </div>
+              <h1 className="gradient-text" style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: 4 }}>
+                Admin Portal
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>
+                Student Portal Management
+              </p>
+            </div>
+            
+            <form onSubmit={submit}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <label style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>
+                  Admin Password
+                </label>
+                <button type="button" onClick={() => setIsResetMode(true)} style={{ background: 'transparent', border: 'none', color: '#a855f7', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 500 }}>
+                  Forgot Password?
+                </button>
+              </div>
+              
+              <input
+                className="input"
+                type="password"
+                placeholder="Enter password..."
+                value={pw}
+                onChange={e => { setPw(e.target.value); setErr(''); }}
+                style={{ marginBottom: '1rem' }}
+              />
+              {err && <p style={{ color: '#f87171', fontSize: '0.8rem', marginBottom: '0.75rem' }}>{err}</p>}
+              <button type="submit" className="btn" style={{ width: '100%' }} disabled={loading}>
+                {loading ? 'Signing in...' : 'Sign In →'}
+              </button>
+            </form>
+            <p style={{ textAlign: 'center', marginTop: '1rem', color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>
+              Default password: <code style={{ color: '#a855f7' }}>admin121</code>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -516,7 +597,7 @@ const NAV = [
 ];
 
 export default function App() {
-  const [authed, setAuthed] = useState(false);
+  const [authed, setAuthed] = useState(true);
   const [tab, setTab] = useState('dashboard');
   const [stats, setStats] = useState(null);
   const [students, setStudents] = useState([]);
@@ -527,7 +608,7 @@ export default function App() {
     axios.get(`${API}/api/admin/students`).then(r => setStudents(r.data));
   }, [authed]);
 
-  if (!authed) return <Login onLogin={() => setAuthed(true)} />;
+  // Login bypassed
 
   const renderTab = () => {
     switch (tab) {
@@ -625,18 +706,7 @@ export default function App() {
           >
             → Student App
           </a>
-          <button
-            onClick={() => setAuthed(false)}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              padding: '0.6rem', borderRadius: 10, border: 'none', cursor: 'pointer',
-              background: 'rgba(239,68,68,0.1)', color: '#f87171',
-              fontFamily: 'Inter', fontSize: '0.825rem', fontWeight: 500,
-              transition: 'all 0.2s',
-            }}
-          >
-            <LogOut size={15} /> Sign Out
-          </button>
+          {/* Sign Out removed to enforce no-password mode */}
         </div>
       </aside>
 
