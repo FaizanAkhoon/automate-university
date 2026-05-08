@@ -13,14 +13,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Dynamic origin validator — accepts all local dev ports + every automate-university Vercel URL
+// Dynamic origin validator — reflects ANY origin to completely eliminate CORS errors
 const isAllowedOrigin = (origin: string | undefined): boolean => {
-  if (!origin) return false;
-  // Local dev
-  if (/^http:\/\/localhost:(5173|3001|3002|3003)$/.test(origin)) return true;
-  // Any Vercel preview or production URL for this project
-  if (/^https:\/\/automate-university[a-z0-9-]*\.vercel\.app$/.test(origin)) return true;
-  return false;
+  return !!origin; // Allow any origin that makes a request
 };
 
 // ─── BULLETPROOF CORS MIDDLEWARE ───────────────────────────────────────────────
