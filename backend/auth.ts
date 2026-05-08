@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { betterAuth } from "better-auth";
 import { db } from "./db.js";
 

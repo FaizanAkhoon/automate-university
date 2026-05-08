@@ -1,5 +1,5 @@
-import { db } from './db.js';
 import 'dotenv/config';
+import { db } from './db.js';
 import express, { Request, Response } from 'express';
 import cors from 'cors'; // we will keep import just in case, but use custom middleware
 import path from 'path';
