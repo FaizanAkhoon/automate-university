@@ -7,5 +7,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  trustedOrigins: ["http://localhost:5173", "http://localhost:3002"],
+  trustedOrigins: process.env.FRONTEND_URLS 
+    ? process.env.FRONTEND_URLS.split(',') 
+    : ["http://localhost:5173", "http://localhost:3002", "http://localhost:3001", "http://localhost:3003"],
 });

@@ -17,7 +17,7 @@ export default function StudyTimer({ onClose }) {
   const [running, setRunning]   = useState(false);
   const [cycles, setCycles]     = useState(0);
   const [flash, setFlash]       = useState(false);
-  const intervalRef = useRef(null);
+  const intervalRef = useRef<any>(null);
 
   const mode = MODES[modeIdx];
   const total = mode.duration;

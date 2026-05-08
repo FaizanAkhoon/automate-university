@@ -15,7 +15,7 @@ export default function CsBook({ onClose }) {
     const saved = localStorage.getItem('csbook_unlocked');
     return saved ? parseInt(saved) : 0;
   });
-  const [completedIds, setCompletedIds] = useState(() => {
+  const [completedIds, setCompletedIds] = useState<number[]>(() => {
     const saved = localStorage.getItem('csbook_completed');
     return saved ? JSON.parse(saved) : [];
   });
@@ -25,7 +25,7 @@ export default function CsBook({ onClose }) {
   const [pageUnlocked, setPageUnlocked] = useState(0);
   
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-  const contentRef = useRef(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Responsive state
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);

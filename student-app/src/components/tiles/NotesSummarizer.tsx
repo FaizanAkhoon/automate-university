@@ -4,13 +4,13 @@ import { BookOpen, Sparkles, Save, Trash2, X, FileText, Loader2 } from 'lucide-r
 import { addScore } from '../../utils/dailyScore';
 import axios from 'axios';
 
-const API = 'http://localhost:5001';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function NotesSummarizer({ onClose }) {
   const [text, setText]       = useState('');
-  const [bullets, setBullets] = useState([]);
+  const [bullets, setBullets] = useState<string[]>([]);
   const [title, setTitle]     = useState('');
-  const [notes, setNotes]     = useState([]);
+  const [notes, setNotes]     = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved]     = useState(false);
   const [tab, setTab]         = useState('summarize'); // 'summarize' | 'saved'

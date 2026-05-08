@@ -188,7 +188,7 @@ const POPULAR_SITES = [
 
 function findBestMatch(transcript) {
   const lower = transcript.toLowerCase().trim();
-  let bestMatch = null;
+  let bestMatch: any = null;
   let bestScore = 0;
 
   // 1. Check government/service ROUTES first (highest priority)
@@ -240,12 +240,12 @@ export default function VoiceAssistant({ theme }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
   const [pulseAnim, setPulseAnim] = useState(false);
-  const recognitionRef = useRef(null);
+  const recognitionRef = useRef<any>(null);
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
   const startListening = () => {
     if (!SpeechRecognition) {

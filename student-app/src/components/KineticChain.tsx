@@ -17,7 +17,7 @@ const TILES = [
 const MOTION_TOKENS = {
   launchDurationMs: 520,
   reducedLaunchDurationMs: 170,
-  easing: [0.22, 1, 0.36, 1],
+  easing: [0.22, 1, 0.36, 1] as any,
   pressScale: 0.95,
   hoverScale: 1.05,
 };
@@ -44,14 +44,14 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme, width = 260 }) 
   const blurValue = useTransform(zNorm, zn => (1 - zn) * 8);
   const filter = useTransform(blurValue, b => `blur(${b}px)`);
 
-  const boxShadow = useTransform(z, zv => zv > 0 
+  const boxShadow = useTransform(z, (zv: number) => zv > 0 
     ? `0 20px 50px rgba(0,0,0,${isPink ? '0.15' : '0.7'}), inset 0 2px 4px rgba(255,255,255,${isPink ? '0.8' : '0.4'}), inset 0 -4px 10px rgba(0,0,0,${isPink ? '0.05' : '0.4'}), 0 0 50px ${tile.glow.replace('0.8', isPink ? '0.6' : '0.4')}`
     : `0 4px 20px rgba(0,0,0,${isPink ? '0.05' : '0.3'}), inset 0 1px 2px rgba(255,255,255,${isPink ? '0.3' : '0.1'})`);
 
-  const edgeOpacity = useTransform(z, zv => zv > 0 ? 0.8 : 0.2);
-  const shadowOpacity = useTransform(z, zv => zv > 0 ? 1 : 0.2);
-  const iconShadow = useTransform(z, zv => zv > 0 ? `0 0 15px ${tile.color}44` : 'none');
-  const textShadow = useTransform(z, zv => {
+  const edgeOpacity = useTransform(z, (zv: number) => zv > 0 ? 0.8 : 0.2);
+  const shadowOpacity = useTransform(z, (zv: number) => zv > 0 ? 1 : 0.2);
+  const iconShadow = useTransform(z, (zv: number) => zv > 0 ? `0 0 15px ${tile.color}44` : 'none');
+  const textShadow = useTransform(z, (zv: number) => {
     if (!isPink && zv > 0) return '0 2px 10px rgba(0,0,0,0.8)';
     return 'none';
   });
@@ -397,11 +397,11 @@ function UniversalTile({ tile, x, y, z, zRange, onSelect, theme, width = 260 }) 
 
 // ─── LAYOUT 1: ORBITAL RING ──────────────────────────────────────────────────
 function OrbitalSpoke({ index, springAngle }) {
-  const angle = useTransform(springAngle, v => v + index * STEP);
+  const angle = useTransform(springAngle, (v: number) => v + index * STEP);
   const x2 = useTransform(angle, a => Math.sin(a) * 320);
   const y2 = useTransform(angle, a => Math.cos(a) * 60);
   const z = useTransform(angle, a => Math.cos(a) * 220);
-  const opacity = useTransform(z, zv => zv > 0 ? 0.25 : 0.05);
+  const opacity = useTransform(z, (zv: number) => zv > 0 ? 0.25 : 0.05);
 
   return <motion.line x1="0" y1="0" x2={x2} y2={y2} stroke="url(#ring-grad)" strokeWidth="1" style={{ opacity }} />;
 }
@@ -436,7 +436,7 @@ function OrbitalLayout({ springAngle, onSelect, theme }) {
       </div>
 
       {TILES.map((tile, i) => {
-        const angle = useTransform(springAngle, v => v + i * STEP);
+        const angle = useTransform(springAngle, (v: number) => v + i * STEP);
         const x = useTransform(angle, a => Math.sin(a) * RADIUS_X);
         const y = useTransform(angle, a => Math.cos(a) * TILT_Y);
         const z = useTransform(angle, a => Math.cos(a) * RADIUS_Z);
@@ -460,7 +460,7 @@ function VerticalLayout({ springAngle, onSelect, theme }) {
         </svg>
       </div>
       {TILES.map((tile, i) => {
-        const angle = useTransform(springAngle, v => v + i * STEP);
+        const angle = useTransform(springAngle, (v: number) => v + i * STEP);
         const x = useTransform(angle, a => 0); 
         const y = useTransform(angle, a => Math.sin(a) * VERTICAL);
         const z = useTransform(angle, a => Math.cos(a) * RADIUS_Z);
@@ -490,7 +490,7 @@ function InfinityLayout({ springAngle, onSelect, theme }) {
         </svg>
       </div>
       {TILES.map((tile, i) => {
-        const angle = useTransform(springAngle, v => v + i * STEP);
+        const angle = useTransform(springAngle, (v: number) => v + i * STEP);
         const x = useTransform(angle, a => Math.sin(a) * RADIUS_X);
         const y = useTransform(angle, a => Math.sin(a * 2) * RADIUS_Y); 
         const z = useTransform(angle, a => Math.cos(a) * RADIUS_Z);
@@ -507,7 +507,7 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
   const targetAngle = useRef(0);
   const currentSlot = useRef(0);
   const userInteracting = useRef(false);
-  const interactionTimeout = useRef(null);
+  const interactionTimeout = useRef<any>(null);
   const [modeIdx, setModeIdx] = useState(2);
   const mode = ANIMATION_MODES[modeIdx];
   const containerRef = useRef(null);

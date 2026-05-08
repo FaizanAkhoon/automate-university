@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import './index.css';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const MOODS = { 1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '🤩' };
 
@@ -303,7 +303,7 @@ function StudentsTab({ students }) {
 
 // ─── NOTES TAB ────────────────────────────────────────────────────────────────
 function NotesTab() {
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState<any[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -362,7 +362,7 @@ function NotesTab() {
 
 // ─── HEALTH TAB ───────────────────────────────────────────────────────────────
 function HealthTab() {
-  const [logs, setLogs] = useState([]);
+  const [logs, setLogs] = useState<any[]>([]);
 
   useEffect(() => {
     axios.get(`${API}/api/admin/health`).then(r => setLogs(r.data));
@@ -408,7 +408,7 @@ function HealthTab() {
 
 // ─── MESSAGES TAB ─────────────────────────────────────────────────────────────
 function MessagesTab() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
@@ -482,7 +482,7 @@ function MessagesTab() {
 
 // ─── EMERGENCIES TAB ──────────────────────────────────────────────────────────
 function EmergenciesTab() {
-  const [alerts, setAlerts] = useState([]);
+  const [alerts, setAlerts] = useState<any[]>([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -599,8 +599,8 @@ const NAV = [
 export default function App() {
   const [authed, setAuthed] = useState(true);
   const [tab, setTab] = useState('dashboard');
-  const [stats, setStats] = useState(null);
-  const [students, setStudents] = useState([]);
+  const [stats, setStats] = useState<any>(null);
+  const [students, setStudents] = useState<any[]>([]);
 
   useEffect(() => {
     if (!authed) return;
@@ -691,7 +691,7 @@ export default function App() {
         {/* Bottom */}
         <div>
           <a
-            href="http://localhost:3002"
+            href={import.meta.env.VITE_STUDENT_APP_URL || "http://localhost:3002"}
             target="_blank"
             rel="noopener noreferrer"
             style={{

@@ -10,13 +10,13 @@ const TABS = [
 
 export default function CommunityBoard({ onClose, studentName, studentDept }) {
   const [activeTab, setActiveTab] = useState('hackathon');
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', description: '', skills: '', contact: '' });
   const [loading, setLoading] = useState(true);
 
   const fetchPosts = () => {
-    fetch('http://localhost:5001/api/community')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/community`)
       .then(r => r.json())
       .then(data => { setPosts(data || []); setLoading(false); })
       .catch(() => setLoading(false));
@@ -27,7 +27,7 @@ export default function CommunityBoard({ onClose, studentName, studentDept }) {
   const handleSubmit = async () => {
     if (!form.title.trim()) return;
     try {
-      await fetch('http://localhost:5001/api/community', {
+      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/community`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -47,12 +47,12 @@ export default function CommunityBoard({ onClose, studentName, studentDept }) {
   };
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:5001/api/community/${id}`, { method: 'DELETE' });
+    await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/community/${id}`, { method: 'DELETE' });
     fetchPosts();
   };
 
   const filtered = posts.filter(p => p.type === activeTab);
-  const tabData = TABS.find(t => t.key === activeTab);
+  const tabData = TABS.find(t => t.key === activeTab)!;
 
   const timeAgo = (d) => {
     const mins = Math.floor((Date.now() - new Date(d).getTime()) / 60000);

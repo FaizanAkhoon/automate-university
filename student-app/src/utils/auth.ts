@@ -8,7 +8,7 @@
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-  baseURL: "http://localhost:5000",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
 });
 /**
  * Check if a user session exists.
@@ -54,7 +54,7 @@ export const signInWithEmail = async (email, password) => {
       throw new Error(error.message || 'Sign in failed');
     }
     return data;
-  } catch (err) {
+  } catch (err: any) {
     // If Better Auth is unreachable, fall back to mock for dev
     if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed')) {
       console.warn("Better Auth backend unreachable — using mock session");

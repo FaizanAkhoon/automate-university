@@ -323,9 +323,9 @@ function InboxModal({ messages, onClose, theme }) {
   const isPink = theme === 'pink';
   return (
     <motion.div
-      initial={{ opacity: 0, backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' }}
-      animate={{ opacity: 1, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
-      exit={{ opacity: 0, backdropFilter: 'blur(0px)', WebkitBackdropFilter: 'blur(0px)' }}
+      initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+      animate={{ opacity: 1, backdropFilter: 'blur(20px)' }}
+      exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="tile-overlay"
       onClick={onClose}
@@ -382,7 +382,7 @@ function InboxModal({ messages, onClose, theme }) {
 
 // ─── TECH NEWS BANNER ────────────────────────────────────────────────────────
 function TechNewsBanner({ theme }) {
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const isPink = theme === 'pink';
@@ -499,36 +499,36 @@ function TechNewsBanner({ theme }) {
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [activeTile, setActiveTile] = useState(null);
+  const [activeTile, setActiveTile] = useState<string | null>(null);
   const [theme, setTheme] = useState('dark');
-  const [themeAnim, setThemeAnim] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [themeAnim, setThemeAnim] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
   const [studentName, setStudentName] = useState('');
   const [studentDept, setStudentDept] = useState('');
   const [showInbox, setShowInbox] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
-  const [waterQueue, setWaterQueue] = useState([]);
+  const [waterQueue, setWaterQueue] = useState<any[]>([]);
   const [waterPopupIndex, setWaterPopupIndex] = useState(-1); // -1 = no popup
   const [showCommunity, setShowCommunity] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
   const [dailyScore, setDailyScore] = useState(0);
   const [quoteData, setQuoteData] = useState({ visible: false, text: '' });
   const [sosStatus, setSosStatus] = useState('idle'); // 'idle' | 'locating' | 'sending' | 'sent' | 'error'
-  const waterTimerRef = useRef(null);
-  const launchTimerRef = useRef(null);
-  const [loadingTransition, setLoadingTransition] = useState(null);
+  const waterTimerRef = useRef<any>(null);
+  const launchTimerRef = useRef<any>(null);
+  const [loadingTransition, setLoadingTransition] = useState<any>(null);
 
   useEffect(() => {
     checkSession().then(hasSession => setIsAuthenticated(hasSession));
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/messages')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/messages`)
       .then(r => r.json())
       .then(data => setMessages(data))
       .catch(() => {});
 
-    fetch('http://localhost:5001/api/students')
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/students`)
       .then(r => r.json())
       .then(data => {
         if (data && data.length > 0) {
@@ -659,7 +659,7 @@ export default function App() {
   const sendSOS = async (latitude, longitude, accuracy) => {
     setSosStatus('sending');
     try {
-      const res = await fetch('http://localhost:5001/api/emergencies', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/emergencies`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -842,7 +842,7 @@ export default function App() {
             {new Date().toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' })}
           </span>
           <a
-            href="http://localhost:3001"
+            href={import.meta.env.VITE_ADMIN_APP_URL || "http://localhost:3001"}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-ghost text-xs header-admin-link"

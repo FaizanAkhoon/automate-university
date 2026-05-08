@@ -13,9 +13,13 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const allowedOrigins = process.env.FRONTEND_URLS 
+  ? process.env.FRONTEND_URLS.split(',') 
+  : ['http://localhost:5173', 'http://localhost:3002', 'http://localhost:3001', 'http://localhost:3003'];
+
 // CORS — allow credentials so Better Auth cookies travel between origins
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3002', 'http://localhost:3001'],
+  origin: allowedOrigins,
   credentials: true,
 }));
 

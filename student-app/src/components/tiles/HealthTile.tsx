@@ -5,7 +5,7 @@ import axios from 'axios';
 import { startStepCounter, getSteps, checkSleepStatus, getWaterCount } from '../../utils/healthTracker';
 import { addScore } from '../../utils/dailyScore';
 
-const API = 'http://localhost:5001';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const MOODS = [
   { val: 1, emoji: '😞', label: 'Rough' },
@@ -52,7 +52,7 @@ function Ring({ value, max, color, size = 80, label, icon: Icon, suffix = '' }) 
   );
 }
 
-function SleepCard({ sleepData }) {
+function SleepCard({ sleepData }: { sleepData: any }) {
   const { status, sleepStart, sleepEnd } = sleepData;
 
   if (!status) {
@@ -75,7 +75,7 @@ function SleepCard({ sleepData }) {
   const isGood = status === 'good';
   const startTime = sleepStart ? new Date(sleepStart).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—';
   const endTime = sleepEnd ? new Date(sleepEnd).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—';
-  const durationMs = sleepStart && sleepEnd ? new Date(sleepEnd) - new Date(sleepStart) : 0;
+  const durationMs = sleepStart && sleepEnd ? new Date(sleepEnd).getTime() - new Date(sleepStart).getTime() : 0;
   const durationH = Math.round(durationMs / (1000 * 60 * 60) * 10) / 10;
 
   return (
@@ -134,11 +134,11 @@ export default function HealthTile({ onClose }) {
   const [sleepData, setSleepData] = useState({ status: null, sleepStart: null, sleepEnd: null });
   const [waterCount, setWaterCount] = useState(0);
   const [mood, setMood]         = useState(3);
-  const [logs, setLogs]         = useState([]);
+  const [logs, setLogs]         = useState<any[]>([]);
   const [saved, setSaved]       = useState(false);
   const [tab, setTab]           = useState('dashboard');
   const [hasAccelerometer, setHasAccelerometer] = useState(true);
-  const cleanupRef = useRef(null);
+  const cleanupRef = useRef<any>(null);
 
   // Initialize passive trackers
   useEffect(() => {

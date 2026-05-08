@@ -50,7 +50,7 @@ function resetIfNewDay() {
 
 let stepCount = 0;
 let stepListenerActive = false;
-let stepCallback = null;
+let stepCallback: ((count: number) => void) | null = null;
 
 // Simple step detection: look for acceleration spikes above a threshold
 let lastMagnitude = 0;
@@ -92,8 +92,8 @@ export function startStepCounter(onStepUpdate) {
   }
 
   // iOS 13+ requires permission
-  if (typeof DeviceMotionEvent.requestPermission === 'function') {
-    DeviceMotionEvent.requestPermission()
+  if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+    (DeviceMotionEvent as any).requestPermission()
       .then(state => {
         if (state === 'granted') {
           window.addEventListener('devicemotion', handleMotion);
@@ -163,7 +163,7 @@ export function checkSleepStatus() {
   const lastActiveIST = new Date(lastActive + istOffset + lastActiveDate.getTimezoneOffset() * 60 * 1000);
   const lastActiveHour = lastActiveIST.getHours();
 
-  let status = null;
+  let status: string | null = null;
 
   if (gapHours >= 7 && lastActiveHour >= 21) {
     status = 'good';
@@ -232,7 +232,7 @@ export function getMissedWaterReminders() {
   const missedCount = Math.floor(hoursSinceAck);
   if (missedCount < 1) return [];
 
-  const missed = [];
+  const missed: Array<{ hour: string; timestamp: number }> = [];
   for (let i = 1; i <= missedCount; i++) {
     const missedTime = new Date(lastAck + i * 60 * 60 * 1000);
     missed.push({

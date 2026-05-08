@@ -16,7 +16,7 @@ const isRight = b => ['÷','×','−','+','='].includes(b);
 export default function Calculator({ onClose }) {
   const [display, setDisplay] = useState('0');
   const [expr, setExpr]       = useState('');
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<string[]>([]);
   const [fresh, setFresh]     = useState(false); // after = pressed, next digit clears
 
   const press = (btn) => {

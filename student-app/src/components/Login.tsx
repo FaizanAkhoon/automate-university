@@ -9,7 +9,7 @@ export default function Login({ onLogin, theme }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [focusedInput, setFocusedInput] = useState(null);
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -18,7 +18,7 @@ export default function Login({ onLogin, theme }) {
     try {
       await signInWithEmail(email, password);
       onLogin();
-    } catch (err) {
+    } catch (err: any) {
       alert("Sign in failed: " + err.message);
     }
     setLoading(false);
@@ -29,7 +29,7 @@ export default function Login({ onLogin, theme }) {
     try {
       await signInWithGoogle();
       onLogin();
-    } catch (err) {
+    } catch (err: any) {
       alert("Google sign in failed: " + err.message);
     }
   };

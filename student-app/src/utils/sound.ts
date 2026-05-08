@@ -1,6 +1,6 @@
 export const playFunSound = () => {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
     const osc = ctx.createOscillator();
@@ -28,7 +28,7 @@ export const playFunSound = () => {
 
 export const playNormalClick = () => {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
     
@@ -54,7 +54,7 @@ export const playNormalClick = () => {
 
 export const playDropSound = () => {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
     const osc = ctx.createOscillator();
@@ -79,7 +79,7 @@ export const playDropSound = () => {
 
 export const playPageRustle = () => {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
     const now = ctx.currentTime;
@@ -132,7 +132,7 @@ export const playPageRustle = () => {
 
 export const playTileRevealSound = (revealType) => {
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
     const now = ctx.currentTime;
@@ -142,7 +142,7 @@ export const playTileRevealSound = (revealType) => {
     master.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
     master.connect(ctx.destination);
 
-    const beep = (freq, duration, type = 'sine', at = 0, gainValue = 0.03) => {
+    const beep = (freq: number, duration: number, type: OscillatorType = 'sine', at = 0, gainValue = 0.03) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const t = now + at;

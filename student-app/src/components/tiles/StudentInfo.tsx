@@ -3,13 +3,13 @@ import { motion } from 'framer-motion';
 import { User, Save, X, BookOpen, Star, Mail, GraduationCap } from 'lucide-react';
 import axios from 'axios';
 
-const API = 'http://localhost:5001';
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const GRADES = ['7th','8th','9th','10th','11th','12th','College 1st Year','College 2nd Year','College 3rd Year','College 4th Year'];
 const SUBJECT_OPTIONS = ['Math','Physics','Chemistry','Biology','English','History','Geography','Computer Science','Economics','Art','Music','PE'];
 
 export default function StudentInfo({ onClose }) {
-  const [form, setForm] = useState({ name: '', grade: '', subjects: [], gpa: '', email: '', bio: '' });
+  const [form, setForm] = useState<{ name: string; grade: string; subjects: string[]; gpa: string; email: string; bio: string }>({ name: '', grade: '', subjects: [], gpa: '', email: '', bio: '' });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
