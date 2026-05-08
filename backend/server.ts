@@ -17,7 +17,7 @@ const allowedOrigins = [
   "http://localhost:3001",
   "http://localhost:3002",
   "http://localhost:3003",
-  "https://automate-university-fke8.vercel.app/",
+  "https://automate-university-fke8.vercel.app",
   "https://automate-university-git-main-faizanakhoonsh-faizanbashir018.vercel.app",
   "https://automate-university.vercel.app"
 ];
