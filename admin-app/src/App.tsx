@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
   LayoutDashboard, Users, FileText, Heart, LogOut,
   TrendingUp, BookOpen, Trash2, ChevronDown, ChevronUp,
-  Activity, Moon, Droplets, Dumbbell, Shield, Mail, Send, AlertTriangle, MapPin
+  Activity, Moon, Droplets, Dumbbell, Shield, Mail, Send, AlertTriangle, MapPin, Menu
 } from 'lucide-react';
 import './index.css';
 
@@ -599,6 +599,7 @@ const NAV = [
 export default function App() {
   const [authed, setAuthed] = useState(true);
   const [tab, setTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [students, setStudents] = useState<any[]>([]);
 
@@ -628,20 +629,36 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Sidebar */}
-      <aside style={{
-        width: 240,
-        background: 'var(--sidebar)',
-        borderRight: '1px solid var(--border)',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '1.5rem 1rem',
-        flexShrink: 0,
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
-      }}>
+    <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
+      {/* Mobile Header */}
+      <div className="mobile-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 8,
+            background: 'linear-gradient(135deg,#6c63ff,#a855f7)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Shield size={16} color="white" />
+          </div>
+          <span style={{ color: 'white', fontWeight: 700, fontSize: '1rem' }}>Admin</span>
+        </div>
+        <button
+          onClick={() => setSidebarOpen(true)}
+          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}
+        >
+          <Menu size={24} />
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', flex: 1 }}>
+        {/* Sidebar Overlay */}
+        <div 
+          className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} 
+          onClick={() => setSidebarOpen(false)} 
+        />
+
+        {/* Sidebar */}
+        <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '2.5rem' }}>
           <div style={{
@@ -666,7 +683,7 @@ export default function App() {
             return (
               <button
                 key={item.id}
-                onClick={() => setTab(item.id)}
+                onClick={() => { setTab(item.id); setSidebarOpen(false); }}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -716,7 +733,7 @@ export default function App() {
       </aside>
 
       {/* Main content */}
-      <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
+      <main className="main-content" style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
         {/* Top bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
@@ -734,6 +751,7 @@ export default function App() {
         </div>
         {renderTab()}
       </main>
+      </div>
     </div>
   );
 }
