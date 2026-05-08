@@ -597,7 +597,7 @@ const NAV = [
 ];
 
 export default function App() {
-  const [authed, setAuthed] = useState(false);
+  const [authed, setAuthed] = useState(true);
   const [tab, setTab] = useState('dashboard');
   const [stats, setStats] = useState(null);
   const [students, setStudents] = useState([]);
@@ -608,7 +608,7 @@ export default function App() {
     axios.get(`${API}/api/admin/students`).then(r => setStudents(r.data));
   }, [authed]);
 
-  if (!authed) return <Login onLogin={() => setAuthed(true)} />;
+  // Login bypassed
 
   const renderTab = () => {
     switch (tab) {
@@ -706,18 +706,7 @@ export default function App() {
           >
             → Student App
           </a>
-          <button
-            onClick={() => setAuthed(false)}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              padding: '0.6rem', borderRadius: 10, border: 'none', cursor: 'pointer',
-              background: 'rgba(239,68,68,0.1)', color: '#f87171',
-              fontFamily: 'Inter', fontSize: '0.825rem', fontWeight: 500,
-              transition: 'all 0.2s',
-            }}
-          >
-            <LogOut size={15} /> Sign Out
-          </button>
+          {/* Sign Out removed to enforce no-password mode */}
         </div>
       </aside>
 
