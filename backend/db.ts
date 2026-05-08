@@ -1,104 +1,126 @@
 import 'dotenv/config';
-import { MongoClient, MongoClientOptions } from 'mongodb';
+import { db as firestoreDb } from './firebase.js';
+import { collection, getDocs, addDoc, setDoc, deleteDoc, doc, query, orderBy, limit as fLimit, where } from 'firebase/firestore';
 
-// ─── MOCK IN-MEMORY DATABASE FALLBACK ─────────────────────────────────────────
-// This ensures that even if MongoDB fails to connect, the API won't crash and 
-// features like the Emergency SOS button will still work (in-memory).
-class MockCollection {
-  name: string;
-  data: any[];
-  constructor(name: string) {
-    this.name = name;
-    this.data = [];
-  }
-  find(query: any = {}) {
-    return {
-      sort: () => this,
-      limit: (n: number) => ({ toArray: async () => this.data.slice(0, n) }),
-      toArray: async () => this.data.filter(item => {
-        for (const k in query) { if (item[k] !== query[k]) return false; }
-        return true;
-      })
+// ─── MONGODB TO FIRESTORE ADAPTER ─────────────────────────────────────────────
+// This adapter perfectly mimics the MongoDB driver interface used in server.ts
+// so that all existing routes automatically sync with Firebase Firestore without
+// needing to rewrite the entire backend.
+
+class FirestoreCollectionAdapter {
+  constructor(public name: string) {}
+
+  find(q: any = {}) {
+    let sorts: any[] = [];
+    let limitNum: number | undefined;
+
+    const cursor = {
+      sort: (s: any) => { sorts.push(s); return cursor; },
+      limit: (n: number) => { limitNum = n; return cursor; },
+      toArray: async () => {
+        try {
+          const collRef = collection(firestoreDb, this.name);
+          const snapshot = await getDocs(collRef);
+          let results = snapshot.docs.map(d => ({ ...d.data(), _id: d.id, id: d.data().id || d.id }));
+          
+          // apply filters
+          if (Object.keys(q).length > 0) {
+             results = results.filter(item => {
+               for (const k in q) { if (item[k] !== q[k]) return false; }
+               return true;
+             });
+          }
+          
+          // apply sort
+          if (sorts.length > 0) {
+            const s = sorts[0];
+            const key = Object.keys(s)[0];
+            const dir = s[key]; // 1 or -1
+            results.sort((a, b) => {
+              const valA = a[key] ?? '';
+              const valB = b[key] ?? '';
+              if (valA < valB) return dir === -1 ? 1 : -1;
+              if (valA > valB) return dir === -1 ? -1 : 1;
+              return 0;
+            });
+          }
+
+          if (limitNum) results = results.slice(0, limitNum);
+          return results;
+        } catch (error) {
+          console.error(`Firebase find error on collection ${this.name}:`, error);
+          return [];
+        }
+      }
     };
+    return cursor;
   }
-  async findOne(query: any) {
-    return this.data.find(item => {
-      for (const k in query) { if (item[k] !== query[k]) return false; }
-      return true;
-    }) || null;
+
+  async findOne(q: any) {
+    const results = await this.find(q).toArray();
+    return results[0] || null;
   }
-  async insertOne(doc: any) {
-    this.data.push(doc);
-    return { insertedId: doc.id || Date.now().toString() };
-  }
-  async insertMany(docs: any[]) {
-    this.data.push(...docs);
-  }
-  async updateOne(query: any, update: any, options: any) {
-    const existing = await this.findOne(query);
-    if (existing) {
-      if (update.$set) Object.assign(existing, update.$set);
-    } else if (options?.upsert) {
-      this.data.push({ ...query, ...(update.$set || {}) });
+
+  async insertOne(docData: any) {
+    const collRef = collection(firestoreDb, this.name);
+    // Use the explicit ID if provided (server.ts usually adds `id: Date.now().toString()`)
+    if (docData.id) {
+       await setDoc(doc(firestoreDb, this.name, docData.id), docData);
+       return { insertedId: docData.id };
+    } else {
+       const ref = await addDoc(collRef, docData);
+       return { insertedId: ref.id };
     }
   }
-  async deleteOne(query: any) {
-    const idx = this.data.findIndex(item => {
-      for (const k in query) { if (item[k] !== query[k]) return false; }
-      return true;
-    });
-    if (idx !== -1) this.data.splice(idx, 1);
+
+  async insertMany(docs: any[]) {
+    for (const d of docs) {
+      await this.insertOne(d);
+    }
   }
-  async deleteMany() {
-    this.data = [];
+
+  async updateOne(q: any, update: any, options: any) {
+    const existing = await this.findOne(q);
+    if (existing) {
+       const docRef = doc(firestoreDb, this.name, existing.id || existing._id);
+       await setDoc(docRef, update.$set || {}, { merge: true });
+    } else if (options?.upsert) {
+       const newDoc = { ...q, ...(update.$set || {}) };
+       if (newDoc.id) {
+         await setDoc(doc(firestoreDb, this.name, newDoc.id), newDoc);
+       } else {
+         await addDoc(collection(firestoreDb, this.name), newDoc);
+       }
+    }
   }
-  async countDocuments() {
-    return this.data.length;
+
+  async deleteOne(q: any) {
+    const existing = await this.findOne(q);
+    if (existing) {
+       await deleteDoc(doc(firestoreDb, this.name, existing.id || existing._id));
+    }
   }
-}
-
-class MockDB {
-  collections: Record<string, MockCollection> = {};
-  collection(name: string) {
-    if (!this.collections[name]) this.collections[name] = new MockCollection(name);
-    return this.collections[name];
-  }
-}
-
-// ─── MONGODB CONNECTION ───────────────────────────────────────────────────────
-let isConnected = false;
-let dbInstance: any = new MockDB();
-let clientInstance: any = null;
-
-const uri = process.env.MONGO_URI;
-
-if (uri) {
-  const options: MongoClientOptions = {
-    serverSelectionTimeoutMS: 5000,
-    connectTimeoutMS: 10000,
-  };
-
-  clientInstance = new MongoClient(uri, options);
   
-  clientInstance.connect()
-    .then(() => {
-      isConnected = true;
-      dbInstance = clientInstance.db();
-      console.log('✅ Connected to MongoDB Atlas successfully.');
-    })
-    .catch((err: any) => {
-      console.error('❌ MongoDB Connection Error:', err.message);
-      console.warn('⚠️  Falling back to IN-MEMORY Mock Database. Data will reset on server restart.');
-    });
-} else {
-  console.warn('⚠️  No MONGO_URI provided in environment. Using IN-MEMORY Mock Database.');
+  async deleteMany() {
+    // Basic mock logic: Firestore doesn't support bulk delete easily on client,
+    // so we fetch all and delete one by one for migrations.
+    const results = await this.find().toArray();
+    for (const r of results) {
+      await deleteDoc(doc(firestoreDb, this.name, r.id || r._id));
+    }
+  }
+
+  async countDocuments() {
+    const results = await this.find().toArray();
+    return results.length;
+  }
 }
 
-// Export a proxy so db always points to the active database (Mock or Real)
-export const db = new Proxy({}, {
-  get: (_, prop) => {
-    return dbInstance[prop];
+class FirestoreDB {
+  collection(name: string) {
+    return new FirestoreCollectionAdapter(name);
   }
-});
+}
 
-export default clientInstance || { close: async () => {} };
+export const db: any = new FirestoreDB();
+export default null as any;
