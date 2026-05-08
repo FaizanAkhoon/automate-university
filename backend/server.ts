@@ -1,7 +1,7 @@
+import { db } from'./db.js';
 import 'dotenv/config';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { toNodeHandler } from 'better-auth/node';
@@ -12,11 +12,10 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const DB_PATH = path.join(__dirname, 'db.json');
 
 // CORS — allow credentials so Better Auth cookies travel between origins
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'http://localhost:3002'],
   credentials: true,
 }));
 
@@ -26,18 +25,13 @@ app.all('/api/auth/*', toNodeHandler(auth));
 
 app.use(express.json());
 
-// Helper: read/write DB
-const readDB = () => JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
-const writeDB = (data) => fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
-
 // ─── NOTES ───────────────────────────────────────────────────────────────────
-app.get('/api/notes', (req, res) => {
-  const db = readDB();
-  res.json(db.notes);
+app.get('/api/notes', async (req: Request, res: Response) => {
+  const notes = await db.collection('notes').find().sort({ createdAt: -1 }).toArray();
+  res.json(notes);
 });
 
-app.post('/api/notes', (req, res) => {
-  const db = readDB();
+app.post('/api/notes', async (req: Request, res: Response) => {
   const note = {
     id: Date.now().toString(),
     title: req.body.title || 'Untitled',
@@ -45,83 +39,78 @@ app.post('/api/notes', (req, res) => {
     bullets: req.body.bullets || [],
     createdAt: new Date().toISOString()
   };
-  db.notes.unshift(note);
-  writeDB(db);
+  await db.collection('notes').insertOne(note);
   res.status(201).json(note);
 });
 
-app.delete('/api/notes/:id', (req, res) => {
-  const db = readDB();
-  db.notes = db.notes.filter(n => n.id !== req.params.id);
-  writeDB(db);
+app.delete('/api/notes/:id', async (req: Request, res: Response) => {
+  await db.collection('notes').deleteOne({ id: req.params.id });
   res.json({ success: true });
 });
 
 // Notes Summarizer — rule-based bullet extraction
-app.post('/api/notes/summarize', (req, res) => {
+app.post('/api/notes/summarize', (req: Request, res: Response): any => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: 'No text provided' });
 
   const sentences = text
     .replace(/([.!?])\s+/g, '$1|')
     .split('|')
-    .map(s => s.trim())
-    .filter(s => s.length > 20);
+    .map((s: string) => s.trim())
+    .filter((s: string) => s.length > 20);
 
   // Score sentences by word importance
-  const wordFreq = {};
+  const wordFreq: Record<string, number> = {};
   const words = text.toLowerCase().split(/\W+/);
   const stopWords = new Set(['the','a','an','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','may','might','to','of','in','on','at','by','for','with','this','that','these','those','it','its','he','she','we','they','i','you','and','or','but','not','from','as','so','if','then','when','where','how','what','who']);
-  words.forEach(w => {
+  words.forEach((w: string) => {
     if (w && !stopWords.has(w)) wordFreq[w] = (wordFreq[w] || 0) + 1;
   });
 
-  const scored = sentences.map(s => {
+  const scored = sentences.map((s: string) => {
     const sWords = s.toLowerCase().split(/\W+/);
-    const score = sWords.reduce((acc, w) => acc + (wordFreq[w] || 0), 0) / (sWords.length || 1);
+    const score = sWords.reduce((acc: number, w: string) => acc + (wordFreq[w] || 0), 0) / (sWords.length || 1);
     return { sentence: s, score };
   });
 
   const topN = Math.min(Math.ceil(sentences.length * 0.4) + 2, 8);
   const bullets = scored
-    .sort((a, b) => b.score - a.score)
+    .sort((a: any, b: any) => b.score - a.score)
     .slice(0, topN)
-    .sort((a, b) => sentences.indexOf(a.sentence) - sentences.indexOf(b.sentence))
-    .map(s => s.sentence.replace(/^[•\-\*]\s*/, ''));
+    .sort((a: any, b: any) => sentences.indexOf(a.sentence) - sentences.indexOf(b.sentence))
+    .map((s: any) => s.sentence.replace(/^[•\-\*]\s*/, ''));
 
   res.json({ bullets });
 });
 
 // ─── STUDENT ──────────────────────────────────────────────────────────────────
-app.get('/api/students', (req, res) => {
-  const db = readDB();
-  res.json(db.students);
+app.get('/api/students', async (req: Request, res: Response) => {
+  const students = await db.collection('students').find().toArray();
+  res.json(students);
 });
 
-app.get('/api/student', (req, res) => {
-  const db = readDB();
-  res.json(db.students[0] || {});
+app.get('/api/student', async (req: Request, res: Response) => {
+  const student = await db.collection('students').findOne({ id: '1' });
+  res.json(student || {});
 });
 
-app.put('/api/student', (req, res) => {
-  const db = readDB();
-  if (db.students.length === 0) {
-    db.students.push({ id: '1', ...req.body });
-  } else {
-    db.students[0] = { ...db.students[0], ...req.body };
-  }
-  writeDB(db);
-  res.json(db.students[0]);
+app.put('/api/student', async (req: Request, res: Response) => {
+  await db.collection('students').updateOne(
+    { id: '1' },
+    { $set: { ...req.body, id: '1' } },
+    { upsert: true }
+  );
+  const student = await db.collection('students').findOne({ id: '1' });
+  res.json(student);
 });
 
 // ─── HEALTH ───────────────────────────────────────────────────────────────────
-app.get('/api/health', (req, res) => {
-  const db = readDB();
-  res.json(db.health);
+app.get('/api/health', async (req: Request, res: Response) => {
+  const health = await db.collection('health').find().sort({ createdAt: -1 }).toArray();
+  res.json(health);
 });
 
-app.post('/api/health', (req, res) => {
-  const db = readDB();
+app.post('/api/health', async (req: Request, res: Response) => {
   const entry = {
     id: Date.now().toString(),
     date: new Date().toISOString().split('T')[0],
@@ -132,81 +121,83 @@ app.post('/api/health', (req, res) => {
     exercise: req.body.exercise || 0,
     createdAt: new Date().toISOString()
   };
-  // Replace today's entry if exists
-  const todayIdx = db.health.findIndex(h => h.date === entry.date);
-  if (todayIdx >= 0) db.health[todayIdx] = entry;
-  else db.health.unshift(entry);
-  writeDB(db);
-  res.status(201).json(entry);
+  
+  await db.collection('health').updateOne(
+    { date: entry.date },
+    { $set: entry },
+    { upsert: true }
+  );
+  
+  const updatedEntry = await db.collection('health').findOne({ date: entry.date });
+  res.status(201).json(updatedEntry);
 });
 
 // ─── MESSAGES ─────────────────────────────────────────────────────────────────
-app.get('/api/messages', (req, res) => {
-  const db = readDB();
-  res.json(db.messages || []);
+app.get('/api/messages', async (req: Request, res: Response) => {
+  const messages = await db.collection('messages').find().sort({ createdAt: -1 }).toArray();
+  res.json(messages);
 });
 
-app.post('/api/admin/messages', (req, res) => {
-  const db = readDB();
-  db.messages = db.messages || [];
+app.post('/api/admin/messages', async (req: Request, res: Response) => {
   const msg = {
     id: Date.now().toString(),
     title: req.body.title || 'Announcement',
     content: req.body.content || '',
     createdAt: new Date().toISOString()
   };
-  db.messages.unshift(msg);
-  writeDB(db);
+  await db.collection('messages').insertOne(msg);
   res.status(201).json(msg);
 });
 
 // ─── ADMIN ────────────────────────────────────────────────────────────────────
-app.post('/api/admin/login', (req, res) => {
-  const db = readDB();
-  if (req.body.password === db.adminPassword) {
+app.post('/api/admin/login', async (req: Request, res: Response) => {
+  const settings = await db.collection('settings').findOne({ id: 'admin' });
+  const adminPassword = settings?.adminPassword || 'admin123';
+  if (req.body.password === adminPassword) {
     res.json({ success: true, token: 'admin-token-2024' });
   } else {
     res.status(401).json({ error: 'Invalid password' });
   }
 });
 
-app.get('/api/admin/students', (req, res) => {
-  const db = readDB();
-  res.json(db.students);
+app.get('/api/admin/students', async (req: Request, res: Response) => {
+  const students = await db.collection('students').find().toArray();
+  res.json(students);
 });
 
-app.get('/api/admin/stats', (req, res) => {
-  const db = readDB();
+app.get('/api/admin/stats', async (req: Request, res: Response) => {
+  const totalStudents = await db.collection('students').countDocuments();
+  const totalNotes = await db.collection('notes').countDocuments();
+  const totalHealthLogs = await db.collection('health').countDocuments();
+  const recentNotes = await db.collection('notes').find().sort({ createdAt: -1 }).limit(5).toArray();
+  const recentHealth = await db.collection('health').find().sort({ createdAt: -1 }).limit(7).toArray();
+
   res.json({
-    totalStudents: db.students.length,
-    totalNotes: db.notes.length,
-    totalHealthLogs: db.health.length,
-    recentNotes: db.notes.slice(0, 5),
-    recentHealth: db.health.slice(0, 7)
+    totalStudents,
+    totalNotes,
+    totalHealthLogs,
+    recentNotes,
+    recentHealth
   });
 });
 
-app.get('/api/admin/notes', (req, res) => {
-  const db = readDB();
-  res.json(db.notes);
+app.get('/api/admin/notes', async (req: Request, res: Response) => {
+  const notes = await db.collection('notes').find().sort({ createdAt: -1 }).toArray();
+  res.json(notes);
 });
 
-app.delete('/api/admin/notes/:id', (req, res) => {
-  const db = readDB();
-  db.notes = db.notes.filter(n => n.id !== req.params.id);
-  writeDB(db);
+app.delete('/api/admin/notes/:id', async (req: Request, res: Response) => {
+  await db.collection('notes').deleteOne({ id: req.params.id });
   res.json({ success: true });
 });
 
-app.get('/api/admin/health', (req, res) => {
-  const db = readDB();
-  res.json(db.health);
+app.get('/api/admin/health', async (req: Request, res: Response) => {
+  const health = await db.collection('health').find().sort({ createdAt: -1 }).toArray();
+  res.json(health);
 });
 
 // ─── EMERGENCIES ─────────────────────────────────────────────────────────────
-app.post('/api/emergencies', (req, res) => {
-  const db = readDB();
-  db.emergencies = db.emergencies || [];
+app.post('/api/emergencies', async (req: Request, res: Response) => {
   const event = {
     id: Date.now().toString(),
     studentName: req.body.studentName || 'Unknown',
@@ -215,25 +206,22 @@ app.post('/api/emergencies', (req, res) => {
     longitude: req.body.longitude,
     timestamp: new Date().toISOString()
   };
-  db.emergencies.unshift(event);
-  writeDB(db);
+  await db.collection('emergencies').insertOne(event);
   res.status(201).json(event);
 });
 
-app.get('/api/admin/emergencies', (req, res) => {
-  const db = readDB();
-  res.json(db.emergencies || []);
+app.get('/api/admin/emergencies', async (req: Request, res: Response) => {
+  const emergencies = await db.collection('emergencies').find().sort({ timestamp: -1 }).toArray();
+  res.json(emergencies);
 });
 
 // ─── COMMUNITY BOARD ─────────────────────────────────────────────────────────
-app.get('/api/community', (req, res) => {
-  const db = readDB();
-  res.json(db.communityPosts || []);
+app.get('/api/community', async (req: Request, res: Response) => {
+  const posts = await db.collection('communityPosts').find().sort({ createdAt: -1 }).toArray();
+  res.json(posts);
 });
 
-app.post('/api/community', (req, res) => {
-  const db = readDB();
-  db.communityPosts = db.communityPosts || [];
+app.post('/api/community', async (req: Request, res: Response) => {
   const post = {
     id: Date.now().toString(),
     type: req.body.type || 'project',
@@ -245,22 +233,13 @@ app.post('/api/community', (req, res) => {
     authorDept: req.body.authorDept || '',
     createdAt: new Date().toISOString()
   };
-  db.communityPosts.unshift(post);
-  writeDB(db);
+  await db.collection('communityPosts').insertOne(post);
   res.status(201).json(post);
 });
 
-app.delete('/api/community/:id', (req, res) => {
-  const db = readDB();
-  db.communityPosts = (db.communityPosts || []).filter(p => p.id !== req.params.id);
-  writeDB(db);
+app.delete('/api/community/:id', async (req: Request, res: Response) => {
+  await db.collection('communityPosts').deleteOne({ id: req.params.id });
   res.json({ success: true });
-});
-
-// ─── STUDENTS (legacy fetch for dashboard name) ──────────────────────────────
-app.get('/api/students', (req, res) => {
-  const db = readDB();
-  res.json(db.students || []);
 });
 
 // ─── START ────────────────────────────────────────────────────────────────────

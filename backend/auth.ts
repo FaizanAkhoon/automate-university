@@ -1,10 +1,11 @@
 import { betterAuth } from "better-auth";
-import Database from "better-sqlite3";
+import { mongodbAdapter } from "better-auth/adapters/mongodb";
+import { db } from "./db.js";
 
 export const auth = betterAuth({
-  database: new Database("./auth.db"),
+  database: mongodbAdapter(db),
   emailAndPassword: {
     enabled: true,
   },
-  trustedOrigins: ["http://localhost:5173"],
+  trustedOrigins: ["http://localhost:5173", "http://localhost:3002"],
 });
