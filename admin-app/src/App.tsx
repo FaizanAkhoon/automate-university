@@ -604,8 +604,13 @@ export default function App() {
 
   useEffect(() => {
     if (!authed) return;
-    axios.get(`${API}/api/admin/stats`).then(r => setStats(r.data));
-    axios.get(`${API}/api/admin/students`).then(r => setStudents(r.data));
+    axios.get(`${API}/api/admin/stats`)
+      .then(r => setStats(r.data))
+      .catch(() => setStats({ totalStudents: 0, totalNotes: 0, totalHealthLogs: 0, recentNotes: [], recentHealth: [] }));
+    
+    axios.get(`${API}/api/admin/students`)
+      .then(r => setStudents(r.data))
+      .catch(() => setStudents([]));
   }, [authed]);
 
   // Login bypassed

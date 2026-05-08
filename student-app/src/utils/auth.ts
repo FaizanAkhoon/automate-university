@@ -55,9 +55,9 @@ export const signInWithEmail = async (email, password) => {
     }
     return data;
   } catch (err: any) {
-    // If Better Auth is unreachable, fall back to mock for dev
-    if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed')) {
-      console.warn("Better Auth backend unreachable — using mock session");
+    // If Better Auth is unreachable or DB is down, fall back to mock for dev
+    if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed') || err.message?.includes('Internal Server') || err.status === 500) {
+      console.warn("Better Auth backend unreachable or DB error — using mock session");
       localStorage.setItem('mock_session', 'true');
       return true;
     }

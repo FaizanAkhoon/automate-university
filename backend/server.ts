@@ -13,8 +13,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = process.env.FRONTEND_URLS 
-  ? process.env.FRONTEND_URLS.split(',') 
+const allowedOrigins = process.env.FRONTEND_URLS
+  ? process.env.FRONTEND_URLS.split(',')
   : ['http://localhost:5173', 'http://localhost:3002', 'http://localhost:3001', 'http://localhost:3003'];
 
 // CORS — allow credentials so Better Auth cookies travel between origins
@@ -244,6 +244,12 @@ app.post('/api/community', async (req: Request, res: Response) => {
 app.delete('/api/community/:id', async (req: Request, res: Response) => {
   await db.collection('communityPosts').deleteOne({ id: req.params.id });
   res.json({ success: true });
+});
+
+// Global error handler for async errors
+app.use((err: any, req: Request, res: Response, next: any) => {
+  console.error('API Error:', err.message);
+  res.status(500).json({ error: 'Internal Server Error', message: err.message });
 });
 
 // ─── START ────────────────────────────────────────────────────────────────────
