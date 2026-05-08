@@ -15,6 +15,8 @@ const TRUSTED_ORIGINS = process.env.FRONTEND_URLS
       "http://localhost:3003",   // admin-app alt port
       // ── production / vercel ────────────────────────────────────────────────
       "https://automate-university-fke8.vercel.app",
+      "https://automate-university-hlco.vercel.app",
+      "https://automate-university-1fuz.vercel.app",
       "https://automate-university.vercel.app",
       "https://automate-university-git-main-faizanakhoonsh-faizanbashir018.vercel.app",
     ];

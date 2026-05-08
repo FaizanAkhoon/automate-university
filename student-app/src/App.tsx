@@ -31,19 +31,39 @@ function AxiomLogo({ theme }) {
   const color2 = isPink ? '#ffb6c1' : '#6c63ff';
 
   return (
-    <svg className="axiom-logo-svg" viewBox="0 0 160 40" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: `drop-shadow(0 0 8px ${color1}55)` }}>
-      <defs>
-        <linearGradient id="axiom-grad" x1="0" y1="0" x2="160" y2="40" gradientUnits="userSpaceOnUse">
-          <stop stopColor={color1} />
-          <stop offset="1" stopColor={color2} />
-        </linearGradient>
-      </defs>
-      <path 
-        d="M10 35 L25 10 L40 35 Q45 40 50 10 L70 35 M70 10 L50 35 Q65 40 85 10 L85 35 Q95 40 105 35 A12 15 0 1 0 105 10 Q120 10 130 35 L130 10 L142 25 L154 10 L154 35"
-        stroke="url(#axiom-grad)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" 
-      />
-      <path d="M18 22 L32 22" stroke="url(#axiom-grad)" strokeWidth="6" strokeLinecap="round"/>
-    </svg>
+    <>
+      <style>{`
+        @keyframes neonPulse {
+          0%, 100% {
+            filter: drop-shadow(0 0 4px ${color1}44) drop-shadow(0 0 8px ${color1}22);
+          }
+          50% {
+            filter: drop-shadow(0 0 12px ${color1}aa) drop-shadow(0 0 24px ${color1}66) drop-shadow(0 0 40px ${color2}33);
+          }
+        }
+      `}</style>
+      <svg
+        className="axiom-logo-svg"
+        viewBox="0 0 160 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{
+          animation: 'neonPulse 3s ease-in-out infinite',
+        }}
+      >
+        <defs>
+          <linearGradient id="axiom-grad" x1="0" y1="0" x2="160" y2="40" gradientUnits="userSpaceOnUse">
+            <stop stopColor={color1} />
+            <stop offset="1" stopColor={color2} />
+          </linearGradient>
+        </defs>
+        <path 
+          d="M10 35 L25 10 L40 35 Q45 40 50 10 L70 35 M70 10 L50 35 Q65 40 85 10 L85 35 Q95 40 105 35 A12 15 0 1 0 105 10 Q120 10 130 35 L130 10 L142 25 L154 10 L154 35"
+          stroke="url(#axiom-grad)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" 
+        />
+        <path d="M18 22 L32 22" stroke="url(#axiom-grad)" strokeWidth="6" strokeLinecap="round"/>
+      </svg>
+    </>
   );
 }
 

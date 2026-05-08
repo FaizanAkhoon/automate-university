@@ -136,7 +136,7 @@ export default function Login({ onLogin, theme }) {
 
         <AnimatePresence mode="wait">
           {errorMsg && (
-            <motion.div initial={{ opacity: 0, height: 0, mb: 0 }} animate={{ opacity: 1, height: 'auto', mb: 16 }} exit={{ opacity: 0, height: 0, mb: 0 }} className="relative z-10 bg-red-500/10 border border-red-500/30 rounded-xl p-3 flex items-center gap-2 overflow-hidden">
+            <motion.div initial={{ opacity: 0, height: 0, marginBottom: 0 }} animate={{ opacity: 1, height: 'auto', marginBottom: 16 }} exit={{ opacity: 0, height: 0, marginBottom: 0 }} className="relative z-10 bg-red-500/10 border border-red-500/30 rounded-xl p-3 flex items-center gap-2 overflow-hidden">
               <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
               <p className="text-sm text-red-500 font-medium">{errorMsg}</p>
             </motion.div>
