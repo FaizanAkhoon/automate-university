@@ -12,20 +12,39 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3001",
-  "http://localhost:3002",
-  "http://localhost:3003",
-  "https://automate-university-fke8.vercel.app",
-  "https://automate-university-git-main-faizanakhoonsh-faizanbashir018.vercel.app",
-  "https://automate-university.vercel.app"
-];
-// CORS — allow credentials so Better Auth cookies travel between origins
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+
+// Dynamic origin validator — accepts all local dev ports + every automate-university Vercel URL
+const isAllowedOrigin = (origin: string | undefined): boolean => {
+  if (!origin) return false;
+  // Local dev
+  if (/^http:\/\/localhost:(5173|3001|3002|3003)$/.test(origin)) return true;
+  // Any Vercel preview or production URL for this project
+  if (/^https:\/\/automate-university[a-z0-9-]*\.vercel\.app$/.test(origin)) return true;
+  return false;
+};
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. curl, Postman, server-to-server)
+    if (!origin || isAllowedOrigin(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS] Blocked request from: ${origin}`);
+      callback(new Error(`CORS: origin '${origin}' not allowed`));
+    }
+  },
+  credentials: true,          // Required for cookie-based Better Auth sessions
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Set-Cookie'],
+  maxAge: 86400,              // Cache preflight for 24 h
+};
+
+// ─── CORS — must be registered BEFORE Better Auth and express.json() ─────────
+app.use(cors(corsOptions));
+// Explicitly handle OPTIONS preflight for Better Auth routes (browsers send
+// a preflight before every credentialed cross-origin POST)
+app.options('/api/auth/*', cors(corsOptions));
 
 // ─── BETTER AUTH ─────────────────────────────────────────────────────────────
 // Must be mounted BEFORE express.json() to avoid body-parsing conflicts.
