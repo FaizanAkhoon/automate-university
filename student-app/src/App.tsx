@@ -862,7 +862,7 @@ export default function App() {
             {new Date().toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' })}
           </span>
           <a
-            href={import.meta.env.VITE_ADMIN_APP_URL || "http://localhost:3001"}
+            href={import.meta.env.VITE_ADMIN_APP_URL || "https://automate-admin.web.app"}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-ghost text-xs header-admin-link"

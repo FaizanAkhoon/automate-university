@@ -696,7 +696,7 @@ export default function App() {
         {/* Bottom */}
         <div>
           <a
-            href={import.meta.env.VITE_STUDENT_APP_URL || "http://localhost:3002"}
+            href={import.meta.env.VITE_STUDENT_APP_URL || "https://automate-students.web.app"}
             target="_blank"
             rel="noopener noreferrer"
             style={{
