@@ -172,11 +172,11 @@ const TILE_REVEAL_MAP = {
 
 const TILES_LABELS = {
   notes: 'Note Summarizer',
-  student: 'Data Analyzer',
-  health: 'Creative Composer',
-  youtube: 'Research Explorer',
-  timer: 'Task Planner',
-  csbook: 'Automation Runner',
+  student: 'Student ID',
+  health: 'Fitness',
+  youtube: 'Skill Upgrade',
+  timer: 'Pomodoro',
+  csbook: 'Interests',
 };
 
 function ActionLoadingOverlay({ theme, reveal, label }) {

@@ -7,11 +7,11 @@ import { playDropSound, playTileRevealSound } from '../utils/sound';
 
 const TILES = [
   { id: 'notes', label: 'Note Summarizer', icon: BookOpen, color: '#6c63ff', glow: 'rgba(108,99,255,0.8)', reveal: 'book' },
-  { id: 'student', label: 'Data Analyzer', icon: User, color: '#4f9cff', glow: 'rgba(79,156,255,0.85)', reveal: 'nodes' },
-  { id: 'health', label: 'Creative Composer', icon: Heart, color: '#ec4899', glow: 'rgba(236,72,153,0.8)', reveal: 'ripple' },
-  { id: 'youtube', label: 'Research Explorer', icon: PlayCircle, color: '#ef4444', glow: 'rgba(239,68,68,0.8)', reveal: 'lens' },
-  { id: 'timer', label: 'Task Planner', icon: Timer, color: '#00f5d4', glow: 'rgba(0,245,212,0.8)', reveal: 'timeline' },
-  { id: 'csbook', label: 'Automation Runner', icon: GraduationCap, color: '#f59e0b', glow: 'rgba(245,158,11,0.8)', reveal: 'circuit' },
+  { id: 'student', label: 'Student ID', icon: User, color: '#4f9cff', glow: 'rgba(79,156,255,0.85)', reveal: 'nodes' },
+  { id: 'health', label: 'Fitness', icon: Heart, color: '#ec4899', glow: 'rgba(236,72,153,0.8)', reveal: 'ripple' },
+  { id: 'youtube', label: 'Skill Upgrade', icon: PlayCircle, color: '#ef4444', glow: 'rgba(239,68,68,0.8)', reveal: 'lens' },
+  { id: 'timer', label: 'Pomodoro', icon: Timer, color: '#00f5d4', glow: 'rgba(0,245,212,0.8)', reveal: 'timeline' },
+  { id: 'csbook', label: 'Interests', icon: GraduationCap, color: '#f59e0b', glow: 'rgba(245,158,11,0.8)', reveal: 'circuit' },
 ];
 
 const MOTION_TOKENS = {
