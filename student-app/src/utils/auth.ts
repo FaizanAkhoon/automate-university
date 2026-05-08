@@ -39,23 +39,35 @@ export const signInWithEmail = async (email, password) => {
       password,
     });
     if (error) {
-      // If Better Auth returns "user not found", try sign-up automatically
-      if (error.message?.includes('not found') || error.message?.includes('Invalid') || error.status === 401) {
-        const signUpResult = await authClient.signUp.email({
-          email,
-          password,
-          name: email.split('@')[0],
-        });
-        if (signUpResult.error) {
-          throw new Error(signUpResult.error.message || 'Sign up failed');
-        }
-        return signUpResult.data;
-      }
       throw new Error(error.message || 'Sign in failed');
     }
     return data;
   } catch (err: any) {
     // If Better Auth is unreachable or DB is down, fall back to mock for dev
+    if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed') || err.message?.includes('Internal Server') || err.status === 500) {
+      console.warn("Better Auth backend unreachable or DB error — using mock session");
+      localStorage.setItem('mock_session', 'true');
+      return true;
+    }
+    throw err;
+  }
+};
+
+/**
+ * Sign up with email, password, and name via Better Auth.
+ */
+export const signUpWithEmail = async (email, password, name) => {
+  try {
+    const { data, error } = await authClient.signUp.email({
+      email,
+      password,
+      name,
+    });
+    if (error) {
+      throw new Error(error.message || 'Sign up failed');
+    }
+    return data;
+  } catch (err: any) {
     if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed') || err.message?.includes('Internal Server') || err.status === 500) {
       console.warn("Better Auth backend unreachable or DB error — using mock session");
       localStorage.setItem('mock_session', 'true');
