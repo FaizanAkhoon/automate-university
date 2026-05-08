@@ -7,14 +7,14 @@ import {
 } from 'lucide-react';
 import './index.css';
 
-const API = 'http://localhost:5001';
+const API = 'http://localhost:5000';
 
-const MOODS = { 1:'😞', 2:'😐', 3:'🙂', 4:'😊', 5:'🤩' };
+const MOODS = { 1: '😞', 2: '😐', 3: '🙂', 4: '😊', 5: '🤩' };
 
 // ─── LOGIN ────────────────────────────────────────────────────────────────────
 function Login({ onLogin }) {
-  const [pw, setPw]     = useState('');
-  const [err, setErr]   = useState('');
+  const [pw, setPw] = useState('admin121');
+  const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
 
   const submit = async (e) => {
@@ -194,7 +194,7 @@ function StudentsTab({ students }) {
                   ['Email', s.email || 'Not set'],
                   ['Grade', s.grade || 'Not set'],
                   ['GPA', s.gpa || 'Not set'],
-                ].map(([k,v]) => (
+                ].map(([k, v]) => (
                   <div key={k}>
                     <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.75rem' }}>{k}</p>
                     <p style={{ color: 'white', fontSize: '0.875rem' }}>{v}</p>
@@ -240,41 +240,41 @@ function NotesTab() {
         All Notes ({notes.length})
       </h2>
       {!loaded ? <p style={{ color: 'rgba(255,255,255,0.4)' }}>Loading...</p>
-      : notes.length === 0 ? (
-        <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
-          <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
-          <p>No notes saved yet</p>
-        </div>
-      ) : notes.map(n => (
-        <div key={n.id} className="card" style={{ padding: '1.25rem', marginBottom: '0.75rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
-              <p style={{ color: 'white', fontWeight: 600, marginBottom: 4 }}>{n.title}</p>
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
-                {new Date(n.createdAt).toLocaleString()} · {n.bullets.length} bullets
-              </p>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {n.bullets.slice(0, 4).map((b, i) => (
-                  <li key={i} style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.825rem', display: 'flex', gap: 6 }}>
-                    <span style={{ color: '#6c63ff', flexShrink: 0 }}>▸</span> {b}
-                  </li>
-                ))}
-                {n.bullets.length > 4 && (
-                  <li style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>
-                    +{n.bullets.length - 4} more bullets
-                  </li>
-                )}
-              </ul>
-            </div>
-            <button
-              onClick={() => del(n.id)}
-              style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '0.4rem 0.6rem', cursor: 'pointer', marginLeft: '1rem' }}
-            >
-              <Trash2 size={14} color="#f87171" />
-            </button>
+        : notes.length === 0 ? (
+          <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
+            <BookOpen size={40} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
+            <p>No notes saved yet</p>
           </div>
-        </div>
-      ))}
+        ) : notes.map(n => (
+          <div key={n.id} className="card" style={{ padding: '1.25rem', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ color: 'white', fontWeight: 600, marginBottom: 4 }}>{n.title}</p>
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', marginBottom: '0.75rem' }}>
+                  {new Date(n.createdAt).toLocaleString()} · {n.bullets.length} bullets
+                </p>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {n.bullets.slice(0, 4).map((b, i) => (
+                    <li key={i} style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.825rem', display: 'flex', gap: 6 }}>
+                      <span style={{ color: '#6c63ff', flexShrink: 0 }}>▸</span> {b}
+                    </li>
+                  ))}
+                  {n.bullets.length > 4 && (
+                    <li style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem' }}>
+                      +{n.bullets.length - 4} more bullets
+                    </li>
+                  )}
+                </ul>
+              </div>
+              <button
+                onClick={() => del(n.id)}
+                style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '0.4rem 0.6rem', cursor: 'pointer', marginLeft: '1rem' }}
+              >
+                <Trash2 size={14} color="#f87171" />
+              </button>
+            </div>
+          </div>
+        ))}
     </div>
   );
 }
@@ -302,7 +302,7 @@ function HealthTab() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                {['Date','Water 💧','Sleep 😴','Exercise 🏃','Mood'].map(h => (
+                {['Date', 'Water 💧', 'Sleep 😴', 'Exercise 🏃', 'Mood'].map(h => (
                   <th key={h} style={{ padding: '0.75rem 1rem', textAlign: 'left', color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', fontWeight: 600 }}>{h}</th>
                 ))}
               </tr>
@@ -338,7 +338,7 @@ function MessagesTab() {
 
   const send = async (e) => {
     e.preventDefault();
-    if(!title || !content) return;
+    if (!title || !content) return;
     setLoading(true);
     const res = await axios.post(`${API}/api/admin/messages`, { title, content });
     setMessages([res.data, ...messages]);
@@ -357,18 +357,18 @@ function MessagesTab() {
             <Mail size={16} color="#6c63ff" /> Send New Message
           </h3>
           <form onSubmit={send}>
-            <input 
-              className="input" 
-              placeholder="Message Title" 
-              value={title} onChange={e=>setTitle(e.target.value)} 
-              style={{ width: '100%', marginBottom: '1rem' }} 
+            <input
+              className="input"
+              placeholder="Message Title"
+              value={title} onChange={e => setTitle(e.target.value)}
+              style={{ width: '100%', marginBottom: '1rem' }}
             />
-            <textarea 
-              className="input" 
-              placeholder="Type your announcement here..." 
-              value={content} onChange={e=>setContent(e.target.value)} 
-              rows={5} 
-              style={{ width: '100%', marginBottom: '1rem', resize: 'vertical' }} 
+            <textarea
+              className="input"
+              placeholder="Type your announcement here..."
+              value={content} onChange={e => setContent(e.target.value)}
+              rows={5}
+              style={{ width: '100%', marginBottom: '1rem', resize: 'vertical' }}
             />
             <button type="submit" className="btn" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }} disabled={loading}>
               <Send size={16} /> {loading ? 'Sending...' : 'Send to Students'}
@@ -412,7 +412,7 @@ function EmergenciesTab() {
     const interval = setInterval(() => {
       axios.get(`${API}/api/admin/emergencies`)
         .then(r => setAlerts(r.data))
-        .catch(() => {});
+        .catch(() => { });
     }, 15000);
     return () => clearInterval(interval);
   }, []);
@@ -507,18 +507,18 @@ function EmergenciesTab() {
 
 // ─── ADMIN APP ────────────────────────────────────────────────────────────────
 const NAV = [
-  { id: 'dashboard',   label: 'Dashboard',    icon: LayoutDashboard },
-  { id: 'students',    label: 'Students',     icon: Users },
-  { id: 'notes',       label: 'Notes',        icon: FileText },
-  { id: 'health',      label: 'Health',       icon: Heart },
-  { id: 'messages',    label: 'Announcements', icon: Mail },
-  { id: 'emergencies', label: 'SOS Alerts',   icon: AlertTriangle },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'students', label: 'Students', icon: Users },
+  { id: 'notes', label: 'Notes', icon: FileText },
+  { id: 'health', label: 'Health', icon: Heart },
+  { id: 'messages', label: 'Announcements', icon: Mail },
+  { id: 'emergencies', label: 'SOS Alerts', icon: AlertTriangle },
 ];
 
 export default function App() {
-  const [authed, setAuthed]     = useState(false);
-  const [tab, setTab]           = useState('dashboard');
-  const [stats, setStats]       = useState(null);
+  const [authed, setAuthed] = useState(false);
+  const [tab, setTab] = useState('dashboard');
+  const [stats, setStats] = useState(null);
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
@@ -530,12 +530,12 @@ export default function App() {
   if (!authed) return <Login onLogin={() => setAuthed(true)} />;
 
   const renderTab = () => {
-    switch(tab) {
-      case 'dashboard':   return <DashboardTab stats={stats} />;
-      case 'students':    return <StudentsTab students={students} />;
-      case 'notes':       return <NotesTab />;
-      case 'health':      return <HealthTab />;
-      case 'messages':    return <MessagesTab />;
+    switch (tab) {
+      case 'dashboard': return <DashboardTab stats={stats} />;
+      case 'students': return <StudentsTab students={students} />;
+      case 'notes': return <NotesTab />;
+      case 'health': return <HealthTab />;
+      case 'messages': return <MessagesTab />;
       case 'emergencies': return <EmergenciesTab />;
       default: return null;
     }
@@ -649,7 +649,7 @@ export default function App() {
               {NAV.find(n => n.id === tab)?.label}
             </h1>
             <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.8rem', marginTop: 2 }}>
-              {new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}
+              {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           </div>
           <div className="card" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: 8 }}>

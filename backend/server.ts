@@ -1,4 +1,4 @@
-import { db } from'./db.js';
+import { db } from './db.js';
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
@@ -62,7 +62,7 @@ app.post('/api/notes/summarize', (req: Request, res: Response): any => {
   // Score sentences by word importance
   const wordFreq: Record<string, number> = {};
   const words = text.toLowerCase().split(/\W+/);
-  const stopWords = new Set(['the','a','an','is','are','was','were','be','been','have','has','had','do','does','did','will','would','could','should','may','might','to','of','in','on','at','by','for','with','this','that','these','those','it','its','he','she','we','they','i','you','and','or','but','not','from','as','so','if','then','when','where','how','what','who']);
+  const stopWords = new Set(['the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'to', 'of', 'in', 'on', 'at', 'by', 'for', 'with', 'this', 'that', 'these', 'those', 'it', 'its', 'he', 'she', 'we', 'they', 'i', 'you', 'and', 'or', 'but', 'not', 'from', 'as', 'so', 'if', 'then', 'when', 'where', 'how', 'what', 'who']);
   words.forEach((w: string) => {
     if (w && !stopWords.has(w)) wordFreq[w] = (wordFreq[w] || 0) + 1;
   });
@@ -121,13 +121,13 @@ app.post('/api/health', async (req: Request, res: Response) => {
     exercise: req.body.exercise || 0,
     createdAt: new Date().toISOString()
   };
-  
+
   await db.collection('health').updateOne(
     { date: entry.date },
     { $set: entry },
     { upsert: true }
   );
-  
+
   const updatedEntry = await db.collection('health').findOne({ date: entry.date });
   res.status(201).json(updatedEntry);
 });
