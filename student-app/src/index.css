@@ -394,6 +394,21 @@ body.sucking-dark::after {
     height: 22.5px;
   }
 
+  /* Profile Widget Collapse */
+  .profile-name-text, .profile-chevron {
+    display: none !important;
+  }
+  .profile-widget-btn {
+    padding: 0.2rem !important; /* tight padding around the 30px avatar */
+    border-radius: 50% !important;
+    gap: 0 !important;
+  }
+
+  /* Tighter gap in the header actions */
+  .app-header .flex.items-center.gap-1.sm\:gap-2 {
+    gap: 0.35rem !important;
+  }
+
   /* Kinetic chain hint smaller text */
   .kinetic-hint {
     font-size: 0.65rem;
@@ -401,6 +416,17 @@ body.sucking-dark::after {
 }
 
 @media (max-width: 480px) {
+  .btn-3d-glass {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .axiom-logo-svg {
+    width: 75px;
+    height: 18.75px;
+  }
+  .app-header {
+    padding: 0.5rem 0.5rem !important;
+  }
   .tile-modal {
     border-radius: 1rem;
     padding: 1rem;

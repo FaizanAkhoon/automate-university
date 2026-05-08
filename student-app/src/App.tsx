@@ -519,7 +519,7 @@ function TechNewsBanner({ theme }) {
 }
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // Default to true to bypass login
   const [activeTile, setActiveTile] = useState<string | null>(null);
   const [theme, setTheme] = useState('dark');
   const [themeAnim, setThemeAnim] = useState<any>(null);
@@ -540,7 +540,10 @@ export default function App() {
   const [loadingTransition, setLoadingTransition] = useState<any>(null);
 
   useEffect(() => {
-    checkSession().then(hasSession => setIsAuthenticated(hasSession));
+    // Auth is currently hidden/bypassed for direct login.
+    // To re-enable auth, uncomment the line below and remove setIsAuthenticated(true)
+    // checkSession().then(hasSession => setIsAuthenticated(hasSession));
+    setIsAuthenticated(true);
   }, []);
 
   useEffect(() => {

@@ -100,6 +100,7 @@ export default function ProfileWidget({ theme, onSignOut }: { theme: string; onS
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.97 }}
         onClick={() => { setOpen(o => !o); setEditing(false); }}
+        className="profile-widget-btn"
         style={{
           display: 'flex', alignItems: 'center', gap: 8,
           padding: '0.35rem 0.6rem 0.35rem 0.35rem',
@@ -125,16 +126,19 @@ export default function ProfileWidget({ theme, onSignOut }: { theme: string; onS
           {profile.avatar || initials}
         </div>
         {/* Name — hide on very small screens */}
-        <span style={{
-          fontSize: '0.82rem', fontWeight: 600, maxWidth: 90,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          color: isPink ? '#1a1a2e' : 'white',
-          display: 'var(--profile-name-display, block)',
-        }}>
+        <span 
+          className="profile-name-text"
+          style={{
+            fontSize: '0.82rem', fontWeight: 600, maxWidth: 90,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            color: isPink ? '#1a1a2e' : 'white',
+          }}
+        >
           {profile.name || 'My Profile'}
         </span>
         <ChevronDown
           size={14}
+          className="profile-chevron"
           style={{
             color: isPink ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)',
             transform: open ? 'rotate(180deg)' : 'none',
