@@ -9,13 +9,13 @@ const GRADES = ['7th','8th','9th','10th','11th','12th','College 1st Year','Colle
 const SUBJECT_OPTIONS = ['Math','Physics','Chemistry','Biology','English','History','Geography','Computer Science','Economics','Art','Music','PE'];
 
 export default function StudentInfo({ onClose }) {
-  const [form, setForm] = useState<{ name: string; grade: string; subjects: string[]; gpa: string; email: string; bio: string }>({ name: '', grade: '', subjects: [], gpa: '', email: '', bio: '' });
+  const [form, setForm] = useState<{ name: string; grade: string; subjects: string[]; gpa: string; email: string; bio: string; phone: string }>({ name: '', grade: '', subjects: [], gpa: '', email: '', bio: '', phone: '' });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${API}/api/student`)
-      .then(res => { if (res.data?.name) setForm(res.data); })
+    axios.get(`${API}/api/student`, { withCredentials: true })
+      .then(res => { if (res.data?.name) setForm({ phone: '', ...res.data }); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -31,7 +31,7 @@ export default function StudentInfo({ onClose }) {
 
   const save = async () => {
     try {
-      await axios.put(`${API}/api/student`, form);
+      await axios.put(`${API}/api/student`, form, { withCredentials: true });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {}
@@ -106,15 +106,19 @@ export default function StudentInfo({ onClose }) {
           </div>
 
           <div className="space-y-4">
-          {/* Name & Email */}
+          {/* Name, Email, Phone */}
           <div className="student-grid-2 grid grid-cols-2 gap-3">
-            <div>
+            <div className="col-span-2">
               <label className="block text-xs font-medium mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Full Name</label>
               <input className="input-glass" placeholder="Your name" value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} />
             </div>
             <div>
               <label className="block text-xs font-medium mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Email</label>
               <input className="input-glass" type="email" placeholder="your@email.com" value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Phone Number</label>
+              <input className="input-glass" type="tel" placeholder="+1 (555) 000-0000" value={form.phone || ''} onChange={e => setForm(f => ({...f, phone: e.target.value}))} />
             </div>
           </div>
 

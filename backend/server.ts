@@ -116,18 +116,24 @@ app.get('/api/students', async (req: Request, res: Response) => {
   res.json(students);
 });
 
-app.get('/api/student', async (req: Request, res: Response) => {
-  const student = await db.collection('students').findOne({ id: '1' });
-  res.json(student || {});
+app.get('/api/student', async (req: Request, res: Response): Promise<any> => {
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  const student = await db.collection('students').findOne({ id: session.user.id });
+  // If no profile exists yet, return default data from their auth account
+  res.json(student || { id: session.user.id, name: session.user.name, email: session.user.email });
 });
 
-app.put('/api/student', async (req: Request, res: Response) => {
+app.put('/api/student', async (req: Request, res: Response): Promise<any> => {
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
   await db.collection('students').updateOne(
-    { id: '1' },
-    { $set: { ...req.body, id: '1' } },
+    { id: session.user.id },
+    { $set: { ...req.body, id: session.user.id } },
     { upsert: true }
   );
-  const student = await db.collection('students').findOne({ id: '1' });
+  const student = await db.collection('students').findOne({ id: session.user.id });
   res.json(student);
 });
 
