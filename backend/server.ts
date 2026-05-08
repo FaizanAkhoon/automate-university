@@ -1,7 +1,7 @@
 import { db } from './db.js';
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
-import cors from 'cors';
+import cors from 'cors'; // we will keep import just in case, but use custom middleware
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { toNodeHandler } from 'better-auth/node';
@@ -23,28 +23,33 @@ const isAllowedOrigin = (origin: string | undefined): boolean => {
   return false;
 };
 
-const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. curl, Postman, server-to-server)
-    if (!origin || isAllowedOrigin(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`[CORS] Blocked request from: ${origin}`);
-      callback(new Error(`CORS: origin '${origin}' not allowed`));
-    }
-  },
-  credentials: true,          // Required for cookie-based Better Auth sessions
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Set-Cookie'],
-  maxAge: 86400,              // Cache preflight for 24 h
-};
+// ─── BULLETPROOF CORS MIDDLEWARE ───────────────────────────────────────────────
+// We use a custom middleware instead of the cors package to guarantee headers are 
+// injected on every single response, including 500 errors and Better Auth routes,
+// which is a common quirk in Vercel serverless functions.
+app.use((req: Request, res: Response, next) => {
+  const origin = req.headers.origin;
+  
+  // Always append headers if origin is allowed
+  if (origin && isAllowedOrigin(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
+  
+  // Always allow credentials and common headers
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Expose-Headers', 'Set-Cookie');
 
-// ─── CORS — must be registered BEFORE Better Auth and express.json() ─────────
-app.use(cors(corsOptions));
-// Explicitly handle OPTIONS preflight for Better Auth routes (browsers send
-// a preflight before every credentialed cross-origin POST)
-app.options('/api/auth/*', cors(corsOptions));
+  // Intercept OPTIONS preflight requests immediately
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+});
 
 // ─── BETTER AUTH ─────────────────────────────────────────────────────────────
 // Must be mounted BEFORE express.json() to avoid body-parsing conflicts.
