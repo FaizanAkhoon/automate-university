@@ -1,11 +1,14 @@
 import 'dotenv/config';
 import { db } from './db.js';
 import express, { Request, Response } from 'express';
-import cors from 'cors'; // we will keep import just in case, but use custom middleware
+import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './auth.js';
+import multer from 'multer';
+// @ts-ignore
+import pdfParse from 'pdf-parse';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -108,6 +111,46 @@ app.post('/api/notes/summarize', (req: Request, res: Response): any => {
     .map((s: any) => s.sentence.replace(/^[•\-\*]\s*/, ''));
 
   res.json({ bullets });
+});
+
+// PDF Upload setup
+const upload = multer({ storage: multer.memoryStorage() });
+
+app.post('/api/notes/summarize-pdf', upload.single('pdf'), async (req: Request, res: Response): Promise<any> => {
+  if (!req.file) return res.status(400).json({ error: 'No PDF file uploaded' });
+
+  try {
+    const data = await pdfParse(req.file.buffer);
+    const text = data.text;
+
+    if (!text || text.trim().length === 0) {
+      return res.status(400).json({ error: 'Could not extract text from the PDF' });
+    }
+
+    const truncatedText = text.substring(0, 15000);
+
+    const aiRes = await fetch('https://text.pollinations.ai/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [
+          { 
+            role: 'system', 
+            content: 'You are an expert tutor. Analyze the provided text and generate a comprehensive, step-by-step summary of the core concepts. Use Markdown format with clear headers, actionable bullet points, and numbered steps. Do not include introductory or concluding conversational filler. Just return the markdown.'
+          },
+          { role: 'user', content: truncatedText }
+        ]
+      })
+    });
+
+    if (!aiRes.ok) throw new Error('AI Service failed');
+    const resultText = await aiRes.text();
+
+    res.json({ result: resultText });
+  } catch (error) {
+    console.error('PDF Summarize Error:', error);
+    res.status(500).json({ error: 'Failed to parse PDF or generate summary.' });
+  }
 });
 
 // ─── STUDENT ──────────────────────────────────────────────────────────────────

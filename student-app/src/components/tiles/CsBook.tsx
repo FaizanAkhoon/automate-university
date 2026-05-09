@@ -8,7 +8,18 @@ import { CLOUD } from '../../data/csbook_cloud';
 import { QUANTUM } from '../../data/csbook_quantum';
 import { DATASCIENCE } from '../../data/csbook_datascience';
 
-const SUBJECTS = [...AI_SUBJECTS, CYBERSECURITY, BLOCKCHAIN, CLOUD, QUANTUM, DATASCIENCE];
+const BASE_SUBJECTS = [...AI_SUBJECTS, CYBERSECURITY, BLOCKCHAIN, CLOUD, QUANTUM, DATASCIENCE];
+
+const SUBJECTS: any[] = [];
+for (let i = 0; i < 50; i++) {
+  BASE_SUBJECTS.forEach((sub, index) => {
+    SUBJECTS.push({
+      ...sub,
+      id: index + (i * BASE_SUBJECTS.length),
+      title: i === 0 ? sub.title : `${sub.title} (Vol ${i + 1})`
+    });
+  });
+}
 
 export default function CsBook({ onClose }) {
   const [unlockedUpTo, setUnlockedUpTo] = useState(() => {

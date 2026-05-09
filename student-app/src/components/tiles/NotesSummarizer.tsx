@@ -8,13 +8,13 @@ const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function NotesSummarizer({ onClose }) {
   const [text, setText]       = useState('');
-  const [bullets, setBullets] = useState<string[]>([]);
+  const [summary, setSummary] = useState('');
   const [title, setTitle]     = useState('');
   const [notes, setNotes]     = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved]     = useState(false);
   const [tab, setTab]         = useState('summarize'); // 'summarize' | 'saved'
-  const textRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchNotes = async () => {
     try {
@@ -26,38 +26,50 @@ export default function NotesSummarizer({ onClose }) {
   const summarize = async () => {
     if (!text.trim()) return;
     setLoading(true);
-    setBullets([]);
+    setSummary('');
     setSaved(false);
     try {
-      // Free Pollinations AI Endpoint
       const res = await axios.post('https://text.pollinations.ai/', {
         messages: [
-          { role: 'system', content: 'You are an expert summarizer. Extract exactly 3 to 5 concise bullet points from the provided text. Return ONLY the bullet points, each on a new line starting with a dash (-). Do not include any intro or outro text.' },
+          { role: 'system', content: 'You are an expert tutor. Analyze the provided text and generate a comprehensive, step-by-step summary of the core concepts. Use Markdown format with clear headers, actionable bullet points, and numbered steps. Do not include introductory or concluding conversational filler.' },
           { role: 'user', content: text }
         ]
       }, {
         headers: { 'Content-Type': 'application/json' }
       });
       
-      const resultText = res.data;
-      const bulletList = resultText.split('\n')
-        .map(line => line.replace(/^[-*•]\s*/, '').trim())
-        .filter(line => line.length > 0);
-
-      setBullets(bulletList.length ? bulletList : ['⚠ No bullets generated.']);
-      if (bulletList.length > 0 && !bulletList[0].startsWith('⚠')) {
-        addScore('notes_summarized');
-      }
+      setSummary(res.data);
+      addScore('notes_summarized');
     } catch {
-      setBullets(['⚠ Could not connect to AI service. Please try again.']);
+      setSummary('⚠ Could not connect to AI service. Please try again.');
     }
     setLoading(false);
   };
 
-  const saveNote = async () => {
-    if (!bullets.length || saved) return;
+  const uploadPdf = async (e: any) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLoading(true);
+    setSummary('');
+    setSaved(false);
     try {
-      const res = await axios.post(`${API}/api/notes`, { title: title || 'My Note', content: text, bullets });
+      const formData = new FormData();
+      formData.append('pdf', file);
+      const res = await axios.post(`${API}/api/notes/summarize-pdf`, formData);
+      setSummary(res.data.result);
+      addScore('notes_summarized');
+    } catch {
+      setSummary('⚠ Failed to summarize PDF. Make sure the backend is running and the PDF is text-based.');
+    }
+    setLoading(false);
+    // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const saveNote = async () => {
+    if (!summary || saved) return;
+    try {
+      const res = await axios.post(`${API}/api/notes`, { title: title || 'My Note', content: text, bullets: [summary] });
       setSaved(true);
       setNotes(prev => [res.data, ...prev]);
       setTitle('');
@@ -148,13 +160,12 @@ export default function NotesSummarizer({ onClose }) {
                   minHeight: 360,
                 }}
               >
-                <div style={{ padding: '1rem', borderRight: '1px solid rgba(214,174,110,0.25)', backgroundImage: ruledPaper, backgroundSize: '100% 29px' }}>
-                  <p className="text-xs font-semibold mb-2" style={{ color: '#7f5c2c', letterSpacing: '0.06em' }}>SOURCE PAGE</p>
+                <div style={{ padding: '1rem', borderRight: '1px solid rgba(214,174,110,0.25)', backgroundImage: ruledPaper, backgroundSize: '100% 29px', display: 'flex', flexDirection: 'column' }}>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#7f5c2c', letterSpacing: '0.06em' }}>SOURCE MATERIAL</p>
                   <textarea
-                    ref={textRef}
-                    className="input-glass mb-3"
+                    className="input-glass mb-3 flex-1"
                     style={{
-                      minHeight: 230,
+                      minHeight: 180,
                       resize: 'vertical',
                       lineHeight: 1.7,
                       background: 'rgba(255,255,255,0.5)',
@@ -165,43 +176,41 @@ export default function NotesSummarizer({ onClose }) {
                     value={text}
                     onChange={e => setText(e.target.value)}
                   />
-                  <button onClick={summarize} className="btn-primary w-full flex items-center justify-center gap-2" disabled={loading}>
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                    {loading ? 'Summarizing...' : 'Generate Bullet Points'}
-                  </button>
+                  <div className="flex gap-2 mb-3">
+                    <button onClick={summarize} className="btn-primary flex-1 flex items-center justify-center gap-2" disabled={loading}>
+                      {loading && !fileInputRef.current?.value ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                      Summarize Text
+                    </button>
+                    <label className="btn-glass flex items-center justify-center gap-2 px-4 cursor-pointer" style={{ background: 'rgba(255,255,255,0.6)', color: '#3d2f1f', border: '1px solid rgba(174,132,66,0.35)' }}>
+                      <FileText size={16} />
+                      {loading && fileInputRef.current?.value ? 'Uploading...' : 'Upload PDF'}
+                      <input type="file" accept="application/pdf" className="hidden" ref={fileInputRef} onChange={uploadPdf} disabled={loading} />
+                    </label>
+                  </div>
                 </div>
 
-                <div style={{ padding: '1rem', borderLeft: '1px solid rgba(214,174,110,0.2)', backgroundImage: ruledPaper, backgroundSize: '100% 29px' }}>
-                  <p className="text-xs font-semibold mb-2" style={{ color: '#7f5c2c', letterSpacing: '0.06em' }}>SUMMARY PAGE</p>
+                <div style={{ padding: '1rem', borderLeft: '1px solid rgba(214,174,110,0.2)', backgroundImage: ruledPaper, backgroundSize: '100% 29px', display: 'flex', flexDirection: 'column' }}>
+                  <p className="text-xs font-semibold mb-2" style={{ color: '#7f5c2c', letterSpacing: '0.06em' }}>STEP-BY-STEP SUMMARY</p>
                   <div
                     style={{
+                      flex: 1,
                       minHeight: 230,
+                      maxHeight: 350,
+                      overflowY: 'auto',
                       borderRadius: 12,
                       padding: '0.9rem',
                       background: 'rgba(255,255,255,0.45)',
                       border: '1px solid rgba(174,132,66,0.28)',
                     }}
                   >
-                    {bullets.length === 0 ? (
+                    {!summary ? (
                       <p style={{ color: 'rgba(61,47,31,0.7)', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                        Your extracted points will appear here like notes written on the right page.
+                        Your step-by-step notes will appear here.
                       </p>
                     ) : (
-                      <ul className="space-y-2">
-                        {bullets.map((b, i) => (
-                          <motion.li
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.07 }}
-                            className="flex items-start gap-2 text-sm"
-                            style={{ color: '#3d2f1f' }}
-                          >
-                            <span style={{ color: '#6c63ff', flexShrink: 0, marginTop: 2 }}>▸</span>
-                            {b}
-                          </motion.li>
-                        ))}
-                      </ul>
+                      <div className="text-sm" style={{ color: '#3d2f1f', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                        {summary}
+                      </div>
                     )}
                   </div>
                   <div className="flex gap-2 mt-3">

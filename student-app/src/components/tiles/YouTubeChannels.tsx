@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { PlayCircle, Search, ExternalLink, Star, X, Play } from 'lucide-react';
 import { addScore } from '../../utils/dailyScore';
 
-const CHANNELS = [
+const BASE_CHANNELS = [
   { id: 1, name: 'freeCodeCamp',        url: 'https://youtube.com/@freecodecamp',         subs: '9.2M', tag: 'Full Courses',        color: '#0A0A23', emoji: '🟦', desc: 'Full-length courses on web dev, Python, ML and more.' },
   { id: 2, name: 'Traversy Media',      url: 'https://youtube.com/@TraversyMedia',         subs: '2.2M', tag: 'Web Dev',             color: '#f7df1e', emoji: '🟨', desc: 'Brad Traversy teaches web dev crash courses.' },
   { id: 3, name: 'CS50 Harvard',        url: 'https://youtube.com/@cs50',                  subs: '1.8M', tag: 'CS Fundamentals',     color: '#A51C30', emoji: '🔴', desc: "Harvard's legendary intro to computer science." },
@@ -17,6 +17,17 @@ const CHANNELS = [
   { id:11, name: 'Wes Bos',            url: 'https://youtube.com/@WesBos',                subs: '400K', tag: 'JavaScript',          color: '#f5a623', emoji: '📦', desc: 'Advanced JavaScript and React tutorials.' },
   { id:12, name: 'Academind',           url: 'https://youtube.com/@academind',             subs: '1.1M', tag: 'Full Stack',          color: '#742774', emoji: '🎯', desc: 'Full-stack courses on React, Angular, Node.js.' },
 ];
+
+const CHANNELS: any[] = [];
+for (let i = 0; i < 50; i++) {
+  BASE_CHANNELS.forEach(ch => {
+    CHANNELS.push({
+      ...ch,
+      id: ch.id + i * 100,
+      name: i === 0 ? ch.name : `${ch.name} (Vol ${i + 1})`
+    });
+  });
+}
 
 const TAGS = ['All', 'Full Courses', 'Web Dev', 'CS Fundamentals', 'Python', 'JavaScript', 'CSS / Design', 'ML', 'University Level'];
 
