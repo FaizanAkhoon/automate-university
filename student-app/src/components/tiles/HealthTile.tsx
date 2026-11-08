@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Droplets, Moon, Smile, Footprints, X, TrendingUp, Activity } from 'lucide-react';
+import { Heart, Droplets, Moon, Smile, Footprints, X, TrendingUp, Activity, Plus, Minus } from 'lucide-react';
 import axios from 'axios';
-import { startStepCounter, getSteps, checkSleepStatus, getWaterCount } from '../../utils/healthTracker';
+import { startStepCounter, getSteps, checkSleepStatus, getWaterCount, addWater, removeWater } from '../../utils/healthTracker';
 import { addScore } from '../../utils/dailyScore';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -194,6 +194,17 @@ export default function HealthTile({ onClose }) {
     return () => clearInterval(interval);
   }, []);
 
+  const handleAddGlass = () => {
+    const updated = addWater();
+    setWaterCount(updated);
+    addScore('water_logged');
+  };
+
+  const handleRemoveGlass = () => {
+    const updated = removeWater();
+    setWaterCount(updated);
+  };
+
   const saveToday = async () => {
     try {
       await axios.post(`${API}/api/health`, {
@@ -334,31 +345,62 @@ export default function HealthTile({ onClose }) {
                 <SleepCard sleepData={sleepData} />
               </div>
 
-              {/* Water Intake - read only summary */}
+              {/* Water Intake - manual self-paced tracker */}
               <div className="glass rounded-xl p-4 mb-3">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <Droplets size={16} color="#3b82f6" />
+                  <Droplets size={16} color="#38bdf8" />
                   <span className="text-sm font-semibold text-white">Water Intake</span>
-                  <span className="ml-auto text-sm font-bold" style={{ color: '#3b82f6' }}>{waterCount} / {WATER_GOAL} glasses</span>
+                  <span className="ml-auto text-sm font-bold" style={{ color: '#38bdf8' }}>{waterCount} / {WATER_GOAL} glasses</span>
                 </div>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap items-center">
                   {Array.from({ length: WATER_GOAL }, (_, i) => (
-                    <div
+                    <button
                       key={i}
-                      className="w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center"
+                      type="button"
+                      onClick={() => {
+                        if (waterCount > i) {
+                          handleRemoveGlass();
+                        } else {
+                          handleAddGlass();
+                        }
+                      }}
+                      className="w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all cursor-pointer"
+                      title={waterCount > i ? "Click to undo glass" : "Click to log glass"}
                       style={{
-                        background: waterCount > i ? '#3b82f6' : 'rgba(255,255,255,0.06)',
-                        color: waterCount > i ? 'white' : 'rgba(255,255,255,0.15)',
-                        boxShadow: waterCount > i ? '0 0 8px rgba(59,130,246,0.5)' : 'none',
-                        transition: 'all 0.3s ease',
+                        background: waterCount > i ? 'linear-gradient(135deg, #00f5d4, #38bdf8)' : 'rgba(255,255,255,0.06)',
+                        color: waterCount > i ? '#0a0a14' : 'rgba(255,255,255,0.2)',
+                        boxShadow: waterCount > i ? '0 0 12px rgba(0,245,212,0.6)' : 'none',
+                        border: waterCount > i ? '1px solid rgba(255,255,255,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                        transform: waterCount > i ? 'scale(1.05)' : 'scale(1)',
                       }}
                     >
                       💧
-                    </div>
+                    </button>
                   ))}
+                  <div className="flex gap-1 ml-auto">
+                    <button
+                      type="button"
+                      onClick={handleAddGlass}
+                      className="btn-ghost"
+                      style={{ padding: '0.3rem 0.65rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4, color: '#38bdf8', borderColor: 'rgba(56,189,248,0.35)', background: 'rgba(56,189,248,0.1)' }}
+                    >
+                      <Plus size={12} /> Glass
+                    </button>
+                    {waterCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveGlass}
+                        className="btn-ghost"
+                        style={{ padding: '0.3rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', color: 'rgba(255,255,255,0.4)' }}
+                        title="Undo glass"
+                      >
+                        <Minus size={12} />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                  Water reminders appear hourly. Confirm via popups to log intake.
+                <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>✨</span> Log hydration at your own pace · Water reminders disabled
                 </p>
               </div>
 

@@ -5,14 +5,18 @@
 @tailwind utilities;
 
 :root {
-  --bg: #05050a;
-  --violet: #6c63ff;
-  --purple: #a855f7;
+  --bg: #070711;
+  --violet: #8b5cf6;
+  --purple: #c084fc;
   --cyan: #00f5d4;
-  --glass: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.005));
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glow-violet: rgba(108, 99, 255, 0.5);
-  --glow-cyan: rgba(0, 245, 212, 0.5);
+  --magenta: #ff007f;
+  --lime: #10e8aa;
+  --coral: #ff6b4a;
+  --glass: linear-gradient(135deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.015));
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glow-violet: rgba(139, 92, 246, 0.55);
+  --glow-cyan: rgba(0, 245, 212, 0.55);
+  --glow-magenta: rgba(255, 0, 127, 0.5);
 }
 
 * {
@@ -27,49 +31,61 @@ html {
 
 body {
   background-color: var(--bg);
-  color: #e2e8f0;
+  color: #f1f5f9;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
   min-height: 100vh;
+  position: relative;
 }
 
-/* Starfield background */
+/* Starfield & Cyber-Grid Matrix background */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.15) 0%, transparent 100%),
-    radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 20% 90%, rgba(255,255,255,0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 100%),
-    radial-gradient(2px 2px at 60% 50%, rgba(108,99,255,0.2) 0%, transparent 100%),
-    radial-gradient(2px 2px at 40% 30%, rgba(168,85,247,0.15) 0%, transparent 100%);
+    /* Fine subtle cyber grid */
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    /* Chromatic neon stardust particles */
+    radial-gradient(1.5px 1.5px at 10% 20%, rgba(0, 245, 212, 0.75) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 30% 60%, rgba(139, 92, 246, 0.7) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 10%, rgba(255, 0, 127, 0.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 70% 80%, rgba(0, 245, 212, 0.65) 0%, transparent 100%),
+    radial-gradient(2px 2px at 90% 40%, rgba(255, 107, 74, 0.65) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 20% 90%, rgba(192, 132, 252, 0.7) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 80% 20%, rgba(16, 232, 170, 0.6) 0%, transparent 100%),
+    radial-gradient(2px 2px at 60% 50%, rgba(139, 92, 246, 0.7) 0%, transparent 100%),
+    radial-gradient(2px 2px at 40% 30%, rgba(255, 0, 127, 0.65) 0%, transparent 100%);
+  background-size: 38px 38px, 38px 38px, auto, auto, auto, auto, auto, auto, auto, auto, auto;
+  mask-image: radial-gradient(ellipse 95% 85% at 50% 45%, black 45%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse 95% 85% at 50% 45%, black 45%, transparent 95%);
   pointer-events: none;
   z-index: 0;
 }
 
+/* Living Gen Z Aurora Mesh Glow */
 body::after {
   content: '';
   position: fixed;
-  inset: 0;
+  inset: -15%;
   background: 
-    radial-gradient(circle at 15% 50%, rgba(108, 99, 255, 0.15), transparent 50%),
-    radial-gradient(circle at 85% 30%, rgba(168, 85, 247, 0.15), transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(0, 245, 212, 0.1), transparent 50%);
+    radial-gradient(circle at 18% 25%, rgba(124, 58, 237, 0.28) 0%, transparent 45%),
+    radial-gradient(circle at 82% 28%, rgba(0, 245, 212, 0.24) 0%, transparent 48%),
+    radial-gradient(circle at 50% 75%, rgba(255, 0, 127, 0.22) 0%, transparent 50%),
+    radial-gradient(circle at 15% 80%, rgba(16, 232, 170, 0.16) 0%, transparent 42%),
+    radial-gradient(circle at 88% 78%, rgba(255, 107, 74, 0.18) 0%, transparent 45%);
+  filter: blur(65px);
   pointer-events: none;
   z-index: -1;
-  animation: bg-pulse 15s ease-in-out infinite alternate;
+  animation: genz-aurora-drift 20s ease-in-out infinite alternate;
 }
 
-@keyframes bg-pulse {
-  0% { transform: scale(1) translate(0px, 0px); opacity: 0.7; }
-  33% { transform: scale(1.05) translate(2%, 2%); opacity: 1; }
-  66% { transform: scale(1.02) translate(-2%, 1%); opacity: 0.9; }
-  100% { transform: scale(1) translate(0px, 0px); opacity: 0.7; }
+@keyframes genz-aurora-drift {
+  0% { transform: scale(1) translate(0px, 0px) rotate(0deg); opacity: 0.85; }
+  33% { transform: scale(1.06) translate(2%, 3%) rotate(2deg); opacity: 1; }
+  66% { transform: scale(1.03) translate(-3%, 1%) rotate(-2deg); opacity: 0.9; }
+  100% { transform: scale(1.07) translate(1%, -2%) rotate(1deg); opacity: 0.95; }
 }
 
 #root {
@@ -83,20 +99,20 @@ body::after {
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.15);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .glass-strong {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.025));
+  border: 1px solid rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
-  box-shadow: 0 15px 50px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.65), inset 0 1px 1px rgba(255,255,255,0.25);
 }
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #6c63ff, #a855f7, #00f5d4);
+  background: linear-gradient(135deg, #00f5d4 0%, #c084fc 45%, #ff007f 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -162,10 +178,10 @@ body::after {
   overflow-y: auto;
   border-radius: 1.5rem;
   padding: 2rem;
-  background: rgba(15, 15, 30, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(14, 12, 26, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(40px);
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(108, 99, 255, 0.15);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7), 0 0 50px rgba(139, 92, 246, 0.18);
 }
 
 /* Input styles */
@@ -183,35 +199,36 @@ body::after {
 }
 
 .input-glass:focus {
-  border-color: rgba(108, 99, 255, 0.6);
-  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+  border-color: rgba(139, 92, 246, 0.7);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
 }
 
 .input-glass::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.35);
 }
 
 /* Button styles */
 .btn-primary {
-  background: linear-gradient(135deg, #6c63ff, #a855f7);
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
   border: none;
   border-radius: 0.75rem;
   padding: 0.75rem 1.5rem;
   color: white;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: 'Inter', sans-serif;
   font-size: 0.9rem;
+  letter-spacing: 0.02em;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(108, 99, 255, 0.4);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(139, 92, 246, 0.45), 0 0 20px rgba(236, 72, 153, 0.35);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-ghost {
@@ -260,68 +277,78 @@ body::after {
   color: white;
 }
 
-/* Rich Pastel Pink / Rose Gold Theme */
+/* ─── GEN Z Y2K CYBER-POP / HYPERPOP THEME ───────────────────────── */
 body.theme-pink {
-  --bg: #fff0f5;
-  color: #6d5b65;
+  --bg: #fbf5fe;
+  color: #24142f;
 }
 body.theme-pink::before {
   background-image: 
-    radial-gradient(circle at 10% 10%, rgba(255,255,255,1) 0%, transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(255,105,180,0.5) 0%, transparent 50%),
-    linear-gradient(135deg, #fdfbfb 0%, #ffe4e1 40%, #ffb6c1 100%);
+    /* Y2K Holographic micro-grid */
+    linear-gradient(rgba(236, 72, 153, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(236, 72, 153, 0.07) 1px, transparent 1px),
+    /* Holographic stardust */
+    radial-gradient(1.5px 1.5px at 15% 25%, rgba(255, 0, 127, 0.75) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 35%, rgba(0, 245, 212, 0.75) 0%, transparent 100%),
+    radial-gradient(2px 2px at 45% 75%, rgba(139, 92, 246, 0.7) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 70% 85%, rgba(255, 107, 74, 0.65) 0%, transparent 100%),
+    linear-gradient(135deg, #fdf8ff 0%, #fbe8f7 40%, #f6defb 100%);
+  background-size: 38px 38px, 38px 38px, auto, auto, auto, auto, auto;
   opacity: 1;
 }
 body.theme-pink::after {
   content: '';
   position: fixed;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 60px,
-    rgba(255, 182, 193, 0.2) 60px,
-    rgba(255, 182, 193, 0.2) 61px
-  );
+  inset: -15%;
+  background: 
+    radial-gradient(circle at 15% 30%, rgba(255, 20, 147, 0.24) 0%, transparent 45%),
+    radial-gradient(circle at 85% 25%, rgba(0, 245, 212, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 50% 75%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 154, 162, 0.22) 0%, transparent 45%),
+    radial-gradient(circle at 20% 80%, rgba(45, 212, 191, 0.18) 0%, transparent 42%);
+  filter: blur(60px);
   pointer-events: none;
   z-index: -1;
+  animation: genz-aurora-drift 20s ease-in-out infinite alternate;
 }
 body.theme-pink .text-white {
-  color: #5c454f !important;
+  color: #24142f !important;
 }
 body.theme-pink .gradient-text {
-  background: linear-gradient(135deg, #d4af37, #ff9a9e, #fecfef);
+  background: linear-gradient(135deg, #ff007f 0%, #8b5cf6 50%, #00c4cc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 body.theme-pink .glass {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05));
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.4));
+  border: 1px solid rgba(255, 105, 180, 0.35);
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  box-shadow: 0 15px 50px rgba(255, 182, 193, 0.3), inset 0 1px 2px rgba(255,255,255,0.8);
+  box-shadow: 0 15px 45px rgba(255, 105, 180, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.9);
 }
 
 body.theme-pink .btn-3d-glass {
-  background: linear-gradient(135deg, rgba(255, 105, 180, 0.15), rgba(255, 105, 180, 0.02));
-  border-color: rgba(255, 182, 193, 0.4);
-  border-top-color: rgba(255, 182, 193, 0.6);
-  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-  color: #ff1493;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.45));
+  border-color: rgba(255, 105, 180, 0.4);
+  border-top-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 15px rgba(255, 20, 147, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.85);
+  color: #ff007f;
 }
 body.theme-pink .btn-3d-glass:hover {
-  background: linear-gradient(135deg, rgba(255, 105, 180, 0.25), rgba(255, 105, 180, 0.05));
-  box-shadow: 0 8px 25px rgba(255, 105, 180, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.65));
+  box-shadow: 0 8px 25px rgba(255, 20, 147, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+  color: #ff007f;
 }
 
 body.theme-pink .btn-ghost {
-  border-color: rgba(255,117,140, 0.4);
-  color: #e05e7b;
-  background: rgba(255,255,255,0.2);
+  border-color: rgba(255, 105, 180, 0.35);
+  color: #ff007f;
+  background: rgba(255, 255, 255, 0.5);
 }
 body.theme-pink .btn-ghost:hover {
-  background: rgba(255,117,140, 0.15);
+  background: rgba(255, 105, 180, 0.18);
+  color: #d6006c;
 }
 
 /* Drain transition: glass structure smoothly reveals dark theme as pink water drains */

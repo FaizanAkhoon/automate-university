@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Mail, X, Moon, Sun, Headphones, LogOut, AlertTriangle, Droplets, Check } from 'lucide-react';
-import {
-  recordActivity, getMissedWaterReminders, addWater, ackWater,
-  requestNotificationPermission, sendWaterNotification
-} from './utils/healthTracker';
+import { Mail, X, Moon, Sun, Headphones, LogOut, AlertTriangle } from 'lucide-react';
+import { recordActivity } from './utils/healthTracker';
 import { getDailyScore, addScore, checkDayEnd, awardLoginBonus } from './utils/dailyScore';
 import { playNormalClick } from './utils/sound';
 import KineticChain from './components/KineticChain';
@@ -28,18 +25,18 @@ import {
 
 function AxiomLogo({ theme }) {
   const isPink = theme === 'pink';
-  const color1 = isPink ? '#ff1493' : '#00f5d4';
-  const color2 = isPink ? '#ffb6c1' : '#6c63ff';
+  const color1 = isPink ? '#ff007f' : '#00f5d4';
+  const color2 = isPink ? '#c084fc' : '#8b5cf6';
 
   return (
     <>
       <style>{`
         @keyframes neonPulse {
           0%, 100% {
-            filter: drop-shadow(0 0 4px ${color1}44) drop-shadow(0 0 8px ${color1}22);
+            filter: drop-shadow(0 0 5px ${color1}66) drop-shadow(0 0 10px ${color1}33);
           }
           50% {
-            filter: drop-shadow(0 0 12px ${color1}aa) drop-shadow(0 0 24px ${color1}66) drop-shadow(0 0 40px ${color2}33);
+            filter: drop-shadow(0 0 16px ${color1}cc) drop-shadow(0 0 30px ${color1}88) drop-shadow(0 0 45px ${color2}44);
           }
         }
       `}</style>
@@ -106,11 +103,11 @@ const ThemeTransitionOverlay = ({ fromTheme }) => {
 
         // Band shows the OLD theme color — this is what gets wiped away
         const bandBg = wasPink
-          ? `hsl(${340 + i * 4}, ${85 + i * 2}%, ${92 - i * 2}%)`
-          : '#05050a';
+          ? `hsl(${330 + i * 5}, ${85 + i * 2}%, ${94 - i * 2}%)`
+          : '#070711';
 
         // Icon styled for the NEW theme (what's being revealed)
-        const iconColor = wasPink ? '#00f5d4' : '#ff1493';
+        const iconColor = wasPink ? '#00f5d4' : '#ff007f';
         const iconBg = wasPink
           ? 'rgba(15,15,30,0.95)'
           : 'rgba(255,255,255,0.95)';
@@ -528,14 +525,11 @@ export default function App() {
   const [studentDept, setStudentDept] = useState('');
   const [showInbox, setShowInbox] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
-  const [waterQueue, setWaterQueue] = useState<any[]>([]);
-  const [waterPopupIndex, setWaterPopupIndex] = useState(-1); // -1 = no popup
   const [showCommunity, setShowCommunity] = useState(false);
   const [lastReadId, setLastReadId] = useState(localStorage.getItem('lastReadMessageId') || null);
   const [dailyScore, setDailyScore] = useState(0);
   const [quoteData, setQuoteData] = useState({ visible: false, text: '' });
   const [sosStatus, setSosStatus] = useState('idle'); // 'idle' | 'locating' | 'sending' | 'sent' | 'error'
-  const waterTimerRef = useRef<any>(null);
   const launchTimerRef = useRef<any>(null);
   const [loadingTransition, setLoadingTransition] = useState<any>(null);
 
@@ -578,7 +572,6 @@ export default function App() {
   useEffect(() => {
     if (!isAuthenticated) return;
     recordActivity();
-    requestNotificationPermission();
 
     // Award login bonus and load today's score
     awardLoginBonus();
@@ -597,31 +590,6 @@ export default function App() {
     return () => {
       window.removeEventListener('focus', onFocus);
       clearInterval(scoreInterval);
-    };
-  }, [isAuthenticated]);
-
-  // ── Water reminder: check missed hours on mount + hourly live timer ────────
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    // Check for missed reminders from when app was closed
-    const missed = getMissedWaterReminders();
-    if (missed.length > 0) {
-      setWaterQueue(missed);
-      setWaterPopupIndex(0);
-      ackWater(); // reset the ack timer from now
-    }
-
-    // Live hourly timer while app is open
-    waterTimerRef.current = setInterval(() => {
-      setWaterQueue([{ hour: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }]);
-      setWaterPopupIndex(0);
-      ackWater();
-      sendWaterNotification();
-    }, 60 * 60 * 1000);
-
-    return () => {
-      if (waterTimerRef.current) clearInterval(waterTimerRef.current);
     };
   }, [isAuthenticated]);
 
@@ -888,12 +856,13 @@ export default function App() {
             top: '1rem',
             left: 'max(1rem, env(safe-area-inset-left))',
             display: 'flex', alignItems: 'center', gap: 6,
-            background: theme === 'pink' ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            padding: '0.4rem 0.8rem',
+            background: theme === 'pink' ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.06)',
+            border: theme === 'pink' ? '1px solid rgba(255,20,147,0.35)' : '1px solid rgba(255,255,255,0.12)',
+            padding: '0.4rem 0.85rem',
             borderRadius: '1rem',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            boxShadow: theme === 'pink' ? '0 4px 18px rgba(255,20,147,0.18)' : '0 4px 20px rgba(0,0,0,0.4)',
             zIndex: 5,
           }}
         >
@@ -902,25 +871,29 @@ export default function App() {
             fontSize: '0.9rem',
             fontWeight: 800,
             color: dailyScore >= 0
-              ? (theme === 'pink' ? '#ff1493' : '#00f5d4')
+              ? (theme === 'pink' ? '#ff007f' : '#00f5d4')
               : '#ef4444',
             textShadow: dailyScore >= 0
-              ? (theme === 'pink' ? '0 0 8px rgba(255,20,147,0.4)' : '0 0 8px rgba(0,245,212,0.4)')
-              : '0 0 8px rgba(239,68,68,0.4)',
+              ? (theme === 'pink' ? '0 0 10px rgba(255,0,127,0.5)' : '0 0 10px rgba(0,245,212,0.5)')
+              : '0 0 10px rgba(239,68,68,0.5)',
             letterSpacing: '0.02em',
           }}>
             {dailyScore >= 0 ? '+' : ''}{dailyScore}
           </span>
-          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>XP</span>
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.65rem', color: theme === 'pink' ? 'rgba(36,20,47,0.5)' : 'rgba(255,255,255,0.45)', fontWeight: 800, letterSpacing: '0.05em' }}>XP</span>
         </motion.div>
 
-        {/* Ambient glow */}
+        {/* Gen Z Ambient Aurora Glow */}
         <div style={{
           position: 'absolute',
           top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 500, height: 300,
-          background: 'radial-gradient(ellipse, rgba(108,99,255,0.12) 0%, transparent 70%)',
+          width: 'clamp(360px, 80vw, 750px)',
+          height: 340,
+          background: theme === 'pink'
+            ? 'radial-gradient(ellipse at 35% 45%, rgba(255,0,127,0.18) 0%, transparent 60%), radial-gradient(ellipse at 65% 55%, rgba(0,245,212,0.15) 0%, transparent 60%), radial-gradient(ellipse at 50% 50%, rgba(139,92,246,0.16) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse at 30% 40%, rgba(139,92,246,0.22) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(0,245,212,0.18) 0%, transparent 60%), radial-gradient(ellipse at 50% 50%, rgba(255,0,127,0.14) 0%, transparent 70%)',
+          filter: 'blur(50px)',
           pointerEvents: 'none',
         }} />
 
@@ -930,8 +903,8 @@ export default function App() {
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
         >
-          <p className="text-sm font-semibold mb-2" style={{ color: '#6c63ff', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            {studentName ? studentName : 'WELCOME BACK'}
+          <p className="text-sm font-semibold mb-2" style={{ color: theme === 'pink' ? '#ff007f' : '#00f5d4', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+            {studentName ? studentName : '⚡ WELCOME BACK'}
           </p>
           <h2 className="gradient-text font-black" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, marginBottom: '0.75rem' }}>
             Your Smart<br />Learning Dashboard
@@ -1056,100 +1029,6 @@ export default function App() {
             studentName={studentName}
             studentDept={studentDept}
           />
-        )}
-        {waterPopupIndex >= 0 && waterPopupIndex < waterQueue.length && (
-          <motion.div
-            key={`water-popup-${waterPopupIndex}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed', inset: 0, zIndex: 2000,
-              background: 'rgba(0,0,0,0.7)',
-              backdropFilter: 'blur(16px)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-          >
-            <motion.div
-              key={waterPopupIndex}
-              initial={{ scale: 0.7, y: 40 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.7, y: 40 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              onClick={e => e.stopPropagation()}
-              style={{
-                background: 'linear-gradient(135deg, rgba(15,15,40,0.98), rgba(10,10,30,0.98))',
-                border: '1px solid rgba(59,130,246,0.5)',
-                borderRadius: 24, padding: '2.5rem 2rem',
-                textAlign: 'center', maxWidth: 380, width: '90vw',
-                boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 60px rgba(59,130,246,0.2)'
-              }}
-            >
-              <motion.div
-                animate={{ y: [0, -8, 0], scale: [1, 1.1, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                style={{ fontSize: '3.5rem', marginBottom: '1rem', lineHeight: 1 }}
-              >
-                💧
-              </motion.div>
-              {waterQueue.length > 1 && (
-                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', fontWeight: 600, marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
-                  REMINDER {waterPopupIndex + 1} OF {waterQueue.length}
-                </p>
-              )}
-              <h2 style={{ color: '#3b82f6', fontWeight: 800, fontSize: '1.3rem', marginBottom: '0.5rem' }}>
-                Did you drink water?
-              </h2>
-              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                Around <strong style={{ color: '#60a5fa' }}>{waterQueue[waterPopupIndex]?.hour}</strong>, did you have a glass of water?
-              </p>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                <button
-                  onClick={() => {
-                    addWater();
-                    addScore('water_logged');
-                    setDailyScore(getDailyScore());
-                    if (waterPopupIndex + 1 < waterQueue.length) {
-                      setWaterPopupIndex(waterPopupIndex + 1);
-                    } else {
-                      setWaterPopupIndex(-1);
-                      setWaterQueue([]);
-                    }
-                  }}
-                  style={{
-                    background: 'linear-gradient(135deg, #10b981, #059669)',
-                    border: 'none', borderRadius: 14, padding: '0.75rem 1.8rem',
-                    color: 'white', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
-                    boxShadow: '0 0 20px rgba(16,185,129,0.4)',
-                    display: 'flex', alignItems: 'center', gap: 8
-                  }}
-                >
-                  <Check size={18} /> Yes
-                </button>
-                <button
-                  onClick={() => {
-                    addScore('water_missed');
-                    setDailyScore(getDailyScore());
-                    if (waterPopupIndex + 1 < waterQueue.length) {
-                      setWaterPopupIndex(waterPopupIndex + 1);
-                    } else {
-                      setWaterPopupIndex(-1);
-                      setWaterQueue([]);
-                    }
-                  }}
-                  style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.15)', borderRadius: 14,
-                    padding: '0.75rem 1.8rem',
-                    color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 8
-                  }}
-                >
-                  <X size={18} /> No
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
         )}
       </AnimatePresence>
         </>

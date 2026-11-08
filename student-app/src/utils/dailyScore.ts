@@ -29,7 +29,7 @@ export const ACTIVITY_POINTS = {
   app_login:              { points: +5,  label: 'Daily login bonus' },
 
   // Penalties (negative)
-  water_missed:           { points: -3,  label: 'Missed water reminder' },
+  water_missed:           { points: 0,   label: 'Water reminder (disabled)' },
   poor_sleep:             { points: -5,  label: 'Poor sleep detected' },
   no_study:               { points: -10, label: 'No study session today' },
   low_steps:              { points: -5,  label: 'Very few steps today' },

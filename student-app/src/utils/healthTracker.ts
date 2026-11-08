@@ -203,6 +203,15 @@ export function addWater() {
   return current + 1;
 }
 
+/** Decrement today's water count by 1 (minimum 0) */
+export function removeWater() {
+  resetIfNewDay();
+  const current = getWaterCount();
+  const next = Math.max(0, current - 1);
+  localStorage.setItem(STORAGE_KEYS.WATER_TODAY, String(next));
+  return next;
+}
+
 /** Get the timestamp of last water acknowledgment */
 export function getLastWaterAck() {
   return parseInt(localStorage.getItem(STORAGE_KEYS.WATER_LAST_ACK) || '0', 10);
@@ -214,55 +223,18 @@ export function ackWater() {
 }
 
 /**
- * Calculate how many water reminders were missed since last ack.
- * Returns an array of { hour: 'HH:MM', timestamp: number } for each missed hour.
+ * Water reminders are disabled. Returns empty array.
  */
 export function getMissedWaterReminders() {
-  const lastAck = getLastWaterAck();
-  if (!lastAck) {
-    // First time — set it to now, no missed reminders
-    ackWater();
-    return [];
-  }
-
-  const now = Date.now();
-  const hoursSinceAck = (now - lastAck) / (1000 * 60 * 60);
-
-  // Only create missed entries for full hours elapsed (min 1 hour)
-  const missedCount = Math.floor(hoursSinceAck);
-  if (missedCount < 1) return [];
-
-  const missed: Array<{ hour: string; timestamp: number }> = [];
-  for (let i = 1; i <= missedCount; i++) {
-    const missedTime = new Date(lastAck + i * 60 * 60 * 1000);
-    missed.push({
-      hour: missedTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
-      timestamp: missedTime.getTime(),
-    });
-  }
-
-  return missed;
+  return [];
 }
 
 /** Request browser notification permission */
 export function requestNotificationPermission() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
+  // Silent/inert
 }
 
-/** Send a browser notification for water reminder */
+/** Send a browser notification for water reminder (disabled) */
 export function sendWaterNotification() {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    try {
-      new Notification('💧 Time to Hydrate!', {
-        body: 'You\'ve been studying for an hour. Drink a glass of water!',
-        icon: '💧',
-        tag: 'water-reminder',
-        requireInteraction: false,
-      });
-    } catch (e) {
-      // Silent fail for environments that don't support Notification constructor
-    }
-  }
+  // Water reminders removed
 }

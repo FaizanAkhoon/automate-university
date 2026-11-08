@@ -6,12 +6,12 @@ import {
 import { playDropSound, playTileRevealSound } from '../utils/sound';
 
 const TILES = [
-  { id: 'notes', label: 'Note Summarizer', icon: BookOpen, color: '#6c63ff', glow: 'rgba(108,99,255,0.8)', reveal: 'book' },
-  { id: 'student', label: 'Student ID', icon: User, color: '#4f9cff', glow: 'rgba(79,156,255,0.85)', reveal: 'nodes' },
-  { id: 'health', label: 'Fitness', icon: Heart, color: '#ec4899', glow: 'rgba(236,72,153,0.8)', reveal: 'ripple' },
-  { id: 'youtube', label: 'Skill Upgrade', icon: PlayCircle, color: '#ef4444', glow: 'rgba(239,68,68,0.8)', reveal: 'lens' },
-  { id: 'timer', label: 'Pomodoro', icon: Timer, color: '#00f5d4', glow: 'rgba(0,245,212,0.8)', reveal: 'timeline' },
-  { id: 'csbook', label: 'Interests', icon: GraduationCap, color: '#f59e0b', glow: 'rgba(245,158,11,0.8)', reveal: 'circuit' },
+  { id: 'notes', label: 'Note Summarizer', icon: BookOpen, color: '#8b5cf6', glow: 'rgba(139,92,246,0.85)', reveal: 'book' },
+  { id: 'student', label: 'Student ID', icon: User, color: '#38bdf8', glow: 'rgba(56,189,248,0.85)', reveal: 'nodes' },
+  { id: 'health', label: 'Fitness', icon: Heart, color: '#ff007f', glow: 'rgba(255,0,127,0.85)', reveal: 'ripple' },
+  { id: 'youtube', label: 'Skill Upgrade', icon: PlayCircle, color: '#ff3366', glow: 'rgba(255,51,102,0.85)', reveal: 'lens' },
+  { id: 'timer', label: 'Pomodoro', icon: Timer, color: '#00f5d4', glow: 'rgba(0,245,212,0.85)', reveal: 'timeline' },
+  { id: 'csbook', label: 'Interests', icon: GraduationCap, color: '#fbbf24', glow: 'rgba(251,191,36,0.85)', reveal: 'circuit' },
 ];
 
 const MOTION_TOKENS = {
@@ -675,8 +675,8 @@ export default function KineticChain({ onSelect, theme, themeAnim }) {
               position: 'absolute', left: '50%', top: '50%',
               marginLeft: -60, marginTop: -60,
               width: 120, height: 120, borderRadius: '50%',
-              background: (isPink && themeAnim !== 'dark') ? 'radial-gradient(circle, rgba(255,105,180,0.3) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(108,99,255,0.2) 0%, transparent 70%)',
-              boxShadow: (isPink && themeAnim !== 'dark') ? '0 0 60px rgba(255,182,193,0.6), inset 0 0 40px rgba(255,105,180,0.6)' : '0 0 40px rgba(0,245,212,0.3), inset 0 0 30px rgba(108,99,255,0.5)',
+              background: (isPink && themeAnim !== 'dark') ? 'radial-gradient(circle, rgba(255,0,127,0.3) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)',
+              boxShadow: (isPink && themeAnim !== 'dark') ? '0 0 60px rgba(255,0,127,0.6), inset 0 0 40px rgba(255,105,180,0.6)' : '0 0 50px rgba(0,245,212,0.35), inset 0 0 30px rgba(139,92,246,0.6)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transform: 'translateZ(0px)',
               zIndex: 10000,
